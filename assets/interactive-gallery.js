@@ -21,5 +21,7 @@
   document.querySelector('#app').insertAdjacentHTML('beforeend', `<section class="theme-catalog" aria-labelledby="catalog-title"><div class="shell"><span class="eyebrow">Theme catalog</span><h2 id="catalog-title">Choose the visual language of your installer.</h2><p>Explore all 20 real SVG previews from the InstallerLab catalog. Community themes are free; PRO themes require licensing.</p><div class="catalog-toolbar" role="group" aria-label="Filter themes"><button class="active" data-filter="all">All · 20</button><button data-filter="community">Community · 8</button><button data-filter="pro">PRO · 12</button></div><div class="theme-grid">${tiles}</div></div></section>`);
   const silkLightPreview = document.querySelector('img[alt="Silk Light installer theme preview"]');
   if (silkLightPreview) silkLightPreview.src = 'assets/screenshots/silk-light.png';
+  const waveFlowPreview = document.querySelector('img[alt="Wave Flow installer theme preview"]');
+  if (waveFlowPreview) waveFlowPreview.src = 'assets/screenshots/wave-flow.png';
   document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => { const filter = button.dataset.filter; document.querySelectorAll('.theme-tile').forEach(tile => tile.hidden = filter !== 'all' && tile.dataset.tier !== filter); document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('active', item === button)); }));
 })();
