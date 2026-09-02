@@ -1,5 +1,9 @@
 (() => {
   if (document.body.dataset.page !== 'home') return;
+  document.querySelectorAll('[href^="/"], [src^="/"]').forEach(element => {
+    const attribute = element.hasAttribute('href') ? 'href' : 'src';
+    element.setAttribute(attribute, element.getAttribute(attribute).replace(/^\//, ''));
+  });
   const visual = document.querySelector('.hero .visual');
   if (visual) {
     visual.innerHTML = `<div class="app-switch" aria-label="InstallerLab appearance preview"><div class="app-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-shot="dark">Dark interface</button><button type="button" role="tab" aria-selected="false" data-shot="light">Light interface</button></div><img class="app-shot" src="assets/screenshots/app-dark.png" alt="InstallerLab application in dark interface"></div>`;
