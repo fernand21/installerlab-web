@@ -38,6 +38,8 @@
   if (graphitePreview) graphitePreview.src = 'assets/screenshots/graphite.png';
   const modernDarkPreview = document.querySelector('img[alt="Modern Dark installer theme preview"]');
   if (modernDarkPreview) modernDarkPreview.src = 'assets/screenshots/modern-dark.png';
+  const serenePreview = document.querySelector('img[alt="Serene installer theme preview"]');
+  if (serenePreview) serenePreview.src = 'assets/screenshots/serene.png';
   document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => { const filter = button.dataset.filter; document.querySelectorAll('.theme-tile').forEach(tile => tile.hidden = filter !== 'all' && tile.dataset.tier !== filter); document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('active', item === button)); }));
   document.querySelectorAll('.theme-tile').forEach(tile => { tile.tabIndex = 0; const open = () => { const image = tile.querySelector('img'); const title = tile.querySelector('strong').textContent; document.body.insertAdjacentHTML('beforeend', `<div class="theme-dialog" role="dialog" aria-modal="true" aria-label="${title} preview"><div class="theme-dialog-card"><button class="theme-dialog-close" aria-label="Close preview">×</button><img src="${image.src}" alt="${image.alt}"><h3>${title}</h3></div></div>`); const dialog = document.querySelector('.theme-dialog'); const close = () => dialog.remove(); dialog.querySelector('.theme-dialog-close').onclick = close; dialog.onclick = event => { if (event.target === dialog) close(); }; document.onkeydown = event => { if (event.key === 'Escape') close(); }; }; tile.onclick = open; tile.onkeydown = event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(); } }; });
 })();
