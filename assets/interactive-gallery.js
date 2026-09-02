@@ -1,17 +1,18 @@
 (() => {
   if (document.body.dataset.page !== 'home') return;
+  document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="assets/gallery-overrides.css">');
   document.querySelectorAll('[href^="/"], [src^="/"]').forEach(element => {
     const attribute = element.hasAttribute('href') ? 'href' : 'src';
     element.setAttribute(attribute, element.getAttribute(attribute).replace(/^\//, ''));
   });
   const visual = document.querySelector('.hero .visual');
   if (visual) {
-    visual.innerHTML = `<div class="app-switch" aria-label="InstallerLab appearance preview"><div class="app-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-shot="dark">Dark interface</button><button type="button" role="tab" aria-selected="false" data-shot="light">Light interface</button></div><img class="app-shot" src="assets/screenshots/app-dark.png" alt="InstallerLab application in dark interface"></div>`;
+    visual.innerHTML = `<div class="app-switch" aria-label="InstallerLab appearance preview"><div class="app-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-shot="dark">VS Dark · InstallerLab</button><button type="button" role="tab" aria-selected="false" data-shot="light">VS Light · InstallerLab</button></div><img class="app-shot" src="assets/screenshots/app-dark.png" alt="InstallerLab application — VS Dark theme"></div>`;
     const image = visual.querySelector('img');
     visual.querySelectorAll('[data-shot]').forEach(button => button.addEventListener('click', () => {
       const dark = button.dataset.shot === 'dark';
       image.src = `assets/screenshots/app-${dark ? 'dark' : 'light'}.png`;
-      image.alt = `InstallerLab application in ${dark ? 'dark' : 'light'} interface`;
+      image.alt = `InstallerLab application — ${dark ? 'VS Dark' : 'VS Light'} theme`;
       visual.querySelectorAll('[data-shot]').forEach(item => item.setAttribute('aria-selected', String(item === button)));
     }));
   }
@@ -26,4 +27,5 @@
   const aeroGlassPreview = document.querySelector('img[alt="Aero Glass installer theme preview"]');
   if (aeroGlassPreview) aeroGlassPreview.src = 'assets/screenshots/aero-glass.png';
   document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => { const filter = button.dataset.filter; document.querySelectorAll('.theme-tile').forEach(tile => tile.hidden = filter !== 'all' && tile.dataset.tier !== filter); document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('active', item === button)); }));
+  document.querySelectorAll('.theme-tile').forEach(tile => { tile.tabIndex = 0; const open = () => { const image = tile.querySelector('img'); const title = tile.querySelector('strong').textContent; document.body.insertAdjacentHTML('beforeend', `<div class="theme-dialog" role="dialog" aria-modal="true" aria-label="${title} preview"><div class="theme-dialog-card"><button class="theme-dialog-close" aria-label="Close preview">×</button><img src="${image.src}" alt="${image.alt}"><h3>${title}</h3></div></div>`); const dialog = document.querySelector('.theme-dialog'); const close = () => dialog.remove(); dialog.querySelector('.theme-dialog-close').onclick = close; dialog.onclick = event => { if (event.target === dialog) close(); }; document.onkeydown = event => { if (event.key === 'Escape') close(); }; }; tile.onclick = open; tile.onkeydown = event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(); } }; });
 })();
