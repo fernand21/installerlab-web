@@ -23,5 +23,7 @@
   if (silkLightPreview) silkLightPreview.src = 'assets/screenshots/silk-light.png';
   const waveFlowPreview = document.querySelector('img[alt="Wave Flow installer theme preview"]');
   if (waveFlowPreview) waveFlowPreview.src = 'assets/screenshots/wave-flow.png';
+  const aeroGlassPreview = document.querySelector('img[alt="Aero Glass installer theme preview"]');
+  if (aeroGlassPreview) aeroGlassPreview.src = 'assets/screenshots/aero-glass.png';
   document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => { const filter = button.dataset.filter; document.querySelectorAll('.theme-tile').forEach(tile => tile.hidden = filter !== 'all' && tile.dataset.tier !== filter); document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('active', item === button)); }));
 })();
