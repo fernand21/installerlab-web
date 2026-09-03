@@ -44,6 +44,8 @@
   if (surfacePreview) surfacePreview.src = 'assets/screenshots/surface.png';
   const blueprintPreview = document.querySelector('img[alt="Blueprint installer theme preview"]');
   if (blueprintPreview) blueprintPreview.src = 'assets/screenshots/blueprint.png';
+  const blueprintStudioPreview = document.querySelector('img[alt="Blueprint Studio installer theme preview"]');
+  if (blueprintStudioPreview) blueprintStudioPreview.src = 'assets/screenshots/blueprint-studio.png';
   const cosmicGlowPreview = document.querySelector('img[alt="Cosmic Glow installer theme preview"]');
   if (cosmicGlowPreview) cosmicGlowPreview.src = 'assets/screenshots/cosmic-glow.png';
   const geometricProPreview = document.querySelector('img[alt="Geometric Pro installer theme preview"]');
