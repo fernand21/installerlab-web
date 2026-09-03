@@ -60,6 +60,8 @@
   if (canvasLightPreview) canvasLightPreview.src = 'assets/screenshots/canvas-light.png';
   const focusLightPreview = document.querySelector('img[alt="Focus Light installer theme preview"]');
   if (focusLightPreview) focusLightPreview.src = 'assets/screenshots/focus-light.png';
+  const neonFlowPreview = document.querySelector('img[alt="Neon Flow installer theme preview"]');
+  if (neonFlowPreview) neonFlowPreview.src = 'assets/screenshots/neon-flow.png';
   const vividPreview = document.querySelector('img[alt="Vivid installer theme preview"]');
   if (vividPreview) vividPreview.src = 'assets/screenshots/vivid.png';
   document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => { const filter = button.dataset.filter; document.querySelectorAll('.theme-tile').forEach(tile => tile.hidden = filter !== 'all' && tile.dataset.tier !== filter); document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('active', item === button)); }));
