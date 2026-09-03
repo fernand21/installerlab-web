@@ -64,6 +64,8 @@
   if (neonFlowPreview) neonFlowPreview.src = 'assets/screenshots/neon-flow.png';
   const newFlowPreview = document.querySelector('img[alt="New Flow installer theme preview"]');
   if (newFlowPreview) newFlowPreview.src = 'assets/screenshots/new-flow.png';
+  const auroraProPreview = document.querySelector('img[alt="Aurora Pro installer theme preview"]');
+  if (auroraProPreview) auroraProPreview.src = 'assets/screenshots/aurora-pro.png';
   const vividPreview = document.querySelector('img[alt="Vivid installer theme preview"]');
   if (vividPreview) vividPreview.src = 'assets/screenshots/vivid.png';
   document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => { const filter = button.dataset.filter; document.querySelectorAll('.theme-tile').forEach(tile => tile.hidden = filter !== 'all' && tile.dataset.tier !== filter); document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('active', item === button)); }));
