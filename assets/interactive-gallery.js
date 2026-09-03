@@ -68,6 +68,8 @@
   if (auroraProPreview) auroraProPreview.src = 'assets/screenshots/aurora-pro.png';
   const glassProPreview = document.querySelector('img[alt="Glass Pro installer theme preview"]');
   if (glassProPreview) glassProPreview.src = 'assets/screenshots/glass-pro.png';
+  const midnightProPreview = document.querySelector('img[alt="Midnight Pro installer theme preview"]');
+  if (midnightProPreview) midnightProPreview.src = 'assets/screenshots/midnight-pro.png';
   const vividPreview = document.querySelector('img[alt="Vivid installer theme preview"]');
   if (vividPreview) vividPreview.src = 'assets/screenshots/vivid.png';
   document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => { const filter = button.dataset.filter; document.querySelectorAll('.theme-tile').forEach(tile => tile.hidden = filter !== 'all' && tile.dataset.tier !== filter); document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('active', item === button)); }));
