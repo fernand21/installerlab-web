@@ -54,6 +54,8 @@
   if (heroBannerPreview) heroBannerPreview.src = 'assets/screenshots/hero-banner.png';
   const paperLightPreview = document.querySelector('img[alt="Paper Light installer theme preview"]');
   if (paperLightPreview) paperLightPreview.src = 'assets/screenshots/paper-light.png';
+  const productDeliveryPreview = document.querySelector('img[alt="Product Delivery installer theme preview"]');
+  if (productDeliveryPreview) productDeliveryPreview.src = 'assets/screenshots/product-delivery.png';
   const sidebarWizardPreview = document.querySelector('img[alt="Sidebar Wizard installer theme preview"]');
   if (sidebarWizardPreview) sidebarWizardPreview.src = 'assets/screenshots/sidebar-wizard.png';
   const studioCardPreview = document.querySelector('img[alt="Studio Card installer theme preview"]');
