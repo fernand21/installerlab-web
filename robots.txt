@@ -1,2 +1,3 @@
 User-agent: *
 Allow: /
+Sitemap: https://fernand21.github.io/installerlab-web/sitemap.xml
