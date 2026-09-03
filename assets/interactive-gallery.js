@@ -76,6 +76,8 @@
   if (midnightProPreview) midnightProPreview.src = 'assets/screenshots/midnight-pro.png';
   const launchpadPreview = document.querySelector('img[alt="Launchpad installer theme preview"]');
   if (launchpadPreview) launchpadPreview.src = 'assets/screenshots/launchpad.png';
+  const orbitPreview = document.querySelector('img[alt="Orbit installer theme preview"]');
+  if (orbitPreview) orbitPreview.src = 'assets/screenshots/orbit.png';
   const softwareStagePreview = document.querySelector('img[alt="Software Stage installer theme preview"]');
   if (softwareStagePreview) softwareStagePreview.src = 'assets/screenshots/software-stage.png';
   const vividPreview = document.querySelector('img[alt="Vivid installer theme preview"]');
