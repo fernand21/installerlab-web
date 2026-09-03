@@ -66,12 +66,16 @@
   if (newFlowPreview) newFlowPreview.src = 'assets/screenshots/new-flow.png';
   const auroraProPreview = document.querySelector('img[alt="Aurora Pro installer theme preview"]');
   if (auroraProPreview) auroraProPreview.src = 'assets/screenshots/aurora-pro.png';
+  const auroraDaylightPreview = document.querySelector('img[alt="Aurora Daylight installer theme preview"]');
+  if (auroraDaylightPreview) auroraDaylightPreview.src = 'assets/screenshots/aurora-daylight.png';
   const glassProPreview = document.querySelector('img[alt="Glass Pro installer theme preview"]');
   if (glassProPreview) glassProPreview.src = 'assets/screenshots/glass-pro.png';
   const midnightProPreview = document.querySelector('img[alt="Midnight Pro installer theme preview"]');
   if (midnightProPreview) midnightProPreview.src = 'assets/screenshots/midnight-pro.png';
   const launchpadPreview = document.querySelector('img[alt="Launchpad installer theme preview"]');
   if (launchpadPreview) launchpadPreview.src = 'assets/screenshots/launchpad.png';
+  const softwareStagePreview = document.querySelector('img[alt="Software Stage installer theme preview"]');
+  if (softwareStagePreview) softwareStagePreview.src = 'assets/screenshots/software-stage.png';
   const vividPreview = document.querySelector('img[alt="Vivid installer theme preview"]');
   if (vividPreview) vividPreview.src = 'assets/screenshots/vivid.png';
   document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => { const filter = button.dataset.filter; document.querySelectorAll('.theme-tile').forEach(tile => tile.hidden = filter !== 'all' && tile.dataset.tier !== filter); document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('active', item === button)); }));
