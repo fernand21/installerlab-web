@@ -1,1 +1,0 @@
-Create the InstallerLab v1.0.0 draft GitHub Release. Binary assets will be uploaded manually by the project owner.
