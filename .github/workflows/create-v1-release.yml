@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - '.github/workflows/create-v1-release.yml'
+      - 'RELEASE_TRIGGER_v1.0.0.txt'
 
 permissions:
   contents: write
