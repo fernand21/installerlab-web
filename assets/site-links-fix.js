@@ -1,6 +1,7 @@
 (() => {
   const PAYPAL = 'https://paypal.me/OfficeRibbon';
   const SUPPORT_EMAIL = 'farevalo210@gmail.com';
+  const FORM_ENDPOINT = `https://formsubmit.co/${SUPPORT_EMAIL}`;
   const PROJECT_BASE = location.pathname.includes('/installerlab-web/') ? '/installerlab-web/' : '/';
   const INTERNAL = new Set(['features','docs','b4j','download','donate','faq','support','about','changelog']);
   let scheduled = false;
@@ -36,58 +37,31 @@
     }
   }
 
-  function buildActivationMail(form, es) {
-    const data = new FormData(form);
-    const value = name => String(data.get(name) || '').trim();
-    const subject = es ? 'Solicitud de activación PRO - InstallerLab' : 'InstallerLab PRO activation request';
-    const body = es
-      ? [
-          'Hola,',
-          '',
-          'Deseo solicitar la activación PRO de InstallerLab.',
-          '',
-          'Nombre: ' + value('name'),
-          'Correo de contacto: ' + value('email'),
-          'Machine Code: ' + value('machine'),
-          'Referencia / transacción PayPal: ' + (value('transaction') || 'No indicada'),
-          'Importe enviado: ' + (value('amount') || 'US$10 o más'),
-          '',
-          'Notas:',
-          value('notes') || 'Sin notas adicionales.',
-          '',
-          'IMPORTANTE: adjunto el comprobante de PayPal a este correo.',
-          'Entiendo que esta activación PRO corresponde a una sola máquina / un solo Machine Code.',
-          '',
-          'Gracias.'
-        ].join('\n')
-      : [
-          'Hello,',
-          '',
-          'I would like to request InstallerLab PRO activation.',
-          '',
-          'Name: ' + value('name'),
-          'Contact email: ' + value('email'),
-          'Machine Code: ' + value('machine'),
-          'PayPal transaction / reference: ' + (value('transaction') || 'Not provided'),
-          'Amount sent: ' + (value('amount') || 'US$10 or more'),
-          '',
-          'Notes:',
-          value('notes') || 'No additional notes.',
-          '',
-          'IMPORTANT: I am attaching the PayPal receipt to this email.',
-          'I understand this PRO activation is for one machine / one Machine Code only.',
-          '',
-          'Thank you.'
-        ].join('\n');
-    return { subject, body };
-  }
-
   function wireDonationForm(es) {
     const form = document.getElementById('activation-request-form');
     if (!form || form.dataset.wired === '1') return;
     form.dataset.wired = '1';
 
+    const file = document.getElementById('activation-receipt');
+    const status = document.getElementById('activation-form-status');
+    const send = document.getElementById('activation-send');
     const copy = document.getElementById('copy-support-email');
+
+    if (file) {
+      file.addEventListener('change', () => {
+        const selected = file.files && file.files[0];
+        if (!selected) return;
+        if (selected.size > 10 * 1024 * 1024) {
+          file.value = '';
+          if (status) status.textContent = es
+            ? 'El comprobante supera 10 MB. Selecciona un archivo más pequeño.'
+            : 'The receipt is larger than 10 MB. Please choose a smaller file.';
+        } else if (status) {
+          status.textContent = es ? `Comprobante seleccionado: ${selected.name}` : `Receipt selected: ${selected.name}`;
+        }
+      });
+    }
+
     if (copy) {
       copy.addEventListener('click', async () => {
         try {
@@ -100,19 +74,33 @@
       });
     }
 
-    form.addEventListener('submit', async e => {
-      e.preventDefault();
-      if (!form.reportValidity()) return;
-      const mail = buildActivationMail(form, es);
-      const status = document.getElementById('activation-form-status');
-      try { await navigator.clipboard.writeText(mail.body); } catch {}
-      if (status) {
-        status.textContent = es
-          ? 'Se abrirá tu aplicación de correo. Antes de enviarlo, adjunta el comprobante de PayPal.'
-          : 'Your email app will open. Before sending, attach your PayPal receipt.';
+    form.addEventListener('submit', e => {
+      if (!form.reportValidity()) {
+        e.preventDefault();
+        return;
       }
-      const href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(mail.subject)}&body=${encodeURIComponent(mail.body)}`;
-      setTimeout(() => { location.href = href; }, 120);
+      const selected = file && file.files && file.files[0];
+      if (!selected) {
+        e.preventDefault();
+        if (status) status.textContent = es
+          ? 'Adjunta el comprobante de PayPal antes de enviar la solicitud.'
+          : 'Attach the PayPal receipt before sending the request.';
+        return;
+      }
+      if (selected.size > 10 * 1024 * 1024) {
+        e.preventDefault();
+        if (status) status.textContent = es
+          ? 'El comprobante supera el límite de 10 MB.'
+          : 'The receipt exceeds the 10 MB limit.';
+        return;
+      }
+      if (send) {
+        send.disabled = true;
+        send.textContent = es ? 'Enviando solicitud…' : 'Sending request…';
+      }
+      if (status) status.textContent = es
+        ? `Enviando directamente a ${SUPPORT_EMAIL}…`
+        : `Sending directly to ${SUPPORT_EMAIL}…`;
     });
   }
 
@@ -121,9 +109,14 @@
     const main = document.querySelector('main.content');
     if (!main || main.querySelector('#paypal-support-card')) return;
     const es = (localStorage.getItem('il-lang') || 'es').toLowerCase() !== 'en';
+    const sent = new URLSearchParams(location.search).get('sent') === '1';
+    const nextUrl = 'https://fernand21.github.io/installerlab-web/donate/?sent=1';
+    const currentUrl = 'https://fernand21.github.io/installerlab-web/donate/';
 
     main.innerHTML = es ? `
       <div id="paypal-support-card" class="donate-page">
+        ${sent ? '<div class="notice" style="margin-bottom:22px"><strong>✓ Solicitud enviada.</strong> Los datos de activación fueron enviados. Revisa tu correo por si necesitas conservar la confirmación.</div>' : ''}
+
         <section class="donate-hero">
           <div class="donate-card">
             <span class="donate-badge">InstallerLab sigue siendo gratuito</span>
@@ -137,7 +130,7 @@
           <aside class="license-card">
             <h3>🔐 Licencia para una sola máquina</h3>
             <p>La activación PRO se genera para <strong>un único Machine Code</strong> y corresponde a <strong>una sola computadora</strong>.</p>
-            <div class="license-machine"><span class="icon">💻</span><div><strong>1 activación = 1 máquina</strong><span>Si deseas activar InstallerLab PRO en otra computadora, necesitarás otra activación para el Machine Code de esa máquina.</span></div></div>
+            <div class="license-machine"><span class="icon">💻</span><div><strong>1 activación = 1 máquina</strong><span>Para otra computadora se necesita otra activación asociada al Machine Code de esa máquina.</span></div></div>
           </aside>
         </section>
 
@@ -145,33 +138,40 @@
           <h3>Cómo solicitar tu activación PRO</h3>
           <div class="step-grid">
             <div class="step-box"><span class="step-num">1</span><b>Apoya el proyecto</b><span>Envía US$10 o más mediante PayPal.me/OfficeRibbon.</span></div>
-            <div class="step-box"><span class="step-num">2</span><b>Copia tu Machine Code</b><span>Abre InstallerLab y copia el código de la máquina que deseas activar.</span></div>
-            <div class="step-box"><span class="step-num">3</span><b>Completa tus datos</b><span>Usa el formulario de abajo para preparar la solicitud de activación.</span></div>
-            <div class="step-box"><span class="step-num">4</span><b>Adjunta el comprobante</b><span>Antes de enviar el correo, adjunta el comprobante o recibo de PayPal.</span></div>
+            <div class="step-box"><span class="step-num">2</span><b>Copia tu Machine Code</b><span>Abre InstallerLab y copia el código de la computadora que deseas activar.</span></div>
+            <div class="step-box"><span class="step-num">3</span><b>Completa el formulario</b><span>Indica tus datos, Machine Code y referencia de PayPal.</span></div>
+            <div class="step-box"><span class="step-num">4</span><b>Adjunta y envía</b><span>Sube el comprobante y la página enviará la solicitud directamente.</span></div>
           </div>
         </section>
 
         <section class="activation-card">
-          <h3>Enviar datos para la activación</h3>
-          <p class="activation-subtitle">Completa estos datos. Al pulsar <strong>Preparar correo</strong> se abrirá tu aplicación de correo con la solicitud lista para enviar a <span class="activation-email">${SUPPORT_EMAIL}</span>. Solo tendrás que <strong>adjuntar el comprobante de PayPal</strong> antes de enviarlo.</p>
+          <h3>Enviar solicitud de activación</h3>
+          <p class="activation-subtitle">Ya no necesitas abrir tu aplicación de correo. Completa el formulario, adjunta el comprobante y pulsa <strong>Enviar solicitud</strong>. La información será enviada directamente a <span class="activation-email">${SUPPORT_EMAIL}</span>.</p>
 
-          <form id="activation-request-form" class="activation-form">
-            <div class="form-field"><label for="activation-name">Nombre</label><input id="activation-name" name="name" type="text" autocomplete="name" required placeholder="Tu nombre"></div>
+          <form id="activation-request-form" class="activation-form" action="${FORM_ENDPOINT}" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="_subject" value="Solicitud de activación PRO - InstallerLab">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_next" value="${nextUrl}">
+            <input type="hidden" name="_url" value="${currentUrl}">
+            <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="display:none">
+
+            <div class="form-field"><label for="activation-name">Nombre</label><input id="activation-name" name="Nombre" type="text" autocomplete="name" required placeholder="Tu nombre"></div>
             <div class="form-field"><label for="activation-email">Correo de contacto</label><input id="activation-email" name="email" type="email" autocomplete="email" required placeholder="tu@email.com"></div>
-            <div class="form-field full"><label for="activation-machine">Machine Code</label><input id="activation-machine" name="machine" type="text" required placeholder="Pega aquí el Machine Code mostrado por InstallerLab"><span class="form-help">La licencia se generará específicamente para este Machine Code.</span></div>
-            <div class="form-field"><label for="activation-transaction">Referencia / transacción PayPal</label><input id="activation-transaction" name="transaction" type="text" placeholder="Opcional, pero recomendado"></div>
-            <div class="form-field"><label for="activation-amount">Importe enviado</label><input id="activation-amount" name="amount" type="text" value="US$10" placeholder="US$10"></div>
-            <div class="form-field full"><label for="activation-notes">Notas</label><textarea id="activation-notes" name="notes" placeholder="Información adicional, si hace falta"></textarea></div>
+            <div class="form-field full"><label for="activation-machine">Machine Code</label><input id="activation-machine" name="Machine Code" type="text" required placeholder="Pega aquí el Machine Code mostrado por InstallerLab"><span class="form-help">La licencia se generará específicamente para este Machine Code.</span></div>
+            <div class="form-field"><label for="activation-transaction">Referencia / transacción PayPal</label><input id="activation-transaction" name="Transacción PayPal" type="text" placeholder="Recomendado"></div>
+            <div class="form-field"><label for="activation-amount">Importe enviado</label><input id="activation-amount" name="Importe" type="text" value="US$10" required placeholder="US$10"></div>
+            <div class="form-field full"><label for="activation-receipt">Comprobante de PayPal</label><input id="activation-receipt" name="attachment" type="file" required accept="image/png,image/jpeg,application/pdf"><span class="form-help">PNG, JPG o PDF. Tamaño máximo total: 10 MB.</span></div>
+            <div class="form-field full"><label for="activation-notes">Notas</label><textarea id="activation-notes" name="Notas" placeholder="Información adicional, si hace falta"></textarea></div>
 
             <div class="activation-check">
-              <input id="activation-one-machine" type="checkbox" required>
+              <input id="activation-one-machine" name="Licencia para una máquina" value="Aceptado" type="checkbox" required>
               <label for="activation-one-machine">Entiendo que la activación PRO solicitada es válida para <strong>una sola máquina</strong> y quedará asociada al Machine Code indicado arriba.</label>
             </div>
 
-            <div class="activation-note"><strong>Comprobante requerido:</strong> los navegadores no pueden adjuntar automáticamente un archivo a un correo mediante esta página. Cuando se abra tu aplicación de correo, <strong>adjunta manualmente el comprobante de PayPal</strong> antes de pulsar Enviar.</div>
+            <div class="activation-note"><strong>Envío directo:</strong> este formulario utiliza FormSubmit como servicio de entrega para poder funcionar desde GitHub Pages sin un servidor propio. Los datos y el comprobante se transmiten a ese servicio para ser reenviados a ${SUPPORT_EMAIL}.</div>
 
             <div class="activation-actions">
-              <button class="button primary" type="submit">Preparar correo de activación →</button>
+              <button class="button primary" id="activation-send" type="submit">Enviar solicitud →</button>
               <button class="copy-mail" id="copy-support-email" type="button">Copiar correo</button>
               <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>
             </div>
@@ -180,6 +180,8 @@
         </section>
       </div>` : `
       <div id="paypal-support-card" class="donate-page">
+        ${sent ? '<div class="notice" style="margin-bottom:22px"><strong>✓ Request sent.</strong> Your activation details were submitted successfully.</div>' : ''}
+
         <section class="donate-hero">
           <div class="donate-card">
             <span class="donate-badge">InstallerLab remains free</span>
@@ -193,7 +195,7 @@
           <aside class="license-card">
             <h3>🔐 One-machine license</h3>
             <p>PRO activation is generated for <strong>one Machine Code</strong> and applies to <strong>one computer only</strong>.</p>
-            <div class="license-machine"><span class="icon">💻</span><div><strong>1 activation = 1 machine</strong><span>To activate InstallerLab PRO on another computer, a separate activation is required for that machine's Machine Code.</span></div></div>
+            <div class="license-machine"><span class="icon">💻</span><div><strong>1 activation = 1 machine</strong><span>A separate activation is required for another computer and its Machine Code.</span></div></div>
           </aside>
         </section>
 
@@ -202,32 +204,39 @@
           <div class="step-grid">
             <div class="step-box"><span class="step-num">1</span><b>Support the project</b><span>Send US$10 or more through PayPal.me/OfficeRibbon.</span></div>
             <div class="step-box"><span class="step-num">2</span><b>Copy your Machine Code</b><span>Open InstallerLab and copy the code from the computer you want to activate.</span></div>
-            <div class="step-box"><span class="step-num">3</span><b>Enter your details</b><span>Use the form below to prepare your activation request.</span></div>
-            <div class="step-box"><span class="step-num">4</span><b>Attach the receipt</b><span>Before sending the email, attach your PayPal receipt or payment confirmation.</span></div>
+            <div class="step-box"><span class="step-num">3</span><b>Complete the form</b><span>Enter your details, Machine Code and PayPal reference.</span></div>
+            <div class="step-box"><span class="step-num">4</span><b>Attach and send</b><span>Upload the receipt and the site will send the request directly.</span></div>
           </div>
         </section>
 
         <section class="activation-card">
-          <h3>Send activation details</h3>
-          <p class="activation-subtitle">Complete the form. Pressing <strong>Prepare email</strong> opens your email app with the request addressed to <span class="activation-email">${SUPPORT_EMAIL}</span>. You only need to <strong>attach the PayPal receipt</strong> before sending.</p>
+          <h3>Send activation request</h3>
+          <p class="activation-subtitle">You no longer need to open an email app. Complete the form, attach the receipt and press <strong>Send request</strong>. The information will be delivered directly to <span class="activation-email">${SUPPORT_EMAIL}</span>.</p>
 
-          <form id="activation-request-form" class="activation-form">
-            <div class="form-field"><label for="activation-name">Name</label><input id="activation-name" name="name" type="text" autocomplete="name" required placeholder="Your name"></div>
+          <form id="activation-request-form" class="activation-form" action="${FORM_ENDPOINT}" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="_subject" value="InstallerLab PRO activation request">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_next" value="${nextUrl}">
+            <input type="hidden" name="_url" value="${currentUrl}">
+            <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="display:none">
+
+            <div class="form-field"><label for="activation-name">Name</label><input id="activation-name" name="Name" type="text" autocomplete="name" required placeholder="Your name"></div>
             <div class="form-field"><label for="activation-email">Contact email</label><input id="activation-email" name="email" type="email" autocomplete="email" required placeholder="you@email.com"></div>
-            <div class="form-field full"><label for="activation-machine">Machine Code</label><input id="activation-machine" name="machine" type="text" required placeholder="Paste the Machine Code shown by InstallerLab"><span class="form-help">The license will be generated specifically for this Machine Code.</span></div>
-            <div class="form-field"><label for="activation-transaction">PayPal transaction / reference</label><input id="activation-transaction" name="transaction" type="text" placeholder="Optional, but recommended"></div>
-            <div class="form-field"><label for="activation-amount">Amount sent</label><input id="activation-amount" name="amount" type="text" value="US$10" placeholder="US$10"></div>
-            <div class="form-field full"><label for="activation-notes">Notes</label><textarea id="activation-notes" name="notes" placeholder="Any additional information"></textarea></div>
+            <div class="form-field full"><label for="activation-machine">Machine Code</label><input id="activation-machine" name="Machine Code" type="text" required placeholder="Paste the Machine Code shown by InstallerLab"><span class="form-help">The license will be generated specifically for this Machine Code.</span></div>
+            <div class="form-field"><label for="activation-transaction">PayPal transaction / reference</label><input id="activation-transaction" name="PayPal transaction" type="text" placeholder="Recommended"></div>
+            <div class="form-field"><label for="activation-amount">Amount sent</label><input id="activation-amount" name="Amount" type="text" value="US$10" required placeholder="US$10"></div>
+            <div class="form-field full"><label for="activation-receipt">PayPal receipt</label><input id="activation-receipt" name="attachment" type="file" required accept="image/png,image/jpeg,application/pdf"><span class="form-help">PNG, JPG or PDF. Maximum total size: 10 MB.</span></div>
+            <div class="form-field full"><label for="activation-notes">Notes</label><textarea id="activation-notes" name="Notes" placeholder="Any additional information"></textarea></div>
 
             <div class="activation-check">
-              <input id="activation-one-machine" type="checkbox" required>
+              <input id="activation-one-machine" name="One-machine license" value="Accepted" type="checkbox" required>
               <label for="activation-one-machine">I understand that the requested PRO activation is valid for <strong>one machine only</strong> and will be tied to the Machine Code entered above.</label>
             </div>
 
-            <div class="activation-note"><strong>Receipt required:</strong> a browser cannot automatically attach a local file to an email from this page. When your email app opens, <strong>attach the PayPal receipt manually</strong> before pressing Send.</div>
+            <div class="activation-note"><strong>Direct delivery:</strong> this form uses FormSubmit as a delivery service so it can work from GitHub Pages without a private backend. The entered data and receipt are transmitted to that service for forwarding to ${SUPPORT_EMAIL}.</div>
 
             <div class="activation-actions">
-              <button class="button primary" type="submit">Prepare activation email →</button>
+              <button class="button primary" id="activation-send" type="submit">Send request →</button>
               <button class="copy-mail" id="copy-support-email" type="button">Copy email</button>
               <a href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>
             </div>
@@ -246,7 +255,7 @@
     const donateTop = [...document.querySelectorAll('.header .links a')].find(a => {
       try {
         const u = new URL(a.href, location.href);
-        return u.pathname.endsWith('/donate/') || a.textContent.trim().toLowerCase() === 'donate';
+        return u.pathname.endsWith('/donate/') || a.textContent.trim().toLowerCase() === 'donate' || a.textContent.trim().toLowerCase() === 'donar';
       } catch { return false; }
     });
     if (donateTop) {
@@ -257,7 +266,7 @@
       donateTop.title = 'PayPal.me/OfficeRibbon';
     }
 
-    const footerDonate = [...document.querySelectorAll('.footer a')].find(a => /donate|pro/i.test(a.textContent));
+    const footerDonate = [...document.querySelectorAll('.footer a')].find(a => /donate|donar|pro/i.test(a.textContent));
     if (footerDonate) footerDonate.href = projectUrl('donate/');
 
     renderDonationPage();
