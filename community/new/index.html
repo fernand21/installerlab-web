@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Start a Discussion — InstallerLab Community</title>
-  <meta name="description" content="Draft a new InstallerLab Community discussion inside the InstallerLab website, then publish it through GitHub Discussions.">
+  <meta name="description" content="Draft a rich InstallerLab Community discussion with Markdown, code, links, images and live preview, then publish through GitHub Discussions.">
   <meta name="robots" content="noindex,follow">
   <meta name="theme-color" content="#081526">
   <link rel="icon" href="../../assets/icon.png">
@@ -27,8 +27,8 @@
 
     <section class="composer-hero">
       <p class="eyebrow" data-i18n="eyebrow">NEW DISCUSSION</p>
-      <h1 data-i18n="title">Start the conversation here.</h1>
-      <p data-i18n="intro">Write your topic inside InstallerLab. GitHub is only used for account verification and the final publish step, so your draft stays here until you are ready.</p>
+      <h1 data-i18n="title">Make your post look great.</h1>
+      <p data-i18n="intro">Use Markdown, code blocks, links, quotes, lists and images with a live preview. GitHub is only used for account verification and the final publish step.</p>
     </section>
 
     <section class="composer-layout">
@@ -48,16 +48,7 @@
           <label>
             <span data-i18n="area">InstallerLab area</span>
             <select id="area">
-              <option value="None">None</option>
-              <option>Setup EXE</option>
-              <option>MSI</option>
-              <option>Portable</option>
-              <option>B4J Portable</option>
-              <option>FSS / Monaco</option>
-              <option>Themes</option>
-              <option>Languages</option>
-              <option>Windows integration</option>
-              <option>Licensing</option>
+              <option value="None">None</option><option>Setup EXE</option><option>MSI</option><option>Portable</option><option>B4J Portable</option><option>FSS / Monaco</option><option>Themes</option><option>Languages</option><option>Windows integration</option><option>Licensing</option>
             </select>
           </label>
         </div>
@@ -68,44 +59,56 @@
           <small><span id="title-count">0</span>/150</small>
         </label>
 
-        <label>
-          <span data-i18n="post">Post</span>
-          <textarea id="discussion-body" rows="12" maxlength="12000" placeholder="Describe your question, FSS example, idea or problem. Include build details and steps to reproduce when useful." required></textarea>
-          <small><span id="body-count">0</span>/12000</small>
-        </label>
-
-        <div class="field-grid two">
-          <label>
-            <span data-i18n="version">InstallerLab version</span>
-            <input id="app-version" type="text" maxlength="40" placeholder="e.g. 1.0.0">
-          </label>
-          <label>
-            <span data-i18n="windows">Windows version</span>
-            <input id="windows-version" type="text" maxlength="80" placeholder="e.g. Windows 11 24H2">
-          </label>
+        <div class="editor-field">
+          <div class="editor-label-row"><span data-i18n="post">Post</span><small><span id="body-count">0</span>/12000</small></div>
+          <div class="editor-shell">
+            <div class="editor-toolbar" role="toolbar" aria-label="Formatting toolbar">
+              <button type="button" data-md="bold" title="Bold"><strong>B</strong></button>
+              <button type="button" data-md="italic" title="Italic"><em>I</em></button>
+              <button type="button" data-md="strike" title="Strikethrough"><s>S</s></button>
+              <span class="toolbar-sep"></span>
+              <button type="button" data-md="h2" title="Heading">H2</button>
+              <button type="button" data-md="quote" title="Quote">❝</button>
+              <button type="button" data-md="ul" title="Bulleted list">• List</button>
+              <button type="button" data-md="ol" title="Numbered list">1.</button>
+              <span class="toolbar-sep"></span>
+              <button type="button" data-md="code" title="Inline code">&lt;/&gt;</button>
+              <button type="button" data-md="block" title="Code block">{ }</button>
+              <button type="button" data-md="link" title="Insert link">🔗</button>
+              <button type="button" data-md="image-url" title="Insert image URL">🖼 URL</button>
+              <button type="button" id="image-picker-button" title="Add local image">＋ Image</button>
+            </div>
+            <textarea id="discussion-body" rows="14" maxlength="12000" placeholder="Write your post here. Use the toolbar or Markdown directly." required></textarea>
+          </div>
+          <div class="editor-help"><span data-i18n="markdownHelp">Markdown supported: bold, italic, headings, lists, quotes, links, images and code blocks.</span></div>
         </div>
 
-        <label>
-          <span data-i18n="extra">Links or extra context</span>
-          <textarea id="extra-context" rows="4" maxlength="3000" placeholder="Optional links, logs, repository, screenshot notes, etc."></textarea>
-        </label>
+        <input id="image-picker" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
+        <div id="image-staging" class="image-staging" hidden>
+          <div class="staging-head"><strong data-i18n="imagesTitle">Images ready for your post</strong><small data-i18n="imagesNote">Local images are previewed here. At the final GitHub confirmation, paste/upload them so GitHub can host them securely.</small></div>
+          <div id="image-list" class="image-list"></div>
+        </div>
+
+        <div class="field-grid two">
+          <label><span data-i18n="version">InstallerLab version</span><input id="app-version" type="text" maxlength="40" placeholder="e.g. 1.0.0"></label>
+          <label><span data-i18n="windows">Windows version</span><input id="windows-version" type="text" maxlength="80" placeholder="e.g. Windows 11 24H2"></label>
+        </div>
+
+        <label><span data-i18n="extra">Links or extra context</span><textarea id="extra-context" rows="4" maxlength="3000" placeholder="Optional links, logs, repository, screenshot notes, etc."></textarea></label>
 
         <div class="draft-status"><span class="status-dot"></span><span id="draft-status" data-i18n="draftSaved">Draft saved locally in this browser.</span></div>
-
         <div class="composer-actions">
           <button id="publish-button" class="primary-button" type="submit" data-i18n="publish">Continue to publish →</button>
           <button id="clear-button" class="secondary-button" type="button" data-i18n="clear">Clear draft</button>
         </div>
-        <p class="publish-note" data-i18n="publishNote">InstallerLab prepares the complete post here. GitHub opens only for the signed-in user to confirm and publish it. If GitHub does not prefill the body, it is copied automatically so you can paste it with Ctrl+V.</p>
+        <p class="publish-note" data-i18n="publishNote">InstallerLab prepares the complete Markdown post here. GitHub opens only for the signed-in user to confirm and publish it.</p>
       </form>
 
       <aside class="preview-card">
-        <div class="preview-head">
-          <div><p class="eyebrow" data-i18n="previewEyebrow">LIVE PREVIEW</p><h2 data-i18n="previewTitle">How your post will look</h2></div>
-          <span id="preview-category">GENERAL</span>
-        </div>
+        <div class="preview-head"><div><p class="eyebrow" data-i18n="previewEyebrow">LIVE PREVIEW</p><h2 data-i18n="previewTitle">How your post will look</h2></div><span id="preview-category">GENERAL</span></div>
         <h3 id="preview-title" data-i18n="untitled">Untitled discussion</h3>
-        <div id="preview-body" class="preview-body" data-i18n="previewEmpty">Start writing and your formatted post will appear here.</div>
+        <div id="preview-body" class="preview-body"><p data-i18n="previewEmpty">Start writing and your formatted post will appear here.</p></div>
+        <div id="preview-images" class="preview-images"></div>
       </aside>
     </section>
   </main>
@@ -114,12 +117,10 @@
     <div class="handoff-card" role="dialog" aria-modal="true" aria-labelledby="handoff-title">
       <span class="handoff-icon">✓</span>
       <h2 id="handoff-title" data-i18n="readyTitle">Your post is ready.</h2>
-      <p data-i18n="readyCopy">The formatted discussion has been copied to your clipboard. GitHub will open the selected category so you can sign in if needed and press Start discussion.</p>
-      <div class="handoff-actions">
-        <button id="open-github" class="primary-button" type="button" data-i18n="openGithub">Open GitHub and publish →</button>
-        <button id="close-handoff" class="secondary-button" type="button" data-i18n="keepEditing">Keep editing</button>
-      </div>
-      <small data-i18n="clipboardHint">If the body is not filled automatically on GitHub, press Ctrl+V in the Post field.</small>
+      <p data-i18n="readyCopy">The formatted Markdown was copied to your clipboard. GitHub will open the selected category so you can confirm and publish it.</p>
+      <div id="image-handoff-note" class="image-handoff-note" hidden><strong data-i18n="imageHandoffTitle">You also added local images.</strong><span data-i18n="imageHandoffCopy">Upload or paste those images in GitHub before pressing Start discussion. The text is already copied.</span></div>
+      <div class="handoff-actions"><button id="open-github" class="primary-button" type="button" data-i18n="openGithub">Open GitHub and publish →</button><button id="close-handoff" class="secondary-button" type="button" data-i18n="keepEditing">Keep editing</button></div>
+      <small data-i18n="clipboardHint">If GitHub does not fill the body automatically, press Ctrl+V in the Post field.</small>
     </div>
   </div>
 
