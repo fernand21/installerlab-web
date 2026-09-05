@@ -39,22 +39,47 @@ jobs:
                     title
                     url
                     bodyText
+                    bodyHTML
                     createdAt
                     updatedAt
-                    author { login }
+                    author { login avatarUrl(size:96) }
                     category { name slug isAnswerable }
-                    comments { totalCount }
+                    comments(first:50) {
+                      totalCount
+                      nodes {
+                        id
+                        url
+                        bodyText
+                        bodyHTML
+                        createdAt
+                        updatedAt
+                        isAnswer
+                        author { login avatarUrl(size:72) }
+                        replies(first:20) {
+                          totalCount
+                          nodes {
+                            id
+                            url
+                            bodyText
+                            bodyHTML
+                            createdAt
+                            updatedAt
+                            author { login avatarUrl(size:64) }
+                          }
+                        }
+                      }
+                    }
                     answerChosenAt
                   }
                 }
               }
             }' > /tmp/discussions-graphql.json
 
-      - name: Build static community feed
+      - name: Build static community mirror
         run: |
-          mkdir -p community
+          mkdir -p community/data
           python3 - <<'PY'
-          import json
+          import json, os, glob
           from datetime import datetime, timezone
 
           with open('/tmp/discussions-graphql.json', 'r', encoding='utf-8') as f:
@@ -73,26 +98,95 @@ jobs:
               })
 
           discussions = []
+          current_numbers = set()
           for item in (repo.get('discussions') or {}).get('nodes') or []:
               if not item:
                   continue
+              number = item.get('number')
+              if number is None:
+                  continue
+              current_numbers.add(str(number))
               category = item.get('category') or {}
               author = item.get('author') or {}
-              comments = item.get('comments') or {}
-              discussions.append({
-                  'number': item.get('number'),
+              comments_block = item.get('comments') or {}
+
+              comments = []
+              for comment in comments_block.get('nodes') or []:
+                  if not comment:
+                      continue
+                  cauthor = comment.get('author') or {}
+                  replies_block = comment.get('replies') or {}
+                  replies = []
+                  for reply in replies_block.get('nodes') or []:
+                      if not reply:
+                          continue
+                      rauthor = reply.get('author') or {}
+                      replies.append({
+                          'id': reply.get('id'),
+                          'url': reply.get('url') or '',
+                          'bodyText': reply.get('bodyText') or '',
+                          'bodyHTML': reply.get('bodyHTML') or '',
+                          'createdAt': reply.get('createdAt'),
+                          'updatedAt': reply.get('updatedAt'),
+                          'user': rauthor.get('login') or 'developer',
+                          'avatar': rauthor.get('avatarUrl') or '',
+                      })
+                  comments.append({
+                      'id': comment.get('id'),
+                      'url': comment.get('url') or '',
+                      'bodyText': comment.get('bodyText') or '',
+                      'bodyHTML': comment.get('bodyHTML') or '',
+                      'createdAt': comment.get('createdAt'),
+                      'updatedAt': comment.get('updatedAt'),
+                      'user': cauthor.get('login') or 'developer',
+                      'avatar': cauthor.get('avatarUrl') or '',
+                      'isAnswer': bool(comment.get('isAnswer')),
+                      'replyCount': int(replies_block.get('totalCount') or 0),
+                      'replies': replies,
+                  })
+
+              detail = {
+                  'number': number,
                   'title': item.get('title') or '',
                   'url': item.get('url') or '',
                   'bodyText': item.get('bodyText') or '',
+                  'bodyHTML': item.get('bodyHTML') or '',
                   'createdAt': item.get('createdAt'),
                   'updatedAt': item.get('updatedAt'),
                   'user': author.get('login') or 'developer',
+                  'avatar': author.get('avatarUrl') or '',
                   'category': category.get('name') or 'General',
                   'categorySlug': category.get('slug') or 'general',
                   'isAnswerable': bool(category.get('isAnswerable')),
-                  'comments': int(comments.get('totalCount') or 0),
+                  'commentCount': int(comments_block.get('totalCount') or 0),
                   'answered': bool(item.get('answerChosenAt')),
+                  'comments': comments,
+              }
+
+              with open(f'community/data/{number}.json', 'w', encoding='utf-8') as f:
+                  json.dump(detail, f, ensure_ascii=False, indent=2)
+                  f.write('\n')
+
+              discussions.append({
+                  'number': number,
+                  'title': detail['title'],
+                  'url': detail['url'],
+                  'bodyText': detail['bodyText'],
+                  'createdAt': detail['createdAt'],
+                  'updatedAt': detail['updatedAt'],
+                  'user': detail['user'],
+                  'avatar': detail['avatar'],
+                  'category': detail['category'],
+                  'categorySlug': detail['categorySlug'],
+                  'isAnswerable': detail['isAnswerable'],
+                  'comments': detail['commentCount'],
+                  'answered': detail['answered'],
               })
+
+          for path in glob.glob('community/data/*.json'):
+              stem = os.path.splitext(os.path.basename(path))[0]
+              if stem not in current_numbers:
+                  os.remove(path)
 
           out = {
               'generatedAt': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
@@ -107,13 +201,13 @@ jobs:
               f.write('\n')
           PY
 
-      - name: Publish feed when it changed
+      - name: Publish mirror when it changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add community/discussions.json
+          git add -A community/discussions.json community/data
           if git diff --cached --quiet; then
-            echo "Community feed is already current."
+            echo "Community mirror is already current."
             exit 0
           fi
           git commit -m "chore: sync community discussions"
