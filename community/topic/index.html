@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>InstallerLab Community Topic</title>
+  <meta name="description" content="Read an InstallerLab Community discussion and replies inside the InstallerLab website.">
+  <meta name="robots" content="index,follow,max-snippet:-1">
+  <meta name="theme-color" content="#081526">
+  <link rel="icon" href="../../assets/icon.png">
+  <link rel="stylesheet" href="../../assets/community-forum.css">
+  <link rel="stylesheet" href="../../assets/community-topic.css">
+</head>
+<body>
+  <header class="community-header">
+    <a class="brand" href="../../" aria-label="InstallerLab home"><img class="brand-icon" src="../../assets/icon.png" alt=""><strong>InstallerLab</strong></a>
+    <nav>
+      <a href="../../" data-i18n="navHome">Home</a>
+      <a href="../../features/" data-i18n="navFeatures">Features</a>
+      <a href="../../docs/" data-i18n="navDocs">Documentation</a>
+      <a href="../../b4j/">B4J</a>
+      <a class="active" href="../" data-i18n="navCommunity">Community</a>
+      <a href="../../download/" data-i18n="navDownload">Download</a>
+    </nav>
+    <button id="community-lang" class="lang-button" type="button" aria-label="Change language">EN</button>
+  </header>
+
+  <main class="topic-main">
+    <div class="topic-breadcrumbs"><a href="../" data-i18n="backCommunity">← Back to Community</a></div>
+
+    <section id="topic-loading" class="community-message" data-i18n="loading">Loading discussion…</section>
+    <section id="topic-error" class="community-message" hidden><strong data-i18n="errorTitle">This discussion could not be loaded.</strong><span data-i18n="errorCopy">You can still open it directly on GitHub.</span></section>
+
+    <article id="topic-thread" hidden>
+      <header class="topic-head">
+        <div class="topic-label-row"><span id="topic-category" class="post-category"></span><span id="topic-answered" class="post-category answer-badge" hidden></span><span id="topic-number" class="topic-number"></span></div>
+        <h1 id="topic-title"></h1>
+        <div class="topic-author-row"><img id="topic-avatar" class="topic-avatar" alt=""><div><strong id="topic-author"></strong><span id="topic-date"></span></div></div>
+      </header>
+
+      <div id="topic-body" class="github-body"></div>
+
+      <div class="topic-actions">
+        <a id="reply-on-github" class="primary-button" target="_blank" rel="noreferrer" data-i18n="replyGithub">Reply on GitHub →</a>
+        <a id="open-on-github" class="secondary-button" target="_blank" rel="noreferrer" data-i18n="openGithub">Open original discussion ↗</a>
+      </div>
+
+      <section class="replies-section">
+        <div class="section-heading"><div><p class="eyebrow" data-i18n="repliesEyebrow">REPLIES</p><h2 id="replies-title" data-i18n="repliesTitle">Community replies</h2></div><span id="reply-count" class="reply-total"></span></div>
+        <div id="topic-comments" class="comment-list"></div>
+        <div id="no-comments" class="community-message" hidden><strong data-i18n="noRepliesTitle">No replies yet.</strong><span data-i18n="noRepliesCopy">Be the first to continue the conversation on GitHub.</span></div>
+      </section>
+
+      <nav class="topic-pager" aria-label="Discussion navigation">
+        <a id="prev-topic" hidden></a>
+        <a id="next-topic" hidden></a>
+      </nav>
+    </article>
+  </main>
+
+  <footer><div><strong>InstallerLab</strong><span data-i18n="footerCopy">Windows installer tooling for developers.</span></div><div><a href="../" data-i18n="navCommunity">Community</a><a href="../../docs/" data-i18n="navDocs">Documentation</a><a href="https://github.com/fernand21/installerlab-web/discussions" target="_blank" rel="noreferrer">GitHub Discussions</a></div></footer>
+
+  <script src="../../assets/community-topic.js"></script>
+</body>
+</html>
