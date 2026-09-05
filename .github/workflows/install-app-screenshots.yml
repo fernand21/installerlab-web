@@ -1,0 +1,38 @@
+name: Install app screenshots
+
+on:
+  push:
+    paths:
+      - '.upload/READY'
+
+permissions:
+  contents: write
+
+jobs:
+  install-screenshots:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decode optimized screenshots
+        shell: bash
+        run: |
+          cat .upload/dark-*.b64 | base64 --decode > assets/screenshots/app-dark.webp
+          cat .upload/light-*.b64 | base64 --decode > assets/screenshots/app-light.webp
+          file assets/screenshots/app-dark.webp assets/screenshots/app-light.webp
+
+      - name: Commit screenshots
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/screenshots/app-dark.webp assets/screenshots/app-light.webp
+          if git diff --cached --quiet; then
+            echo "Screenshots are already up to date."
+          else
+            git commit -m "feat: refresh InstallerLab app screenshots"
+            git push
+          fi
