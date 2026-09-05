@@ -19,12 +19,22 @@
   const dateText = iso => new Intl.DateTimeFormat(lang === 'es' ? 'es-EC':'en-US',{year:'numeric',month:'short',day:'numeric'}).format(new Date(iso));
 
   function categoryFrom(item){
-    const title = String(item.title || '').toLowerCase();
-    if(/^\s*\[(fss|fss scripts?|script fss)\]/i.test(item.title || '')) return 'FSS Scripts';
-    if(/^\s*\[(bug|bugs|error|errores?)\]/i.test(item.title || '')) return 'Bugs';
-    if(/^\s*\[(help|support|ayuda|soporte)\]/i.test(item.title || '')) return 'Help & Support';
-    if(/^\s*\[(showcase|show and tell)\]/i.test(item.title || '')) return 'Showcase';
-    if(/^\s*\[(idea|ideas)\]/i.test(item.title || '')) return 'Ideas';
+    const rawTitle = String(item.title || '');
+    const title = rawTitle.toLowerCase();
+    const bodyHead = String(item.bodyText || '').slice(0,900).toLowerCase();
+
+    if(/^\s*\[(fss|fss scripts?|script fss)\]/i.test(rawTitle)) return 'FSS Scripts';
+    if(/^\s*\[(bug|bugs|error|errores?)\]/i.test(rawTitle)) return 'Bugs';
+    if(/^\s*\[(help|support|ayuda|soporte)\]/i.test(rawTitle)) return 'Help & Support';
+    if(/^\s*\[(showcase|show and tell)\]/i.test(rawTitle)) return 'Showcase';
+    if(/^\s*\[(idea|ideas)\]/i.test(rawTitle)) return 'Ideas';
+
+    // The General GitHub Discussion form contains a topic-type dropdown.
+    // bodyText is mirrored by the sync workflow, so FSS/Bug posts can still
+    // appear as first-class InstallerLab Community categories without creating
+    // extra GitHub Discussion categories.
+    if(/topic type[\s\S]{0,120}fss scripts/.test(bodyHead) || /tipo de tema[\s\S]{0,120}scripts fss/.test(bodyHead)) return 'FSS Scripts';
+    if(/topic type[\s\S]{0,120}bugs/.test(bodyHead) || /tipo de tema[\s\S]{0,120}(bugs|errores)/.test(bodyHead)) return 'Bugs';
 
     const slug = String(item.categorySlug || '').toLowerCase();
     const nativeName = String(item.category || '').toLowerCase();
