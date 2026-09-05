@@ -1,4 +1,4 @@
-name: Sync InstallerLab community discussions
+name: Sync InstallerLab community and sitemap
 
 on:
   workflow_dispatch:
@@ -6,7 +6,12 @@ on:
     - cron: "*/15 * * * *"
   push:
     paths:
+      - "**/*.html"
       - ".github/workflows/sync-community-discussions.yml"
+
+concurrency:
+  group: installerlab-community-sync
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -18,6 +23,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Read public GitHub Discussions
         env:
@@ -33,7 +40,7 @@ jobs:
                 discussionCategories(first:25) {
                   nodes { name slug description isAnswerable }
                 }
-                discussions(first:50, orderBy:{field:UPDATED_AT, direction:DESC}) {
+                discussions(first:100, orderBy:{field:UPDATED_AT, direction:DESC}) {
                   nodes {
                     number
                     title
@@ -75,12 +82,15 @@ jobs:
               }
             }' > /tmp/discussions-graphql.json
 
-      - name: Build static community mirror
+      - name: Build community mirror and dynamic sitemap
         run: |
           mkdir -p community/data
           python3 - <<'PY'
-          import json, os, glob
+          import json, os, glob, re, subprocess
           from datetime import datetime, timezone
+          from xml.sax.saxutils import escape
+
+          BASE = 'https://fernand21.github.io/installerlab-web/'
 
           with open('/tmp/discussions-graphql.json', 'r', encoding='utf-8') as f:
               raw = json.load(f)
@@ -188,8 +198,13 @@ jobs:
               if stem not in current_numbers:
                   os.remove(path)
 
+          # Keep generatedAt stable when the public discussion content did not change.
+          # This prevents a no-op scheduled sync from creating a commit every 15 minutes.
+          latest_update = max((d.get('updatedAt') or '' for d in discussions), default='')
+          generated_at = latest_update or '1970-01-01T00:00:00Z'
+
           out = {
-              'generatedAt': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
+              'generatedAt': generated_at,
               'source': 'GitHub Discussions',
               'repository': 'fernand21/installerlab-web',
               'categories': categories,
@@ -199,16 +214,107 @@ jobs:
           with open('community/discussions.json', 'w', encoding='utf-8') as f:
               json.dump(out, f, ensure_ascii=False, indent=2)
               f.write('\n')
+
+          # ---------- Dynamic sitemap ----------
+          # Every public index.html is discovered automatically. Pages containing
+          # a robots noindex directive (for example /community/new/) are excluded.
+          # Discussion detail URLs are added from the mirrored GitHub Discussions.
+          special = {
+              '': ('weekly', '1.0'),
+              'windows-installer-builder': ('weekly', '1.0'),
+              'inno-setup-alternative': ('monthly', '0.9'),
+              'msi-builder': ('monthly', '0.9'),
+              'portable-app-builder': ('monthly', '0.9'),
+              'b4j-installer': ('monthly', '0.9'),
+              'download': ('daily', '0.9'),
+              'docs': ('weekly', '0.9'),
+              'community': ('daily', '0.8'),
+              'features': ('monthly', '0.8'),
+              'b4j': ('monthly', '0.8'),
+              'changelog': ('weekly', '0.7'),
+              'faq': ('monthly', '0.6'),
+              'support': ('monthly', '0.6'),
+              'about': ('monthly', '0.5'),
+              'donate': ('monthly', '0.5'),
+          }
+
+          def git_lastmod(path):
+              try:
+                  return subprocess.check_output(
+                      ['git', 'log', '-1', '--format=%cs', '--', path],
+                      text=True
+                  ).strip() or datetime.now(timezone.utc).date().isoformat()
+              except Exception:
+                  return datetime.now(timezone.utc).date().isoformat()
+
+          urls = []
+          for path in sorted(glob.glob('**/index.html', recursive=True)):
+              with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+                  html = f.read(12000)
+              head = html.split('</head>', 1)[0].lower()
+              if 'noindex' in head:
+                  continue
+
+              folder = os.path.dirname(path).replace('\\', '/').strip('/')
+              loc = BASE if not folder else BASE + folder + '/'
+              freq, priority = special.get(folder, ('monthly', '0.5'))
+              urls.append({
+                  'loc': loc,
+                  'lastmod': git_lastmod(path),
+                  'changefreq': freq,
+                  'priority': priority,
+              })
+
+          for d in discussions:
+              number = d.get('number')
+              if number is None:
+                  continue
+              updated = (d.get('updatedAt') or d.get('createdAt') or '')[:10]
+              if not updated:
+                  updated = datetime.now(timezone.utc).date().isoformat()
+              urls.append({
+                  'loc': f'{BASE}community/topic/?id={number}',
+                  'lastmod': updated,
+                  'changefreq': 'daily',
+                  'priority': '0.6',
+              })
+
+          # Deduplicate while preserving order.
+          seen = set()
+          unique = []
+          for item in urls:
+              if item['loc'] in seen:
+                  continue
+              seen.add(item['loc'])
+              unique.append(item)
+
+          lines = [
+              '<?xml version="1.0" encoding="UTF-8"?>',
+              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+          ]
+          for item in unique:
+              lines.extend([
+                  '  <url>',
+                  f"    <loc>{escape(item['loc'])}</loc>",
+                  f"    <lastmod>{item['lastmod']}</lastmod>",
+                  f"    <changefreq>{item['changefreq']}</changefreq>",
+                  f"    <priority>{item['priority']}</priority>",
+                  '  </url>',
+              ])
+          lines.append('</urlset>')
+
+          with open('sitemap.xml', 'w', encoding='utf-8') as f:
+              f.write('\n'.join(lines) + '\n')
           PY
 
-      - name: Publish mirror when it changed
+      - name: Publish mirror and sitemap when changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A community/discussions.json community/data
+          git add -A community/discussions.json community/data sitemap.xml
           if git diff --cached --quiet; then
-            echo "Community mirror is already current."
+            echo "Community mirror and sitemap are already current."
             exit 0
           fi
-          git commit -m "chore: sync community discussions"
+          git commit -m "chore: sync community and sitemap"
           git push
