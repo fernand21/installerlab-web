@@ -1,0 +1,53 @@
+title: "[Showcase] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Show the community something you built or distributed with InstallerLab. Screenshots and project links are welcome.
+
+        Muestra a la comunidad algo que creaste o distribuiste con InstallerLab. Las capturas y enlaces del proyecto son bienvenidos.
+
+  - type: input
+    id: project
+    attributes:
+      label: "Project / Proyecto"
+      description: "Name of the application, add-in or tool. / Nombre de la aplicación, complemento o herramienta."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: output
+    attributes:
+      label: "What did InstallerLab build? / ¿Qué generó InstallerLab?"
+      options:
+        - "Setup EXE"
+        - "MSI"
+        - "Portable"
+        - "B4J Portable"
+        - "More than one / Más de uno"
+    validations:
+      required: true
+
+  - type: textarea
+    id: story
+    attributes:
+      label: "Tell us about it / Cuéntanos"
+      description: "What did you package, what InstallerLab features did you use, and what was useful? / ¿Qué empaquetaste, qué funciones de InstallerLab utilizaste y qué te resultó útil?"
+    validations:
+      required: true
+
+  - type: input
+    id: link
+    attributes:
+      label: "Project or website link / Enlace del proyecto o web"
+      placeholder: "https://..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: media
+    attributes:
+      label: "Screenshots or extra details / Capturas o detalles adicionales"
+      description: "Drag images into the editor after the form opens, or add extra information here. / Arrastra imágenes al editor después de abrir el formulario o añade información adicional aquí."
+    validations:
+      required: false
