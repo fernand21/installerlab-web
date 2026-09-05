@@ -1,0 +1,60 @@
+title: "[General] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Welcome to InstallerLab Community. Use this form for general conversation, FSS script sharing, or reproducible bug reports.
+
+        Bienvenido a InstallerLab Community. Usa este formulario para conversación general, compartir scripts FSS o reportar errores reproducibles.
+
+  - type: dropdown
+    id: topic-type
+    attributes:
+      label: "Topic type / Tipo de tema"
+      options:
+        - "General"
+        - "FSS Scripts"
+        - "Bugs / Errores"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: "InstallerLab area / Área de InstallerLab"
+      options:
+        - "Setup EXE"
+        - "MSI"
+        - "Portable"
+        - "B4J Portable"
+        - "FSS / Monaco editor"
+        - "Themes / UI"
+        - "Languages"
+        - "Other / Otra"
+    validations:
+      required: false
+
+  - type: textarea
+    id: post
+    attributes:
+      label: "Post / Publicación"
+      description: "Share the question, FSS example, bug or topic with enough detail for another developer to understand it. / Comparte la pregunta, ejemplo FSS, error o tema con suficiente detalle."
+      placeholder: "Include FSS snippets, build details, steps to reproduce, screenshots or links when useful."
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: "InstallerLab version / Versión de InstallerLab"
+      placeholder: "Example: 1.0.0"
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: "Environment / Entorno"
+      description: "Windows version, architecture, Java/B4J details or anything relevant. Never post private keys, passwords or personal data. / Versión de Windows, arquitectura, Java/B4J u otros datos relevantes. Nunca publiques claves privadas, contraseñas ni datos personales."
+    validations:
+      required: false
