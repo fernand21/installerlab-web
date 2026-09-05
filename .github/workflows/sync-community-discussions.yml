@@ -3,7 +3,7 @@ name: Sync InstallerLab community discussions
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "*/15 * * * *"
   push:
     paths:
       - ".github/workflows/sync-community-discussions.yml"
