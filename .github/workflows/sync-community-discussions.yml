@@ -1,0 +1,120 @@
+name: Sync InstallerLab community discussions
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+  push:
+    paths:
+      - ".github/workflows/sync-community-discussions.yml"
+
+permissions:
+  contents: write
+  discussions: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read public GitHub Discussions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO_OWNER: fernand21
+          REPO_NAME: installerlab-web
+        run: |
+          gh api graphql \
+            -f owner="$REPO_OWNER" \
+            -f name="$REPO_NAME" \
+            -f query='query($owner:String!, $name:String!) {
+              repository(owner:$owner, name:$name) {
+                discussionCategories(first:25) {
+                  nodes { name slug description isAnswerable }
+                }
+                discussions(first:50, orderBy:{field:UPDATED_AT, direction:DESC}) {
+                  nodes {
+                    number
+                    title
+                    url
+                    bodyText
+                    createdAt
+                    updatedAt
+                    author { login }
+                    category { name slug isAnswerable }
+                    comments { totalCount }
+                    answerChosenAt
+                  }
+                }
+              }
+            }' > /tmp/discussions-graphql.json
+
+      - name: Build static community feed
+        run: |
+          mkdir -p community
+          python3 - <<'PY'
+          import json
+          from datetime import datetime, timezone
+
+          with open('/tmp/discussions-graphql.json', 'r', encoding='utf-8') as f:
+              raw = json.load(f)
+
+          repo = raw.get('data', {}).get('repository') or {}
+          categories = []
+          for item in (repo.get('discussionCategories') or {}).get('nodes') or []:
+              if not item:
+                  continue
+              categories.append({
+                  'name': item.get('name') or 'General',
+                  'slug': item.get('slug') or 'general',
+                  'description': item.get('description') or '',
+                  'isAnswerable': bool(item.get('isAnswerable')),
+              })
+
+          discussions = []
+          for item in (repo.get('discussions') or {}).get('nodes') or []:
+              if not item:
+                  continue
+              category = item.get('category') or {}
+              author = item.get('author') or {}
+              comments = item.get('comments') or {}
+              discussions.append({
+                  'number': item.get('number'),
+                  'title': item.get('title') or '',
+                  'url': item.get('url') or '',
+                  'bodyText': item.get('bodyText') or '',
+                  'createdAt': item.get('createdAt'),
+                  'updatedAt': item.get('updatedAt'),
+                  'user': author.get('login') or 'developer',
+                  'category': category.get('name') or 'General',
+                  'categorySlug': category.get('slug') or 'general',
+                  'isAnswerable': bool(category.get('isAnswerable')),
+                  'comments': int(comments.get('totalCount') or 0),
+                  'answered': bool(item.get('answerChosenAt')),
+              })
+
+          out = {
+              'generatedAt': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
+              'source': 'GitHub Discussions',
+              'repository': 'fernand21/installerlab-web',
+              'categories': categories,
+              'discussions': discussions,
+          }
+
+          with open('community/discussions.json', 'w', encoding='utf-8') as f:
+              json.dump(out, f, ensure_ascii=False, indent=2)
+              f.write('\n')
+          PY
+
+      - name: Publish feed when it changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add community/discussions.json
+          if git diff --cached --quiet; then
+            echo "Community feed is already current."
+            exit 0
+          fi
+          git commit -m "chore: sync community discussions"
+          git push
