@@ -1,7 +1,6 @@
 (() => {
   const FEED = './discussions.json';
   const DISCUSSIONS = 'https://github.com/fernand21/installerlab-web/discussions';
-  const NEW_DISCUSSION = `${DISCUSSIONS}/new/choose`;
 
   const copy = {
     en:{navHome:'Home',navFeatures:'Features',navDocs:'Documentation',navCommunity:'Community',navDownload:'Download',eyebrow:'INSTALLERLAB COMMUNITY',heroTitle:'A small place for people building Windows installers.',heroCopy:'Ask for help, share FSS snippets, show what you created, report a problem or propose the next feature. Topics and replies are powered by GitHub Discussions and mirrored here inside InstallerLab.',startPost:'Start a discussion →',browsePosts:'Browse recent discussions',publicCommunity:'Public developer community',publicCommunityCopy:'GitHub Discussions handles accounts, replies and moderation. InstallerLab mirrors the public conversations here automatically.',chooseTopic:'CHOOSE A TOPIC',categoriesTitle:'What do you want to talk about?',catAll:'All discussions',catAllCopy:'Everything happening in the community',catHelp:'Help & Support',catHelpCopy:'Installation, builds and troubleshooting',catFss:'FSS Scripts',catFssCopy:'Share useful rules, patterns and examples',catShowcase:'Showcase',catShowcaseCopy:'Show the applications you distribute',catIdeas:'Ideas',catIdeasCopy:'Suggest features and workflow improvements',catBugs:'Bugs',catBugsCopy:'Report reproducible problems',catGeneral:'General',catGeneralCopy:'Anything else related to InstallerLab',latestEyebrow:'RECENT ACTIVITY',latestTitle:'Latest community discussions',viewGithub:'Open Discussions on GitHub ↗',loading:'Loading public discussions…',emptyTitle:'No discussions yet.',emptyCopy:'Start the first conversation and it will appear here automatically.',errorTitle:'Community discussions could not be loaded.',errorCopy:'You can still open GitHub Discussions directly.',rulesEyebrow:'COMMUNITY GUIDELINES',rulesTitle:'Useful, technical and respectful.',rulesCopy:'Share enough context to reproduce a problem, remove private keys or personal data before posting, and keep criticism focused on the software or workflow.',rule1:'✓ Reproducible details',rule2:'✓ FSS/code welcome',rule3:'✓ Screenshots welcome',rule4:'✓ Constructive feedback',footerCopy:'Windows installer tooling for developers.',support:'Support',answered:'Answered'},
@@ -68,8 +67,6 @@
   }));
 
   q('#community-lang').addEventListener('click',()=>{lang=lang==='en'?'es':'en';applyLanguage();});
-  const newPost=q('#new-community-post');
-  if(newPost)newPost.href=NEW_DISCUSSION;
   const githubLink=q('.posts-heading a');
   if(githubLink)githubLink.href=DISCUSSIONS;
 
