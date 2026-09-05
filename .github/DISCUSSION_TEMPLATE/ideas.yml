@@ -1,0 +1,49 @@
+title: "[Idea] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggest a feature or workflow improvement for InstallerLab. Explain the developer problem first, then the idea.
+
+        Sugiere una función o mejora del flujo de InstallerLab. Explica primero el problema del desarrollador y luego la idea.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problem to solve / Problema a resolver"
+      description: "What is difficult, repetitive or missing today? / ¿Qué resulta difícil, repetitivo o falta actualmente?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: "Proposed idea / Idea propuesta"
+      description: "Describe how you imagine the feature working. / Describe cómo imaginas que debería funcionar."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: "InstallerLab area / Área de InstallerLab"
+      options:
+        - "Setup EXE"
+        - "MSI"
+        - "Portable"
+        - "B4J Portable"
+        - "FSS / Monaco editor"
+        - "Themes / UI"
+        - "Languages"
+        - "New packaging backend / Nuevo backend"
+        - "Other / Otra"
+    validations:
+      required: false
+
+  - type: textarea
+    id: example
+    attributes:
+      label: "Example workflow / Ejemplo de flujo"
+      description: "Optional example, pseudo-FSS, screenshot or reference that helps explain the idea. / Ejemplo opcional, pseudo-FSS, captura o referencia que ayude a explicar la idea."
+    validations:
+      required: false
