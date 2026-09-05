@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Start a Discussion — InstallerLab Community</title>
+  <meta name="description" content="Draft a new InstallerLab Community discussion inside the InstallerLab website, then publish it through GitHub Discussions.">
+  <meta name="robots" content="noindex,follow">
+  <meta name="theme-color" content="#081526">
+  <link rel="icon" href="../../assets/icon.png">
+  <link rel="stylesheet" href="../../assets/community-new.css">
+</head>
+<body>
+  <header class="community-header">
+    <a class="brand" href="../../" aria-label="InstallerLab home"><img class="brand-icon" src="../../assets/icon.png" alt=""><strong>InstallerLab</strong></a>
+    <nav>
+      <a href="../../" data-i18n="navHome">Home</a>
+      <a href="../" data-i18n="navCommunity">Community</a>
+      <a href="../../docs/" data-i18n="navDocs">Documentation</a>
+      <a href="../../download/" data-i18n="navDownload">Download</a>
+    </nav>
+    <button id="community-lang" class="lang-button" type="button" aria-label="Change language">EN</button>
+  </header>
+
+  <main>
+    <a class="back-link" href="../" data-i18n="back">← Back to Community</a>
+
+    <section class="composer-hero">
+      <p class="eyebrow" data-i18n="eyebrow">NEW DISCUSSION</p>
+      <h1 data-i18n="title">Start the conversation here.</h1>
+      <p data-i18n="intro">Write your topic inside InstallerLab. GitHub is only used for account verification and the final publish step, so your draft stays here until you are ready.</p>
+    </section>
+
+    <section class="composer-layout">
+      <form id="discussion-form" class="composer-card" novalidate>
+        <div class="field-grid two">
+          <label>
+            <span data-i18n="topicType">Topic type</span>
+            <select id="topic-type" required>
+              <option value="general" data-en="General" data-es="General">General</option>
+              <option value="help" data-en="Help & Support" data-es="Ayuda y soporte">Help & Support</option>
+              <option value="fss" data-en="FSS Scripts" data-es="Scripts FSS">FSS Scripts</option>
+              <option value="showcase" data-en="Showcase" data-es="Showcase">Showcase</option>
+              <option value="ideas" data-en="Ideas" data-es="Ideas">Ideas</option>
+              <option value="bugs" data-en="Bugs" data-es="Errores">Bugs</option>
+            </select>
+          </label>
+          <label>
+            <span data-i18n="area">InstallerLab area</span>
+            <select id="area">
+              <option value="None">None</option>
+              <option>Setup EXE</option>
+              <option>MSI</option>
+              <option>Portable</option>
+              <option>B4J Portable</option>
+              <option>FSS / Monaco</option>
+              <option>Themes</option>
+              <option>Languages</option>
+              <option>Windows integration</option>
+              <option>Licensing</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          <span data-i18n="discussionTitle">Discussion title</span>
+          <input id="discussion-title" type="text" maxlength="150" autocomplete="off" placeholder="e.g. How can I add a cascading context menu?" required>
+          <small><span id="title-count">0</span>/150</small>
+        </label>
+
+        <label>
+          <span data-i18n="post">Post</span>
+          <textarea id="discussion-body" rows="12" maxlength="12000" placeholder="Describe your question, FSS example, idea or problem. Include build details and steps to reproduce when useful." required></textarea>
+          <small><span id="body-count">0</span>/12000</small>
+        </label>
+
+        <div class="field-grid two">
+          <label>
+            <span data-i18n="version">InstallerLab version</span>
+            <input id="app-version" type="text" maxlength="40" placeholder="e.g. 1.0.0">
+          </label>
+          <label>
+            <span data-i18n="windows">Windows version</span>
+            <input id="windows-version" type="text" maxlength="80" placeholder="e.g. Windows 11 24H2">
+          </label>
+        </div>
+
+        <label>
+          <span data-i18n="extra">Links or extra context</span>
+          <textarea id="extra-context" rows="4" maxlength="3000" placeholder="Optional links, logs, repository, screenshot notes, etc."></textarea>
+        </label>
+
+        <div class="draft-status"><span class="status-dot"></span><span id="draft-status" data-i18n="draftSaved">Draft saved locally in this browser.</span></div>
+
+        <div class="composer-actions">
+          <button id="publish-button" class="primary-button" type="submit" data-i18n="publish">Continue to publish →</button>
+          <button id="clear-button" class="secondary-button" type="button" data-i18n="clear">Clear draft</button>
+        </div>
+        <p class="publish-note" data-i18n="publishNote">InstallerLab prepares the complete post here. GitHub opens only for the signed-in user to confirm and publish it. If GitHub does not prefill the body, it is copied automatically so you can paste it with Ctrl+V.</p>
+      </form>
+
+      <aside class="preview-card">
+        <div class="preview-head">
+          <div><p class="eyebrow" data-i18n="previewEyebrow">LIVE PREVIEW</p><h2 data-i18n="previewTitle">How your post will look</h2></div>
+          <span id="preview-category">GENERAL</span>
+        </div>
+        <h3 id="preview-title" data-i18n="untitled">Untitled discussion</h3>
+        <div id="preview-body" class="preview-body" data-i18n="previewEmpty">Start writing and your formatted post will appear here.</div>
+      </aside>
+    </section>
+  </main>
+
+  <div id="handoff" class="handoff" hidden>
+    <div class="handoff-card" role="dialog" aria-modal="true" aria-labelledby="handoff-title">
+      <span class="handoff-icon">✓</span>
+      <h2 id="handoff-title" data-i18n="readyTitle">Your post is ready.</h2>
+      <p data-i18n="readyCopy">The formatted discussion has been copied to your clipboard. GitHub will open the selected category so you can sign in if needed and press Start discussion.</p>
+      <div class="handoff-actions">
+        <button id="open-github" class="primary-button" type="button" data-i18n="openGithub">Open GitHub and publish →</button>
+        <button id="close-handoff" class="secondary-button" type="button" data-i18n="keepEditing">Keep editing</button>
+      </div>
+      <small data-i18n="clipboardHint">If the body is not filled automatically on GitHub, press Ctrl+V in the Post field.</small>
+    </div>
+  </div>
+
+  <script src="../../assets/community-new.js"></script>
+</body>
+</html>
