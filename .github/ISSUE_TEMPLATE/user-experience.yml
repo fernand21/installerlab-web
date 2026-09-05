@@ -1,0 +1,79 @@
+name: "⭐ Rate InstallerLab / Califica InstallerLab"
+description: "Share a public experience and a 1–5 star rating / Comparte una experiencia pública y una calificación de 1 a 5 estrellas"
+title: "[Experience] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying InstallerLab. Your review will be public on GitHub and may appear on the official website.
+
+        Gracias por probar InstallerLab. Tu opinión será pública en GitHub y podrá aparecer en la web oficial.
+
+  - type: dropdown
+    id: rating
+    attributes:
+      label: "Rating / Calificación"
+      description: "How would you rate your overall experience? / ¿Cómo calificas tu experiencia general?"
+      options:
+        - "★★★★★ (5/5)"
+        - "★★★★☆ (4/5)"
+        - "★★★☆☆ (3/5)"
+        - "★★☆☆☆ (2/5)"
+        - "★☆☆☆☆ (1/5)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: output
+    attributes:
+      label: "Package type / Tipo de paquete"
+      description: "What did you create? / ¿Qué creaste?"
+      options:
+        - "Setup EXE"
+        - "MSI"
+        - "Portable"
+        - "B4J Portable"
+        - "More than one / Más de uno"
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: "What did you build? / ¿Qué creaste?"
+      description: "Tell us briefly what you used InstallerLab for. / Cuéntanos brevemente para qué utilizaste InstallerLab."
+      placeholder: "Example: a multilingual Windows installer for my B4J application..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: experience
+    attributes:
+      label: "Your experience / Tu experiencia"
+      description: "What worked well? What saved you time? / ¿Qué funcionó bien? ¿Qué te ahorró tiempo?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: improve
+    attributes:
+      label: "What should improve? / ¿Qué debería mejorar?"
+      description: "Suggestions and criticism are welcome. / Las sugerencias y críticas son bienvenidas."
+    validations:
+      required: false
+
+  - type: input
+    id: environment
+    attributes:
+      label: "Windows version / Versión de Windows"
+      placeholder: "Windows 11 64-bit"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: public-review
+    attributes:
+      label: "Public review / Opinión pública"
+      options:
+        - label: "I understand that this review is public and may be displayed on the InstallerLab website. / Entiendo que esta opinión es pública y puede mostrarse en la web de InstallerLab."
+          required: true
