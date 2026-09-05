@@ -1,0 +1,30 @@
+.hero .visual{overflow:visible;border:0;background:transparent;box-shadow:none}
+.app-preview{position:relative;padding:13px;border:1px solid #31547b;border-radius:20px;background:linear-gradient(145deg,#10243bf2,#081421f2);box-shadow:0 34px 90px #0009,0 0 0 1px #ffffff08 inset;isolation:isolate}
+.app-preview::before{content:"";position:absolute;inset:-1px;z-index:-1;border-radius:21px;background:linear-gradient(135deg,#59bfff55,transparent 28%,transparent 70%,#7359ff33);filter:blur(12px);opacity:.75}
+.app-preview-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 1px 12px}
+.app-preview-title{display:grid;gap:1px;min-width:0}
+.app-preview-kicker{color:#73c8ff;font-size:10px;font-weight:850;letter-spacing:.13em;text-transform:uppercase}
+.app-preview-title strong{overflow:hidden;color:#f2f8ff;font-size:13px;letter-spacing:-.01em;text-overflow:ellipsis;white-space:nowrap}
+.app-preview-tabs{display:flex;gap:4px;padding:3px;border:1px solid #294763;border-radius:11px;background:#06111dcc;box-shadow:0 1px 0 #ffffff08 inset}
+.app-preview-tabs button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:76px;padding:7px 10px;border:0;border-radius:8px;background:transparent;color:#95abc0;font:750 11px Inter,Segoe UI,sans-serif;cursor:pointer;transition:background .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease}
+.app-preview-tabs button:hover{background:#10243b;color:#fff}
+.app-preview-tabs button[aria-selected=true]{background:linear-gradient(180deg,#4ab7ff,#2b91dd);color:#03111f;box-shadow:0 5px 18px #0006,0 1px 0 #ffffff55 inset}
+.app-preview-tabs button:active{transform:translateY(1px)}
+.app-preview-dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.75}
+.app-shot-frame{position:relative;display:block;width:100%;padding:0;overflow:hidden;border:1px solid #2a4a68;border-radius:14px;background:#050d17;box-shadow:0 18px 52px #0008;cursor:zoom-in}
+.app-shot-frame::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:0 0 0 1px #ffffff0a inset,0 -70px 90px #00000020 inset}
+.hero .visual .app-shot{display:block;width:100%;height:auto;aspect-ratio:auto;object-fit:contain;border-radius:0;transform:translateZ(0);transition:transform .28s ease,filter .28s ease}
+.app-shot-frame:hover .app-shot{transform:scale(1.006);filter:brightness(1.025) saturate(1.02)}
+.app-preview-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 3px 1px;color:#7890a8;font-size:10px;font-weight:750;letter-spacing:.01em}
+.app-preview-meta .current{display:inline-flex;align-items:center;gap:7px;color:#91a9bf}
+.app-preview-status{width:7px;height:7px;border-radius:50%;background:#5ee3a2;box-shadow:0 0 11px #5ee3a2aa}
+.app-preview-hint{opacity:.9}
+.app-lightbox{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:28px;background:#02070de6;backdrop-filter:blur(16px);animation:appPreviewFade .18s ease-out}
+.app-lightbox-inner{position:relative;display:grid;place-items:center;max-width:96vw;max-height:92vh}
+.app-lightbox img{display:block;max-width:min(1380px,94vw);max-height:90vh;width:auto;height:auto;border:1px solid #3c6285;border-radius:15px;background:#07111f;box-shadow:0 35px 120px #000}
+.app-lightbox-close{position:fixed;top:20px;right:20px;z-index:2;display:grid;place-items:center;width:42px;height:42px;padding:0;border:1px solid #ffffff26;border-radius:50%;background:#0b1827ec;color:#fff;font:300 28px/1 Arial,sans-serif;cursor:pointer;box-shadow:0 12px 35px #0008;transition:background .18s ease,transform .18s ease}
+.app-lightbox-close:hover{background:#17324d;transform:scale(1.04)}
+@keyframes appPreviewFade{from{opacity:0}to{opacity:1}}
+@media(max-width:900px){.app-preview{max-width:720px;margin:auto}}
+@media(max-width:600px){.app-preview{padding:9px;border-radius:15px}.app-preview-head{align-items:flex-start;flex-direction:column;margin-bottom:9px}.app-preview-title{padding:1px 2px}.app-preview-tabs{width:100%}.app-preview-tabs button{flex:1;min-width:0}.app-shot-frame{border-radius:10px}.app-preview-meta{margin-top:8px}.app-preview-hint{display:none}.app-lightbox{padding:14px}.app-lightbox img{max-width:96vw;border-radius:10px}.app-lightbox-close{top:12px;right:12px}}
+@media(prefers-reduced-motion:reduce){.app-preview-tabs button,.app-shot-frame .app-shot,.app-lightbox-close{transition:none}.app-lightbox{animation:none}}
