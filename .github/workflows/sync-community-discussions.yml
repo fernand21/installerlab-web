@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "*/15 * * * *"
+  workflow_run:
+    workflows: ["Seed InstallerLab community guides"]
+    types: [completed]
   push:
     paths:
       - "**/*.html"
@@ -19,6 +22,7 @@ permissions:
 
 jobs:
   sync:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -86,7 +90,7 @@ jobs:
         run: |
           mkdir -p community/data
           python3 - <<'PY'
-          import json, os, glob, re, subprocess
+          import json, os, glob, subprocess
           from datetime import datetime, timezone
           from xml.sax.saxutils import escape
 
@@ -198,8 +202,6 @@ jobs:
               if stem not in current_numbers:
                   os.remove(path)
 
-          # Keep generatedAt stable when the public discussion content did not change.
-          # This prevents a no-op scheduled sync from creating a commit every 15 minutes.
           latest_update = max((d.get('updatedAt') or '' for d in discussions), default='')
           generated_at = latest_update or '1970-01-01T00:00:00Z'
 
@@ -215,10 +217,6 @@ jobs:
               json.dump(out, f, ensure_ascii=False, indent=2)
               f.write('\n')
 
-          # ---------- Dynamic sitemap ----------
-          # Every public index.html is discovered automatically. Pages containing
-          # a robots noindex directive (for example /community/new/) are excluded.
-          # Discussion detail URLs are added from the mirrored GitHub Discussions.
           special = {
               '': ('weekly', '1.0'),
               'windows-installer-builder': ('weekly', '1.0'),
@@ -240,10 +238,7 @@ jobs:
 
           def git_lastmod(path):
               try:
-                  return subprocess.check_output(
-                      ['git', 'log', '-1', '--format=%cs', '--', path],
-                      text=True
-                  ).strip() or datetime.now(timezone.utc).date().isoformat()
+                  return subprocess.check_output(['git','log','-1','--format=%cs','--',path], text=True).strip() or datetime.now(timezone.utc).date().isoformat()
               except Exception:
                   return datetime.now(timezone.utc).date().isoformat()
 
@@ -254,57 +249,29 @@ jobs:
               head = html.split('</head>', 1)[0].lower()
               if 'noindex' in head:
                   continue
-
               folder = os.path.dirname(path).replace('\\', '/').strip('/')
               loc = BASE if not folder else BASE + folder + '/'
               freq, priority = special.get(folder, ('monthly', '0.5'))
-              urls.append({
-                  'loc': loc,
-                  'lastmod': git_lastmod(path),
-                  'changefreq': freq,
-                  'priority': priority,
-              })
+              urls.append({'loc':loc,'lastmod':git_lastmod(path),'changefreq':freq,'priority':priority})
 
           for d in discussions:
               number = d.get('number')
               if number is None:
                   continue
-              updated = (d.get('updatedAt') or d.get('createdAt') or '')[:10]
-              if not updated:
-                  updated = datetime.now(timezone.utc).date().isoformat()
-              urls.append({
-                  'loc': f'{BASE}community/topic/?id={number}',
-                  'lastmod': updated,
-                  'changefreq': 'daily',
-                  'priority': '0.6',
-              })
+              updated = (d.get('updatedAt') or d.get('createdAt') or '')[:10] or datetime.now(timezone.utc).date().isoformat()
+              urls.append({'loc':f'{BASE}community/topic/?id={number}','lastmod':updated,'changefreq':'daily','priority':'0.6'})
 
-          # Deduplicate while preserving order.
-          seen = set()
-          unique = []
+          seen=set(); unique=[]
           for item in urls:
-              if item['loc'] in seen:
-                  continue
-              seen.add(item['loc'])
-              unique.append(item)
+              if item['loc'] in seen: continue
+              seen.add(item['loc']); unique.append(item)
 
-          lines = [
-              '<?xml version="1.0" encoding="UTF-8"?>',
-              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-          ]
+          lines=['<?xml version="1.0" encoding="UTF-8"?>','<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
           for item in unique:
-              lines.extend([
-                  '  <url>',
-                  f"    <loc>{escape(item['loc'])}</loc>",
-                  f"    <lastmod>{item['lastmod']}</lastmod>",
-                  f"    <changefreq>{item['changefreq']}</changefreq>",
-                  f"    <priority>{item['priority']}</priority>",
-                  '  </url>',
-              ])
+              lines.extend(['  <url>',f"    <loc>{escape(item['loc'])}</loc>",f"    <lastmod>{item['lastmod']}</lastmod>",f"    <changefreq>{item['changefreq']}</changefreq>",f"    <priority>{item['priority']}</priority>",'  </url>'])
           lines.append('</urlset>')
-
-          with open('sitemap.xml', 'w', encoding='utf-8') as f:
-              f.write('\n'.join(lines) + '\n')
+          with open('sitemap.xml','w',encoding='utf-8') as f:
+              f.write('\n'.join(lines)+'\n')
           PY
 
       - name: Publish mirror and sitemap when changed
