@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-06T03:22:42Z",
+  "generatedAt": "2026-09-06T03:24:32Z",
   "source": "GitHub Discussions",
   "repository": "fernand21/installerlab-web",
   "categories": [
@@ -41,6 +41,21 @@
     }
   ],
   "discussions": [
+    {
+      "number": 8,
+      "title": "Windows Integration Tutorial: Shortcuts, File Associations and Context Menus with InstallerLab",
+      "url": "https://github.com/fernand21/installerlab-web/discussions/8",
+      "bodyText": "Windows integration with InstallerLab\nA Windows installer often needs to do more than copy files. InstallerLab can keep common Windows integration rules in the same project as the application payload, including shortcuts, registry entries, file associations, Open With integration and context-menu commands.\nShortcuts\nShortcut rules belong in the [Icons] section of FSS. Use the visual editor for common shortcuts, then inspect the generated FSS when you need more control.\n[Icons]\n; Shortcut rules for the installed application.\nTipCreate only the shortcuts users actually need. A Start Menu shortcut is usually enough for many desktop applications; add a Desktop shortcut only when it improves the workflow.\n\nFile associations\nA file association connects a file extension with your installed application. A complete association normally needs a file type identity, the executable used to open it and the correct command-line parameter for the selected file.\nUser double-clicks a document\n          ↓\nWindows resolves the association\n          ↓\n{app}\\YourApp.exe \"selected-file\"\n\nOpen With\nOpen With integration can make your application available without forcing it to become the default handler for every compatible file.\nContext menus\nInstallerLab can create shell commands and context-menu entries, including parameterized actions and cascading submenu scenarios.\n\nContext-menu design checklist\n\nUse a short action name.\nPass the selected path with the correct quoting.\nPoint commands to the installed executable under {app}.\nAvoid adding too many top-level shell commands.\nTest files and folders separately when both are supported.\nVerify uninstall removes only the integration created by your application.\n\n\nRegistry rules\nWindows shell integration is backed by registry configuration. InstallerLab lets registry and integration rules live with the rest of the installer project instead of requiring a separate post-install script.\nImportantTest shell integration on a clean Windows account and after uninstall. Registry mistakes can leave stale menu entries or broken file associations even when the application files were removed correctly.\n\nWhy keeping integration in the installer project helps\n\n\n\nApproach\nBenefit\n\n\n\n\nVisual integration editor\nFaster setup for common Windows behaviors\n\n\nEditable FSS\nInspect and customize the generated rules\n\n\nSame project\nPayload and Windows integration change together\n\n\nUninstall rules\nEasier to test cleanup as part of the package\n\n\n\nInstallerLab features: https://fernand21.github.io/installerlab-web/features/\nDocumentation: https://fernand21.github.io/installerlab-web/docs/\nInstallerLab: https://fernand21.github.io/installerlab-web/\n\nOfficial InstallerLab community tutorial.",
+      "createdAt": "2026-09-06T03:24:32Z",
+      "updatedAt": "2026-09-06T03:24:32Z",
+      "user": "github-actions",
+      "avatar": "https://avatars.githubusercontent.com/in/15368?s=96&v=4",
+      "category": "General",
+      "categorySlug": "general",
+      "isAnswerable": false,
+      "comments": 0,
+      "answered": false
+    },
     {
       "number": 7,
       "title": "InstallerLab vs Inno Setup: Visual Workflow, FSS Control and When Each Approach Fits",
