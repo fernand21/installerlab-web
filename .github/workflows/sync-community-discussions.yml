@@ -10,6 +10,7 @@ on:
   push:
     paths:
       - "**/*.html"
+      - "community/guide-seeds/**"
       - ".github/workflows/sync-community-discussions.yml"
 
 concurrency:
@@ -86,11 +87,51 @@ jobs:
               }
             }' > /tmp/discussions-graphql.json
 
+      - name: Render official guide sources
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/guide-rendered
+          python3 - <<'PY'
+          import glob, json, os, re, subprocess
+
+          guides=[]
+          for path in sorted(glob.glob('community/guide-seeds/*.md')):
+              text=open(path,'r',encoding='utf-8').read()
+              mt=re.search(r'^<!-- title: (.*) -->$', text, re.M)
+              mc=re.search(r'^<!-- category: (.*) -->$', text, re.M)
+              if not mt or not mc:
+                  continue
+              body=re.sub(r'^<!-- (?:title|category): .* -->\n?', '', text, flags=re.M).lstrip('\n').rstrip()+"\n"
+              stem=os.path.splitext(os.path.basename(path))[0]
+              body_path=f'/tmp/guide-rendered/{stem}.md'
+              with open(body_path,'w',encoding='utf-8') as f:
+                  f.write(body)
+              try:
+                  lastmod=subprocess.check_output(['git','log','-1','--format=%cs','--',path],text=True).strip()
+              except Exception:
+                  lastmod=''
+              guides.append({'stem':stem,'path':path,'title':mt.group(1),'categorySlug':mc.group(1),'lastmod':lastmod})
+
+          with open('/tmp/guide-meta.json','w',encoding='utf-8') as f:
+              json.dump(guides,f,ensure_ascii=False,indent=2)
+          PY
+
+          for bodyfile in /tmp/guide-rendered/*.md; do
+            [ -e "$bodyfile" ] || continue
+            stem="$(basename "$bodyfile" .md)"
+            gh api -X POST /markdown \
+              -f text="$(cat "$bodyfile")" \
+              -f mode=gfm \
+              -f context="fernand21/installerlab-web" \
+              > "/tmp/guide-rendered/${stem}.html"
+          done
+
       - name: Build community mirror and dynamic sitemap
         run: |
           mkdir -p community/data
           python3 - <<'PY'
-          import json, os, glob, subprocess
+          import json, os, glob, re, subprocess
           from datetime import datetime, timezone
           from xml.sax.saxutils import escape
 
@@ -98,6 +139,31 @@ jobs:
 
           with open('/tmp/discussions-graphql.json', 'r', encoding='utf-8') as f:
               raw = json.load(f)
+
+          def markdown_plain(md):
+              s=str(md or '')
+              s=re.sub(r'```[^\n]*\n([\s\S]*?)```', r'\1', s)
+              s=re.sub(r'!\[([^\]]*)\]\([^)]+\)', r'\1', s)
+              s=re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', s)
+              s=re.sub(r'<[^>]+>', ' ', s)
+              s=re.sub(r'^[#>*+\-]+\s*', '', s, flags=re.M)
+              s=re.sub(r'\*\*|__|~~|`', '', s)
+              s=re.sub(r'\s+', ' ', s).strip()
+              return s
+
+          guide_by_title={}
+          if os.path.exists('/tmp/guide-meta.json'):
+              for g in json.load(open('/tmp/guide-meta.json','r',encoding='utf-8')):
+                  md_path=f"/tmp/guide-rendered/{g['stem']}.md"
+                  html_path=f"/tmp/guide-rendered/{g['stem']}.html"
+                  md=open(md_path,'r',encoding='utf-8').read() if os.path.exists(md_path) else ''
+                  html=open(html_path,'r',encoding='utf-8').read() if os.path.exists(html_path) else ''
+                  guide_by_title[g['title']]={
+                      'bodyText': markdown_plain(md),
+                      'bodyHTML': html,
+                      'lastmod': g.get('lastmod') or '',
+                      'categorySlug': g.get('categorySlug') or 'general',
+                  }
 
           repo = raw.get('data', {}).get('repository') or {}
           categories = []
@@ -123,6 +189,7 @@ jobs:
               category = item.get('category') or {}
               author = item.get('author') or {}
               comments_block = item.get('comments') or {}
+              official = guide_by_title.get(item.get('title') or '')
 
               comments = []
               for comment in comments_block.get('nodes') or []:
@@ -159,14 +226,22 @@ jobs:
                       'replies': replies,
                   })
 
+              body_text=(official or {}).get('bodyText') or item.get('bodyText') or ''
+              body_html=(official or {}).get('bodyHTML') or item.get('bodyHTML') or ''
+              updated_at=item.get('updatedAt')
+              if official and official.get('lastmod'):
+                  local_stamp=official['lastmod']+'T00:00:00Z'
+                  if not updated_at or local_stamp > updated_at:
+                      updated_at=local_stamp
+
               detail = {
                   'number': number,
                   'title': item.get('title') or '',
                   'url': item.get('url') or '',
-                  'bodyText': item.get('bodyText') or '',
-                  'bodyHTML': item.get('bodyHTML') or '',
+                  'bodyText': body_text,
+                  'bodyHTML': body_html,
                   'createdAt': item.get('createdAt'),
-                  'updatedAt': item.get('updatedAt'),
+                  'updatedAt': updated_at,
                   'user': author.get('login') or 'developer',
                   'avatar': author.get('avatarUrl') or '',
                   'category': category.get('name') or 'General',
@@ -174,6 +249,7 @@ jobs:
                   'isAnswerable': bool(category.get('isAnswerable')),
                   'commentCount': int(comments_block.get('totalCount') or 0),
                   'answered': bool(item.get('answerChosenAt')),
+                  'officialGuide': bool(official),
                   'comments': comments,
               }
 
@@ -195,6 +271,7 @@ jobs:
                   'isAnswerable': detail['isAnswerable'],
                   'comments': detail['commentCount'],
                   'answered': detail['answered'],
+                  'officialGuide': detail['officialGuide'],
               })
 
           for path in glob.glob('community/data/*.json'):
@@ -263,7 +340,8 @@ jobs:
 
           seen=set(); unique=[]
           for item in urls:
-              if item['loc'] in seen: continue
+              if item['loc'] in seen:
+                  continue
               seen.add(item['loc']); unique.append(item)
 
           lines=['<?xml version="1.0" encoding="UTF-8"?>','<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
