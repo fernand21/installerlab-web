@@ -2,10 +2,11 @@
   const FEED = '../discussions.json';
   const DATA = '../data/';
   const DISCUSSIONS = 'https://github.com/fernand21/installerlab-web/discussions';
+  const SITE_TOPIC = 'https://fernand21.github.io/installerlab-web/community/topic/';
 
   const copy = {
-    en:{navHome:'Home',navFeatures:'Features',navDocs:'Documentation',navCommunity:'Community',navDownload:'Download',backCommunity:'← Back to Community',loading:'Loading discussion…',errorTitle:'This discussion could not be loaded.',errorCopy:'You can still open it directly on GitHub.',replyGithub:'Reply on GitHub →',openGithub:'Open original discussion ↗',repliesEyebrow:'REPLIES',repliesTitle:'Community replies',noRepliesTitle:'No replies yet.',noRepliesCopy:'Be the first to continue the conversation on GitHub.',answered:'Answered',answer:'Accepted answer',viewReply:'Open on GitHub ↗',previous:'Previous discussion',next:'Next discussion',footerCopy:'Windows installer tooling for developers.'},
-    es:{navHome:'Inicio',navFeatures:'Funciones',navDocs:'Documentación',navCommunity:'Comunidad',navDownload:'Descargar',backCommunity:'← Volver a Comunidad',loading:'Cargando discusión…',errorTitle:'No se pudo cargar esta discusión.',errorCopy:'Aun así puedes abrirla directamente en GitHub.',replyGithub:'Responder en GitHub →',openGithub:'Abrir discusión original ↗',repliesEyebrow:'RESPUESTAS',repliesTitle:'Respuestas de la comunidad',noRepliesTitle:'Aún no hay respuestas.',noRepliesCopy:'Sé el primero en continuar la conversación en GitHub.',answered:'Resuelta',answer:'Respuesta aceptada',viewReply:'Abrir en GitHub ↗',previous:'Discusión anterior',next:'Discusión siguiente',footerCopy:'Herramientas de instalación de Windows para desarrolladores.'}
+    en:{navHome:'Home',navFeatures:'Features',navDocs:'Documentation',navCommunity:'Community',navDownload:'Download',backCommunity:'← Back to Community',loading:'Loading discussion…',errorTitle:'This discussion could not be loaded.',errorCopy:'You can still open it directly on GitHub.',replyGithub:'Reply on GitHub →',openGithub:'Open original discussion ↗',repliesEyebrow:'REPLIES',repliesTitle:'Community replies',noRepliesTitle:'No replies yet.',noRepliesCopy:'Be the first to continue the conversation on GitHub.',answered:'Answered',answer:'Accepted answer',viewReply:'Open on GitHub ↗',previous:'Previous discussion',next:'Next discussion',footerCopy:'Windows installer tooling for developers.',copyCode:'Copy',copied:'Copied!'},
+    es:{navHome:'Inicio',navFeatures:'Funciones',navDocs:'Documentación',navCommunity:'Comunidad',navDownload:'Descargar',backCommunity:'← Volver a Comunidad',loading:'Cargando discusión…',errorTitle:'No se pudo cargar esta discusión.',errorCopy:'Aun así puedes abrirla directamente en GitHub.',replyGithub:'Responder en GitHub →',openGithub:'Abrir discusión original ↗',repliesEyebrow:'RESPUESTAS',repliesTitle:'Respuestas de la comunidad',noRepliesTitle:'Aún no hay respuestas.',noRepliesCopy:'Sé el primero en continuar la conversación en GitHub.',answered:'Resuelta',answer:'Respuesta aceptada',viewReply:'Abrir en GitHub ↗',previous:'Discusión anterior',next:'Discusión siguiente',footerCopy:'Herramientas de instalación de Windows para desarrolladores.',copyCode:'Copiar',copied:'¡Copiado!'}
   };
 
   let lang=(localStorage.getItem('il-lang')||'en').toLowerCase()==='es'?'es':'en';
@@ -35,6 +36,83 @@
     return root.innerHTML;
   }
 
+  function slugify(text){
+    return String(text||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,70)||'section';
+  }
+
+  function decorateGithubBody(root){
+    if(!root) return;
+    root.classList.add('rich-post');
+    const used=new Set();
+    root.querySelectorAll('h2,h3').forEach((h,i)=>{
+      let id=slugify(h.textContent);
+      while(used.has(id)||document.getElementById(id)) id=`${id}-${i+1}`;
+      used.add(id);
+      h.id=id;
+      const a=document.createElement('a');
+      a.className='heading-anchor';
+      a.href=`#${id}`;
+      a.textContent='#';
+      a.title='Link to this section';
+      a.target='_self';
+      a.rel='';
+      h.appendChild(a);
+    });
+    root.querySelectorAll('pre').forEach(pre=>{
+      if(pre.parentElement?.classList.contains('code-shell')) return;
+      const shell=document.createElement('div');
+      shell.className='code-shell';
+      pre.parentNode.insertBefore(shell,pre);
+      shell.appendChild(pre);
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='code-copy';
+      btn.textContent=copy[lang].copyCode;
+      btn.addEventListener('click',async()=>{
+        try{
+          await navigator.clipboard.writeText(pre.innerText);
+          btn.textContent=copy[lang].copied;
+          btn.classList.add('copied');
+          setTimeout(()=>{btn.textContent=copy[lang].copyCode;btn.classList.remove('copied');},1300);
+        }catch{}
+      });
+      shell.appendChild(btn);
+    });
+    root.querySelectorAll('img').forEach(img=>{img.loading='lazy';img.decoding='async';});
+  }
+
+  function setDynamicSeo(){
+    if(!topic) return;
+    const clean=(topic.bodyText||'').replace(/\s+/g,' ').trim();
+    const description=clean.slice(0,155)||'InstallerLab Community discussion for Windows installer developers.';
+    document.title=`${topic.title} — InstallerLab Community`;
+    const desc=document.querySelector('meta[name="description"]');
+    if(desc) desc.content=description;
+    let canonical=document.querySelector('link[rel="canonical"]');
+    if(!canonical){canonical=document.createElement('link');canonical.rel='canonical';document.head.appendChild(canonical);}
+    canonical.href=`${SITE_TOPIC}?id=${encodeURIComponent(topic.number)}`;
+    const metas=[['og:title',topic.title],['og:description',description],['og:url',canonical.href]];
+    metas.forEach(([property,content])=>{
+      let m=document.querySelector(`meta[property="${property}"]`);
+      if(!m){m=document.createElement('meta');m.setAttribute('property',property);document.head.appendChild(m);}
+      m.content=content;
+    });
+    let schema=q('#topic-schema');
+    if(!schema){schema=document.createElement('script');schema.id='topic-schema';schema.type='application/ld+json';document.head.appendChild(schema);}
+    schema.textContent=JSON.stringify({
+      '@context':'https://schema.org',
+      '@type':'DiscussionForumPosting',
+      headline:topic.title||'InstallerLab Community',
+      articleBody:topic.bodyText||'',
+      datePublished:topic.createdAt||undefined,
+      dateModified:topic.updatedAt||topic.createdAt||undefined,
+      url:canonical.href,
+      author:{'@type':'Person',name:topic.user||'InstallerLab Community'},
+      interactionStatistic:{'@type':'InteractionCounter',interactionType:'https://schema.org/CommentAction',userInteractionCount:Number(topic.commentCount||0)},
+      isPartOf:{'@type':'DiscussionForumPosting',name:'InstallerLab Community',url:'https://fernand21.github.io/installerlab-web/community/'}
+    });
+  }
+
   function applyLanguage(){
     document.documentElement.lang=lang;
     localStorage.setItem('il-lang',lang);
@@ -61,6 +139,7 @@
     q('#topic-date').textContent=dateText(topic.createdAt);
     q('#topic-avatar').src=topic.avatar||'../../assets/icon.png';
     q('#topic-body').innerHTML=safeGithubHtml(topic.bodyHTML,topic.bodyText);
+    decorateGithubBody(q('#topic-body'));
     q('#open-on-github').href=topic.url||DISCUSSIONS;
     q('#reply-on-github').href=topic.url||DISCUSSIONS;
     q('#topic-answered').hidden=!topic.answered;
@@ -70,11 +149,9 @@
     const comments=q('#topic-comments');
     const list=topic.comments||[];
     comments.innerHTML=list.map(renderComment).join('');
+    comments.querySelectorAll('.github-body').forEach(decorateGithubBody);
     q('#no-comments').hidden=list.length>0;
-
-    document.title=`${topic.title} — InstallerLab Community`;
-    const desc=document.querySelector('meta[name="description"]');
-    if(desc && topic.bodyText) desc.content=topic.bodyText.replace(/\s+/g,' ').trim().slice(0,155);
+    setDynamicSeo();
   }
 
   function setupPager(feed){
