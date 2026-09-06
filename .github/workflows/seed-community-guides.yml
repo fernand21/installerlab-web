@@ -7,6 +7,10 @@ on:
       - ".github/workflows/seed-community-guides.yml"
       - "community/guide-seeds/**"
 
+concurrency:
+  group: installerlab-community-guide-seed
+  cancel-in-progress: true
+
 permissions:
   contents: read
   discussions: write
@@ -23,11 +27,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh api graphql \
-            -f query='query { repository(owner:"fernand21", name:"installerlab-web") { id discussionCategories(first:25) { nodes { id name slug } } discussions(first:100) { nodes { title } } } }' \
+            -f query='query { repository(owner:"fernand21", name:"installerlab-web") { id discussionCategories(first:25) { nodes { id name slug } } discussions(first:100) { nodes { id title body category { id slug } } } } }' \
             > /tmp/community-meta.json
-          jq -r '.data.repository.discussions.nodes[].title' /tmp/community-meta.json > /tmp/existing-titles.txt
 
-      - name: Create missing official guides
+      - name: Create or update official guides
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -44,24 +47,37 @@ jobs:
               exit 1
             fi
 
-            if grep -Fxq "$title" /tmp/existing-titles.txt; then
-              echo "Already exists: $title"
-              continue
-            fi
-
             CATEGORY_ID="$(jq -r --arg slug "$slug" '.data.repository.discussionCategories.nodes[] | select(.slug==$slug) | .id' /tmp/community-meta.json | head -n1)"
             if [ -z "$CATEGORY_ID" ] || [ "$CATEGORY_ID" = "null" ]; then
               echo "Missing discussion category: $slug" >&2
               exit 1
             fi
 
-            echo "Creating: $title"
-            gh api graphql \
-              -f repositoryId="$REPO_ID" \
-              -f categoryId="$CATEGORY_ID" \
-              -f title="$title" \
-              -f body="$body" \
-              -f query='mutation($repositoryId:ID!, $categoryId:ID!, $title:String!, $body:String!) { createDiscussion(input:{repositoryId:$repositoryId, categoryId:$categoryId, title:$title, body:$body}) { discussion { number url } } }'
+            DISCUSSION_ID="$(jq -r --arg title "$title" '.data.repository.discussions.nodes[] | select(.title==$title) | .id' /tmp/community-meta.json | head -n1)"
 
-            echo "$title" >> /tmp/existing-titles.txt
+            if [ -n "$DISCUSSION_ID" ] && [ "$DISCUSSION_ID" != "null" ]; then
+              EXISTING_BODY="$(jq -r --arg title "$title" '.data.repository.discussions.nodes[] | select(.title==$title) | .body' /tmp/community-meta.json | head -n1)"
+              EXISTING_SLUG="$(jq -r --arg title "$title" '.data.repository.discussions.nodes[] | select(.title==$title) | .category.slug' /tmp/community-meta.json | head -n1)"
+
+              if [ "$EXISTING_BODY" = "$body" ] && [ "$EXISTING_SLUG" = "$slug" ]; then
+                echo "Already current: $title"
+                continue
+              fi
+
+              echo "Updating: $title"
+              gh api graphql \
+                -f discussionId="$DISCUSSION_ID" \
+                -f categoryId="$CATEGORY_ID" \
+                -f title="$title" \
+                -f body="$body" \
+                -f query='mutation($discussionId:ID!, $categoryId:ID!, $title:String!, $body:String!) { updateDiscussion(input:{discussionId:$discussionId, categoryId:$categoryId, title:$title, body:$body}) { discussion { number url updatedAt } } }'
+            else
+              echo "Creating: $title"
+              gh api graphql \
+                -f repositoryId="$REPO_ID" \
+                -f categoryId="$CATEGORY_ID" \
+                -f title="$title" \
+                -f body="$body" \
+                -f query='mutation($repositoryId:ID!, $categoryId:ID!, $title:String!, $body:String!) { createDiscussion(input:{repositoryId:$repositoryId, categoryId:$categoryId, title:$title, body:$body}) { discussion { number url } } }'
+            fi
           done
