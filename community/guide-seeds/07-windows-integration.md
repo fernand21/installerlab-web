@@ -45,23 +45,28 @@ Open with → Your application
         ↓
 Windows starts your EXE
         ↓
-Your application reads the file path from its arguments
+Your application reads the first command-line argument
         ↓
-Your code opens/imports/processes that file
+Your code opens / imports / processes that file
 ```
 
-### B4J example: read the selected file
+> [!TIP]
+> InstallerLab handles the **Windows registration**. Your application handles the **argument after launch**. These are two separate jobs.
 
-For a B4J UI application, the command-line arguments are available in `AppStart`:
+## Read the file path in the main programming languages
+
+The Windows side is the same regardless of programming language: your installed executable receives the selected path as a command-line argument. Only the way your application reads that argument changes.
+
+<details open>
+<summary><strong>B4J</strong></summary>
+
+For a B4J UI application, command-line arguments are available in `AppStart`:
 
 ```b4x
 Sub AppStart (Form1 As Form, Args() As String)
     If Args.Length > 0 Then
         Dim OpenedFile As String = Args(0)
         Log("File received from Windows: " & OpenedFile)
-
-        ' Call your own routine here.
-        ' Example:
         ' OpenDocument(OpenedFile)
     End If
 
@@ -69,14 +74,149 @@ Sub AppStart (Form1 As Form, Args() As String)
 End Sub
 ```
 
-During development you can use B4J's `#CommandLineArgs` project attribute to simulate an incoming file path.
+During development you can simulate an incoming file path with:
 
 ```b4x
 #CommandLineArgs: C:\Tests\sample.xlam
 ```
 
-> [!TIP]
-> InstallerLab handles the **Windows registration**. Your application handles the **argument after launch**. These are two separate jobs.
+</details>
+
+<details>
+<summary><strong>C# / .NET</strong></summary>
+
+A classic `Main` entry point receives the arguments directly:
+
+```csharp
+static void Main(string[] args)
+{
+    if (args.Length > 0)
+    {
+        string openedFile = args[0];
+        Console.WriteLine($"File received from Windows: {openedFile}");
+        // OpenDocument(openedFile);
+    }
+
+    // Start your WinForms, WPF or other application here.
+}
+```
+
+In GUI applications that already have their own startup class, read the process command line at startup and pass the first application argument to your document-opening routine.
+
+</details>
+
+<details>
+<summary><strong>VB.NET</strong></summary>
+
+```vbnet
+Sub Main(args As String())
+    If args.Length > 0 Then
+        Dim openedFile As String = args(0)
+        Console.WriteLine("File received from Windows: " & openedFile)
+        ' OpenDocument(openedFile)
+    End If
+
+    ' Start your application here.
+End Sub
+```
+
+</details>
+
+<details>
+<summary><strong>C / C++ on Windows</strong></summary>
+
+For Unicode Windows paths, `wmain` is convenient:
+
+```cpp
+#include <windows.h>
+#include <iostream>
+
+int wmain(int argc, wchar_t* argv[])
+{
+    if (argc > 1)
+    {
+        const wchar_t* openedFile = argv[1];
+        std::wcout << L"File received from Windows: " << openedFile << L"\n";
+        // OpenDocument(openedFile);
+    }
+
+    return 0;
+}
+```
+
+Remember that `argv[0]` is the executable path, so the selected document is normally `argv[1]`.
+
+</details>
+
+<details>
+<summary><strong>Java</strong></summary>
+
+```java
+public static void main(String[] args) {
+    if (args.length > 0) {
+        String openedFile = args[0];
+        System.out.println("File received from Windows: " + openedFile);
+        // openDocument(openedFile);
+    }
+
+    // Start Swing, JavaFX or your application framework here.
+}
+```
+
+</details>
+
+<details>
+<summary><strong>Python</strong></summary>
+
+Python keeps the executable/script name at index `0`, so the first file argument is index `1`:
+
+```python
+import sys
+
+if len(sys.argv) > 1:
+    opened_file = sys.argv[1]
+    print(f"File received from Windows: {opened_file}")
+    # open_document(opened_file)
+
+# Start your Tkinter, PySide, PyQt or other UI here.
+```
+
+</details>
+
+<details>
+<summary><strong>Delphi / Object Pascal</strong></summary>
+
+```pascal
+begin
+  if ParamCount > 0 then
+  begin
+    OpenedFile := ParamStr(1);
+    // OpenDocument(OpenedFile);
+  end;
+
+  Application.Initialize;
+  Application.Run;
+end;
+```
+
+`ParamStr(0)` is the executable path; `ParamStr(1)` is the first argument supplied by Windows.
+
+</details>
+
+### Same idea, different syntax
+
+| Language | First file argument |
+|---|---|
+| B4J | `Args(0)` |
+| C# | `args[0]` |
+| VB.NET | `args(0)` |
+| C / C++ | `argv[1]` |
+| Java | `args[0]` |
+| Python | `sys.argv[1]` |
+| Delphi | `ParamStr(1)` |
+
+> [!NOTE]
+> The exact startup method can vary by framework. For example, WPF, WinForms, JavaFX, PySide or Delphi VCL may have framework-specific startup hooks. The key concept does not change: read the file path passed on the process command line and route it to your application's open/import routine.
 
 ## Do I need to edit `[Registry]` for Open With?
 
@@ -93,7 +233,7 @@ Generated Windows registry integration
                 ↓
 Windows launches your app with the selected file
                 ↓
-Your code reads Args(0)
+Your application reads the first argument
 ```
 
 ## Context menus
