@@ -36,6 +36,9 @@ https://github.com/fernand21/installerlab-web/releases/tag/v2.0.0
 ## Search-focused guides
 
 - Windows installer builder: https://fernand21.github.io/installerlab-web/windows-installer-builder/
+- WiX Burn Bundle / bootstrapper builder: https://fernand21.github.io/installerlab-web/bundle-builder/
+- Inno Setup ISS → FSS importer: https://fernand21.github.io/installerlab-web/inno-setup-importer/
+- FSS Analyzer / installer project validator: https://fernand21.github.io/installerlab-web/fss-analyzer/
 - MSI builder: https://fernand21.github.io/installerlab-web/msi-builder/
 - Portable app builder: https://fernand21.github.io/installerlab-web/portable-app-builder/
 - B4J installer / portable builder: https://fernand21.github.io/installerlab-web/b4j-installer/
