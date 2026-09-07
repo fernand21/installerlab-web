@@ -4,17 +4,17 @@ InstallerLab v2.0.0 is a major update focused on producing more Windows package 
 
 ## Setup EXE hotfix — September 7, 2026
 
-The recommended **InstallerLab-Setup.exe** asset was refreshed after cross-machine testing exposed two Setup-bootstrapper issues.
+The recommended **InstallerLab-Setup.exe** asset was refreshed after cross-machine testing exposed two Setup-bootstrapper issues. The **InstallerLab_Bundle.exe** asset was also rebuilt and republished from the same corrected v2 toolchain configuration.
 
 - **Setup-specific single-instance handling** — a second launch now reports that InstallerLab Setup is already running instead of showing the old Portable-session message or a misleading runtime failure.
 - **Safer retry behavior** — Setup owns its own session lock lifecycle so a failed or closed installer does not intentionally share Portable's multi-instance behavior.
 - **Improved runtime diagnostics** — the Setup bootstrapper now preserves the inner installer process exit code and records decimal/hexadecimal exit information, timing and the inner log path, making machine-specific startup failures easier to diagnose.
-- **Scoped fix** — this replacement updates only the recommended Setup EXE. The MSI, Bundle and Portable release assets are unchanged.
+- **Scoped fix** — the Setup EXE and Bundle EXE were refreshed. The MSI and Portable release assets are unchanged.
 
 Updated Setup EXE:
 
 - Size: `416829952` bytes
-- SHA-256: `8f34a3e7bf2efe1c501a85b21a4132a47361d4db468993e329f998f568570eeb`
+- SHA-256: `12a98e09a18ed61b330ed2dfad8d16e198e4a9ae656da9438eb9ac668840b95e`
 
 ## Highlights
 
@@ -35,7 +35,7 @@ Updated Setup EXE:
 
 **InstallerLab-Setup.exe**  
 Size: `416829952` bytes  
-SHA-256: `8f34a3e7bf2efe1c501a85b21a4132a47361d4db468993e329f998f568570eeb`
+SHA-256: `12a98e09a18ed61b330ed2dfad8d16e198e4a9ae656da9438eb9ac668840b95e`
 
 https://github.com/fernand21/installerlab-web/releases/download/v2.0.0/InstallerLab-Setup.exe
 
@@ -44,8 +44,8 @@ Use this build for a normal Windows installation. It is the recommended edition 
 ### Bundle EXE
 
 **InstallerLab_Bundle.exe**  
-Size: `311692493` bytes  
-SHA-256: `9093b2d7c2caaad0a5f4f1e3e80f4ad684e961aad9576aabccff6c823f958472`
+Size: `311692735` bytes  
+SHA-256: `9d1b0bff2e8c8102c57b98290be4d0891143d43f2cdb5b41d205589c899baa41`
 
 https://github.com/fernand21/installerlab-web/releases/download/v2.0.0/InstallerLab_Bundle.exe
 

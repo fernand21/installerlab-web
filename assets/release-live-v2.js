@@ -7,9 +7,9 @@
     html_url:'https://github.com/fernand21/installerlab-web/releases/tag/v2.0.0',
     published_at:'2026-09-07T04:58:06Z',
     assets:[
-      {name:'InstallerLab-Setup.exe',size:416829952,download_count:0,digest:'sha256:8f34a3e7bf2efe1c501a85b21a4132a47361d4db468993e329f998f568570eeb',browser_download_url:'https://github.com/fernand21/installerlab-web/releases/download/v2.0.0/InstallerLab-Setup.exe'},
+      {name:'InstallerLab-Setup.exe',size:416829952,download_count:0,digest:'sha256:12a98e09a18ed61b330ed2dfad8d16e198e4a9ae656da9438eb9ac668840b95e',browser_download_url:'https://github.com/fernand21/installerlab-web/releases/download/v2.0.0/InstallerLab-Setup.exe'},
       {name:'InstallerLab-Setup.msi',size:308671204,download_count:0,digest:'sha256:e856c5bde4553180193266a2b7eabd6023d27f12dbf026b2d8321363609632b6',browser_download_url:'https://github.com/fernand21/installerlab-web/releases/download/v2.0.0/InstallerLab-Setup.msi'},
-      {name:'InstallerLab_Bundle.exe',size:311692493,download_count:0,digest:'sha256:9093b2d7c2caaad0a5f4f1e3e80f4ad684e961aad9576aabccff6c823f958472',browser_download_url:'https://github.com/fernand21/installerlab-web/releases/download/v2.0.0/InstallerLab_Bundle.exe'},
+      {name:'InstallerLab_Bundle.exe',size:311692735,download_count:0,digest:'sha256:9d1b0bff2e8c8102c57b98290be4d0891143d43f2cdb5b41d205589c899baa41',browser_download_url:'https://github.com/fernand21/installerlab-web/releases/download/v2.0.0/InstallerLab_Bundle.exe'},
       {name:'InstallerLab_Portable.exe',size:316122624,download_count:0,digest:'sha256:49fda95dbd145b5901fdd2dc0ff1ede4e7c67876677b5494d0b1d6c845e7d86c',browser_download_url:'https://github.com/fernand21/installerlab-web/releases/download/v2.0.0/InstallerLab_Portable.exe'}
     ]
   };
