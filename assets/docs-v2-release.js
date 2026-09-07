@@ -8,11 +8,14 @@
     const main=document.querySelector('.docv2-main');if(!main||main.dataset.v2Release==='1')return;main.dataset.v2Release='1';
     const es=lang()==='es';
     const badges=document.querySelector('.docv2-badges');
-    if(badges){if(!badges.querySelector('[data-bundle-badge]'))badges.insertAdjacentHTML('beforeend',`<span class="docv2-badge" data-bundle-badge>Bundle / Burn</span><span class="docv2-badge">FSS Analyzer</span><span class="docv2-badge">ISS → FSS</span>`);}
+    if(badges&&!badges.querySelector('[data-bundle-badge]'))badges.insertAdjacentHTML('beforeend',`<span class="docv2-badge" data-bundle-badge>Bundle / Burn</span><span class="docv2-badge">FSS Analyzer</span><span class="docv2-badge">ISS → FSS</span>`);
     const packaging=[...document.querySelectorAll('.docv2-navgroup')].find(g=>(g.querySelector('b')?.textContent||'').match(/Empaquetado|Packaging/i));
     if(packaging&&!packaging.querySelector('a[href="#bundle"]'))packaging.insertAdjacentHTML('beforeend','<a href="#bundle">Bundle / Burn</a>');
     const reference=[...document.querySelectorAll('.docv2-navgroup')].find(g=>(g.querySelector('b')?.textContent||'').match(/Referencia|Reference/i));
-    if(reference&&!reference.querySelector('a[href="#fss-tools"]'))reference.insertAdjacentHTML('afterbegin',`<b style="display:none"></b><a href="#fss-tools">${es?'Analizador e importador':'Analyzer & importer'}</a><a href="#zero-trash">ZERO-TRASH</a>`);
+    if(reference&&!reference.querySelector('a[href="#fss-tools"]')){
+      const heading=reference.querySelector('b');
+      if(heading)heading.insertAdjacentHTML('afterend',`<a href="#fss-tools">${es?'Analizador e importador':'Analyzer & importer'}</a><a href="#zero-trash">ZERO-TRASH</a>`);
+    }
 
     const msi=document.getElementById('msi');
     if(msi){
@@ -62,7 +65,6 @@
 </article>`);
 
     const workflow=document.getElementById('workflow');if(workflow)workflow.insertAdjacentHTML('beforeend',es?'<div class="docv2-callout good"><strong>v2:</strong> desde el mismo FSS puedes dirigir el build a Setup EXE, MSI, Bundle, Portable o B4J Portable sin convertir el staging en estado permanente del proyecto.</div>':'<div class="docv2-callout good"><strong>v2:</strong> the same FSS can drive Setup EXE, MSI, Bundle, Portable or B4J Portable without turning build staging into permanent project state.</div>');
-
     document.querySelectorAll('[data-v2-copy]').forEach(btn=>btn.addEventListener('click',()=>navigator.clipboard.writeText(btn.closest('.docv2-code').querySelector('code').textContent).then(()=>{btn.textContent=es?'Copiado':'Copied';setTimeout(()=>btn.textContent=es?'Copiar':'Copy',1200)})));
   }
   function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;apply();});}
