@@ -1,0 +1,32 @@
+name: Create InstallerLab v2.0.0 release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/create-v2-release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create v2.0.0 release if missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view v2.0.0 >/dev/null 2>&1; then
+            echo "Release v2.0.0 already exists."
+            exit 0
+          fi
+          gh release create v2.0.0 \
+            --target main \
+            --title "InstallerLab v2.0.0 — MSI, Bundle & Cleaner Build Pipeline" \
+            --notes-file RELEASE_NOTES_v2.0.0.md
