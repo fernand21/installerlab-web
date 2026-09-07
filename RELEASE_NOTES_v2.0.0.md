@@ -2,6 +2,20 @@
 
 InstallerLab v2.0.0 is a major update focused on producing more Windows package formats from the same lightweight FSS project while keeping the build process clean and reproducible.
 
+## Setup EXE hotfix — September 7, 2026
+
+The recommended **InstallerLab-Setup.exe** asset was refreshed after cross-machine testing exposed two Setup-bootstrapper issues.
+
+- **Setup-specific single-instance handling** — a second launch now reports that InstallerLab Setup is already running instead of showing the old Portable-session message or a misleading runtime failure.
+- **Safer retry behavior** — Setup owns its own session lock lifecycle so a failed or closed installer does not intentionally share Portable's multi-instance behavior.
+- **Improved runtime diagnostics** — the Setup bootstrapper now preserves the inner installer process exit code and records decimal/hexadecimal exit information, timing and the inner log path, making machine-specific startup failures easier to diagnose.
+- **Scoped fix** — this replacement updates only the recommended Setup EXE. The MSI, Bundle and Portable release assets are unchanged.
+
+Updated Setup EXE:
+
+- Size: `416829952` bytes
+- SHA-256: `8f34a3e7bf2efe1c501a85b21a4132a47361d4db468993e329f998f568570eeb`
+
 ## Highlights
 
 - **WiX Burn Bundle support** — build a single Bundle EXE that can chain prerequisite packages and the main MSI.
@@ -20,8 +34,8 @@ InstallerLab v2.0.0 is a major update focused on producing more Windows package 
 ### Recommended — Setup EXE
 
 **InstallerLab-Setup.exe**  
-Size: `416823296` bytes  
-SHA-256: `86c96a8a3255a2ed8622a9a100deb5a2e09c75a1be6977c8fa01e06675f26a22`
+Size: `416829952` bytes  
+SHA-256: `8f34a3e7bf2efe1c501a85b21a4132a47361d4db468993e329f998f568570eeb`
 
 https://github.com/fernand21/installerlab-web/releases/download/v2.0.0/InstallerLab-Setup.exe
 
