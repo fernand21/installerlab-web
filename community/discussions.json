@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-06T03:24:32Z",
+  "generatedAt": "2026-09-09T19:25:10Z",
   "source": "GitHub Discussions",
   "repository": "fernand21/installerlab-web",
   "categories": [
@@ -41,6 +41,22 @@
     }
   ],
   "discussions": [
+    {
+      "number": 9,
+      "title": "[Help] Error on InstallerLab Installation",
+      "url": "https://github.com/fernand21/installerlab-web/discussions/9",
+      "bodyText": "InstallerLab area / Área de InstallerLab\nSetup EXE\nQuestion or problem / Pregunta o problema\nReceived the following error while trying to install InstallerLab:\n\nNo window opened to accept the Open Source Maintenance Fee. Also unable to scroll to see the rest of the error message(s).\nSteps, FSS or logs / Pasos, FSS o logs\nNo response\nInstallerLab version / Versión de InstallerLab\n2.0.0\nWindows / Environment / Entorno\nWindows 11 64-bit Professional version 23H2",
+      "createdAt": "2026-09-09T19:25:10Z",
+      "updatedAt": "2026-09-09T19:25:10Z",
+      "user": "dghoskins",
+      "avatar": "https://avatars.githubusercontent.com/u/16145298?s=96&v=4",
+      "category": "Q&A",
+      "categorySlug": "q-a",
+      "isAnswerable": true,
+      "comments": 0,
+      "answered": false,
+      "officialGuide": false
+    },
     {
       "number": 8,
       "title": "Windows Integration Tutorial: Shortcuts, File Associations and Context Menus with InstallerLab",
