@@ -1,38 +1,61 @@
-# Documentación de InstallerLab v2
+# Documentación de InstallerLab v3
 
-La documentación pública se sirve desde `docs/index.html` y utiliza los recursos globales del sitio junto con:
+La documentación pública se sirve desde `docs/index.html`. InstallerLab v3 conserva la estética y la base documental existente, y añade una capa específica para las funciones de la versión 3.
 
-- `assets/docs-v2.css`: diseño específico de la documentación.
-- `assets/docs-v2.js`: contenido base, navegación, búsqueda y versión ES/EN.
-- `assets/docs-v2-release.js`: ampliaciones de InstallerLab v2 para Bundle/Burn, FSS Analyzer, importador ISS → FSS, requisitos de WiX y ZERO-TRASH.
+Recursos principales:
 
-La documentación explica primero el flujo visual de InstallerLab y después expone el archivo `.fss` como referencia editable. El FSS sigue siendo la definición ligera y permanente del proyecto; el staging de compilación es temporal.
+- `assets/docs-v2.css` / `assets/docs-v2.js`: base visual y contenido heredado de la documentación.
+- `assets/docs-v2-release.js`: funciones introducidas en v2 que siguen vigentes, como Bundle/Burn, FSS Analyzer, ISS → FSS y ZERO-TRASH.
+- `assets/docs-v3-release.css` / `assets/docs-v3-release.js`: contenido y estilos de InstallerLab v3.
+- `comparison/index.html` + `assets/comparison-v3.*`: comparativa independiente de herramientas.
 
-## Capacidades documentadas
+El archivo `.fss` continúa siendo la definición ligera y permanente del proyecto. El staging de compilación sigue siendo temporal.
 
+## Capacidades documentadas en v3
+
+- ProjectType `Application`
+- ProjectType `OfficeAddin`
+- ProjectType `QgisPlugin`
+- Smart Build Targets según el tipo de proyecto
 - Setup EXE
-- MSI mediante WiX
-- Bundle / WiX Burn con cadena de prerequisitos
+- MSI mediante WiX 7.x
+- Bundle / WiX Burn
 - Portable
 - B4J Portable
+- Office Add-ins VBA para Excel, Word y PowerPoint
+- QGIS Python Plugins desde carpeta o ZIP
+- CLI headless (`analyze`, `build`, `sbom`)
+- SBOM CycloneDX y SPDX
+- Firma Authenticode mediante SignTool
+- Windows Services para proyectos Application compatibles
+- Resolución automática genérica de idioma
 - FSS Analyzer
 - Importador ISS → FSS
 - Política ZERO-TRASH bajo `%TEMP%\InstallerLab`
-- Idiomas y temas
-- Archivos y carpetas
-- Accesos directos
-- Registro e integración con Windows
-- Reglas de instalación y desinstalación
+- Idiomas, temas y branding
+- Archivos, carpetas, accesos directos, registro e integración con Windows
+
+## Matriz de build
+
+| ProjectType | EXE | Portable | B4J Portable | MSI | Bundle |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Application | ✅ | ✅ | ✅ | ✅ | ✅ |
+| OfficeAddin | — | — | — | ✅ | ✅ |
+| QgisPlugin | — | — | — | ✅ | ✅ |
 
 ## Bundle y WiX
 
-InstallerLab puede ejecutarse sin WiX, pero la creación de MSI y Bundle requiere el CLI de WiX. Bundle usa además `WixToolset.BootstrapperApplications.wixext` y `WixToolset.Util.wixext`.
+InstallerLab puede ejecutarse sin WiX. Para crear MSI o Bundle, InstallerLab v3 está preparado para WiX 7.x.
 
-La documentación pública incluye los comandos necesarios y explica la diferencia entre un MSI puro y un Bundle que puede encadenar prerequisitos antes del MSI principal.
+Bundle usa `WixToolset.BootstrapperApplications.wixext` y utiliza `WixToolset.Util.wixext` cuando la detección de prerrequisitos lo necesita. Office y QGIS no duplican su lógica dentro de Burn: Bundle reutiliza el MSI especializado.
 
-## Imágenes
+## Comparativa de herramientas
 
-Las capturas de pantalla pueden añadirse progresivamente en `docs/assets/` y enlazarse desde los scripts de documentación. Conviene usar nombres descriptivos y estables, por ejemplo `app-information.png`, `files-folders.png`, `languages.png`, `bundle.png`, `b4j-portable.png` y `windows-integration.png`.
+La comparativa dejó de estar enterrada como una sección de `/docs/`. Ahora tiene una URL propia:
+
+`https://fernand21.github.io/installerlab-web/comparison/`
+
+Allí se compara InstallerLab v3 con Inno Setup, WiX Toolset, Advanced Installer, NSIS e InstallShield, usando fuentes oficiales y evitando convertir una capacidad no localizada en una afirmación absoluta de que otro producto no puede realizarla.
 
 ## Publicación
 
