@@ -53,6 +53,9 @@ https://github.com/fernand21/installerlab-web/releases/tag/v3.0.0
 Release notes:
 https://github.com/fernand21/installerlab-web/blob/main/RELEASE_NOTES_v3.0.0.md
 
+SHA-256 checksums:
+https://github.com/fernand21/installerlab-web/blob/main/SHA256SUMS_v3.0.0.txt
+
 ## Search-focused guides
 
 - Windows deployment builder: https://fernand21.github.io/installerlab-web/windows-installer-builder/
