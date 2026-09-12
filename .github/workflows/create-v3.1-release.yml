@@ -1,0 +1,32 @@
+name: Create InstallerLab v3.1.0 draft release
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/create-v3.1-release.yml'
+      - 'RELEASE_TRIGGER_v3.1.0.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v3.1.0 >/dev/null 2>&1; then
+            echo "Release v3.1.0 already exists; nothing to do."
+          else
+            gh release create v3.1.0 \
+              --target main \
+              --title "InstallerLab v3.1.0 — CLI Fixes & Bundle Improvements" \
+              --notes-file RELEASE_NOTES_v3.1.0.md \
+              --draft
+          fi
