@@ -6,7 +6,7 @@
   let queued = false;
 
   const demoRecord = {
-    id:'INST-2026-00001',
+    id:'INST-DEMO-00001',
     name:'John Smith',
     level:'Founding Supporter',
     issued:'September 2026',
@@ -85,8 +85,8 @@
     }).catch(()=>({goal:500,raised:0,supporters:[]}));
   }
 
-  function verificationUrl(id){
-    return location.origin + BASE + 'supporters/?id=' + encodeURIComponent(id);
+  function verificationUrl(id,demo=false){
+    return demo ? location.origin + BASE + 'supporters/?demo=1' : location.origin + BASE + 'supporters/?id=' + encodeURIComponent(id);
   }
 
   function certMarkup(record,es){
@@ -110,9 +110,9 @@
     </article></div>`;
   }
 
-  function renderQr(id){
+  function renderQr(id,demo=false){
     const el=document.getElementById('cert-qr'); if(!el) return;
-    const url=verificationUrl(id);
+    const url=verificationUrl(id,demo);
     el.innerHTML='';
     if(window.QRCode){
       try{new QRCode(el,{text:url,width:160,height:160,colorDark:'#102845',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});return;}catch(e){}
@@ -127,10 +127,10 @@
     document.body.appendChild(layer);setTimeout(()=>layer.remove(),3600);
   }
 
-  function wireActions(record,es){
+  function wireActions(record,es,demo=false){
     document.getElementById('print-certificate')?.addEventListener('click',()=>window.print());
     document.getElementById('share-certificate')?.addEventListener('click',async()=>{
-      const c=t(es), url=verificationUrl(record.id), text=`InstallerLab ${record.level||c.official} — ${record.id}`;
+      const c=t(es), url=verificationUrl(record.id,demo), text=`InstallerLab ${record.level||c.official} — ${record.id}`;
       try{
         if(navigator.share){await navigator.share({title:'InstallerLab Supporter Certificate',text,url});return;}
         await navigator.clipboard.writeText(url);alert(c.copied);
@@ -168,13 +168,13 @@
     const current=document.querySelector('.supporters-page'); if(current?.dataset?.supportersRendered===(es?'es':'en')) return;
     const data=await loadData();
     if(params.get('demo')==='1'){
-      app.innerHTML=verificationMarkup(demoRecord,es,true);renderQr(demoRecord.id);wireActions(demoRecord,es);confetti();return;
+      app.innerHTML=verificationMarkup(demoRecord,es,true);renderQr(demoRecord.id,true);wireActions(demoRecord,es,true);confetti();return;
     }
     const requested=(params.get('id')||'').trim();
     if(requested){
       const record=data.supporters.find(x=>String(x.id||'').toLowerCase()===requested.toLowerCase());
       if(!record){app.innerHTML=invalidMarkup(es);return;}
-      app.innerHTML=verificationMarkup(record,es,false);renderQr(record.id);wireActions(record,es);confetti();return;
+      app.innerHTML=verificationMarkup(record,es,false);renderQr(record.id,false);wireActions(record,es,false);confetti();return;
     }
     app.innerHTML=listMarkup(data,es);
   }
