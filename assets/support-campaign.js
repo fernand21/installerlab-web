@@ -1,5 +1,6 @@
 (() => {
   const BASE = location.pathname.includes('/installerlab-web/') ? '/installerlab-web/' : '/';
+  const PAYPAL = 'https://paypal.me/OfficeRibbon';
   const isSpanish = () => (localStorage.getItem('il-lang') || 'en').toLowerCase() === 'es';
   let queued = false;
 
@@ -17,7 +18,7 @@
         <span>${es ? 'La mayoría del proyecto es gratuito. Puedes apoyarlo desde solo US$1.' : 'Most of the project is free. You can support it from just US$1.'}</span>
       </div>
       <div class="support-ribbon__actions">
-        <a class="support-ribbon__primary" href="${BASE}donate/">${es ? 'Apoyar desde $1' : 'Support from $1'}</a>
+        <a class="support-ribbon__primary" href="${PAYPAL}" target="_blank" rel="noopener noreferrer">${es ? 'Donar desde $1' : 'Donate from $1'}</a>
         <a class="support-ribbon__secondary" href="${BASE}donate/#pro">${es ? 'Licencia PRO' : 'PRO license'}</a>
       </div>`;
     bar.querySelectorAll('a').forEach(a => a.addEventListener('click', () => bar.classList.add('is-celebrating')));
