@@ -1,6 +1,6 @@
 (() => {
-  const BASE='https://fernand21.github.io/installerlab-web/';
-  const DOWNLOAD='https://github.com/fernand21/installerlab-web/releases/download/v2.0.0/InstallerLab-Setup.exe';
+  const BASE='https://installerlab.website/';
+  const DOWNLOAD='https://github.com/fernand21/installerlab-web/releases/download/v3.0.0/InstallerLab-Setup.exe';
   let busy=false;
   const isEs=()=>((localStorage.getItem('il-lang')||'es').toLowerCase()!=='en');
 
@@ -8,7 +8,7 @@
     if(document.getElementById('installerlab-software-schema'))return;
     const schema={
       '@context':'https://schema.org','@type':'SoftwareApplication',name:'InstallerLab',
-      applicationCategory:'DeveloperApplication',operatingSystem:'Windows',softwareVersion:'2.0.0',
+      applicationCategory:'DeveloperApplication',operatingSystem:'Windows',softwareVersion:'3.0.0',
       isAccessibleForFree:true,url:BASE,downloadUrl:DOWNLOAD,
       description:'Free visual Windows installer builder for Setup EXE, MSI, WiX Burn Bundle and Portable packages from one editable FSS project.',
       featureList:[
