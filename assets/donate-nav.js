@@ -38,11 +38,12 @@
     const links = document.querySelectorAll('.header .links a, header a');
     links.forEach(a => {
       const text = (a.textContent || '').trim().toLowerCase();
-      if (text === 'donate' || text === 'donar') {
+      if (['donate','donar','support','apoyar'].includes(text)) {
         a.href = donateUrl;
         a.removeAttribute('target');
         a.removeAttribute('rel');
-        a.title = text === 'donar' ? 'Apoyar InstallerLab' : 'Support InstallerLab';
+        a.textContent = isSpanish() ? 'Apoyar' : 'Support';
+        a.title = isSpanish() ? 'Ayudar a mantener InstallerLab vivo' : 'Help keep InstallerLab alive';
       }
     });
     ensureGlobalNavLinks();
