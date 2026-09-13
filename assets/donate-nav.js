@@ -12,6 +12,10 @@
     account: projectBase + 'account/',
     b4j: projectBase + 'b4j/',
     forum: projectBase + 'community/',
+    support: projectBase + 'support/',
+    faq: projectBase + 'faq/',
+    changelog: projectBase + 'changelog/',
+    about: projectBase + 'about/',
     github: 'https://github.com/fernand21/installerlab-web'
   };
   let scheduled = false;
@@ -25,7 +29,7 @@
     if (document.querySelector('link[data-il-nav-v2]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = projectBase + 'assets/nav-v2.css?v=20260913-1';
+    link.href = projectBase + 'assets/nav-v2.css?v=20260913-2';
     link.dataset.ilNavV2 = '1';
     document.head.appendChild(link);
   }
@@ -56,19 +60,41 @@
     return `<a href="${href}"${active(href) ? ' class="is-active" aria-current="page"' : ''}>${label}</a>`;
   }
 
+  function menu(label, items) {
+    const groupActive = items.some(item => item.href && !item.external && active(item.href));
+    return `<div class="il-nav-group${groupActive ? ' is-current' : ''}"><button class="il-nav-trigger${groupActive ? ' is-active' : ''}" type="button" aria-expanded="false">${label}${chevron}</button><div class="il-popover">${items.map(item => `<a href="${item.href}"${item.external ? ' target="_blank" rel="noopener"' : ''}${active(item.href) ? ' class="is-active" aria-current="page"' : ''}>${item.label}${item.external ? ' ↗' : ''}</a>`).join('')}</div></div>`;
+  }
+
   function buildLinks(links) {
     const es = isSpanish();
-    const signature = `${es ? 'es' : 'en'}:${location.pathname}:v2`;
+    const signature = `${es ? 'es' : 'en'}:${location.pathname}:v3`;
     if (links.dataset.ilNavSignature === signature) return;
     links.dataset.ilNavSignature = signature;
+
+    const product = menu(es ? 'Producto' : 'Product', [
+      { href: urls.features, label: es ? 'Funciones' : 'Features' },
+      { href: urls.download, label: es ? 'Descargas' : 'Downloads' },
+      { href: urls.changelog, label: 'Changelog' }
+    ]);
+    const resources = menu(es ? 'Recursos' : 'Resources', [
+      { href: urls.docs, label: es ? 'Documentación' : 'Documentation' },
+      { href: urls.b4j, label: 'B4J Portable' },
+      { href: urls.support, label: es ? 'Soporte' : 'Support' },
+      { href: urls.faq, label: es ? 'Preguntas frecuentes' : 'FAQ' }
+    ]);
+    const community = menu(es ? 'Comunidad' : 'Community', [
+      { href: urls.forum, label: es ? 'Foro' : 'Forum' },
+      { href: urls.github, label: 'GitHub', external: true },
+      { href: urls.donate, label: es ? 'Apoyar InstallerLab' : 'Support InstallerLab' },
+      { href: urls.about, label: es ? 'Acerca de' : 'About' }
+    ]);
+
     links.innerHTML = [
       navLink(urls.home, es ? 'Inicio' : 'Home'),
-      navLink(urls.features, es ? 'Funciones' : 'Features'),
-      navLink(urls.docs, es ? 'Documentación' : 'Docs'),
+      product,
       navLink(urls.analytics, 'Analytics'),
-      navLink(urls.download, es ? 'Descargar' : 'Download'),
-      navLink(urls.donate, es ? 'Apoyar' : 'Support'),
-      `<div class="il-nav-group"><button class="il-nav-trigger" type="button" aria-expanded="false">${es ? 'Comunidad' : 'Community'}${chevron}</button><div class="il-popover"><a href="${urls.b4j}">B4J</a><a href="${urls.forum}">${es ? 'Foro' : 'Forum'}</a><a href="${urls.github}" target="_blank" rel="noopener">GitHub ↗</a></div></div>`
+      resources,
+      community
     ].join('');
   }
 
@@ -76,7 +102,7 @@
     const es = isSpanish();
     const session = readSession();
     const userName = firstName(session);
-    const signature = `${es ? 'es' : 'en'}:${userName || 'guest'}:v2`;
+    const signature = `${es ? 'es' : 'en'}:${userName || 'guest'}:v3`;
     if (actions.dataset.ilNavSignature === signature) return;
     actions.dataset.ilNavSignature = signature;
 
@@ -128,7 +154,10 @@
       if (trigger) {
         const wrap = trigger.parentElement;
         const open = !wrap.classList.contains('is-open');
-        nav.querySelectorAll('.il-nav-group.is-open,.il-account-wrap.is-open').forEach(x => x.classList.remove('is-open'));
+        nav.querySelectorAll('.il-nav-group.is-open,.il-account-wrap.is-open').forEach(x => {
+          x.classList.remove('is-open');
+          x.querySelector(':scope > button')?.setAttribute('aria-expanded','false');
+        });
         wrap.classList.toggle('is-open', open);
         trigger.setAttribute('aria-expanded', String(open));
         e.stopPropagation();
@@ -147,6 +176,7 @@
         localStorage.removeItem(sessionKey);
         window.dispatchEvent(new CustomEvent('installerlab:account-session', { detail: null }));
         location.href = urls.account;
+        return;
       }
       if (e.target.closest('.links a')) nav.querySelector('.links')?.classList.remove('nav-open');
     });
@@ -172,11 +202,17 @@
 
   document.addEventListener('click', e => {
     if (e.target.closest('.il-nav-group,.il-account-wrap')) return;
-    document.querySelectorAll('.il-nav-group.is-open,.il-account-wrap.is-open').forEach(x => x.classList.remove('is-open'));
+    document.querySelectorAll('.il-nav-group.is-open,.il-account-wrap.is-open').forEach(x => {
+      x.classList.remove('is-open');
+      x.querySelector(':scope > button')?.setAttribute('aria-expanded','false');
+    });
   });
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
-    document.querySelectorAll('.il-nav-group.is-open,.il-account-wrap.is-open').forEach(x => x.classList.remove('is-open'));
+    document.querySelectorAll('.il-nav-group.is-open,.il-account-wrap.is-open').forEach(x => {
+      x.classList.remove('is-open');
+      x.querySelector(':scope > button')?.setAttribute('aria-expanded','false');
+    });
     document.querySelector('.links.nav-open')?.classList.remove('nav-open');
   });
 
