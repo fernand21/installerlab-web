@@ -10,8 +10,8 @@
       eyebrow:'Financiación comunitaria',
       title:'Ayuda a mantener InstallerLab vivo.',
       intro:'InstallerLab es un proyecto independiente y la mayor parte de sus funciones se mantiene gratuita por decisión propia. Cada aporte ayuda a sostener pruebas, documentación, dominio, mantenimiento y tiempo de desarrollo.',
-      permanent:'Certificado permanente para cualquier donador',
-      permanentText:'Cualquier contribución desde US$1 recibe un InstallerLab Supporter ID y un certificado oficial que no caduca. La primera contribución crea tu ID; los aportes futuros conservan el mismo ID.',
+      permanent:'Certificado permanente para cualquier supporter',
+      permanentText:'Cualquier contribución desde US$1 recibe un InstallerLab Supporter ID y un certificado oficial que no caduca. Esto también aplica a quien solicita PRO: la licencia PRO incluye ese mismo reconocimiento y, además, una clave de activación.',
       privacy:'El importe de tu aporte no se publica. Puedes aparecer con nombre, alias o como Private Supporter.',
       button:'Apoyar desde US$1',
       demo:'Ver certificado de ejemplo',
@@ -20,26 +20,32 @@
       scope:'Lo que ya estás ayudando a mantener',
       scopeText:'InstallerLab ya cubre varios flujos reales de distribución de Windows y sigue creciendo de forma independiente.',
       pro:'Licencia PRO',
-      proText:'La política PRO actual se mantiene separada del certificado: los aportes de US$10 o más pueden solicitar activación PRO para una máquina después de la verificación manual.',
-      proNote:'Un aporte de US$1–9 sigue recibiendo el certificado permanente; simplemente no activa PRO.',
+      proText:'Los aportes de US$10 o más pueden solicitar PRO para una máquina. PRO incluye el certificado permanente de supporter y, tras verificación manual, una clave de activación vinculada al Machine Code.',
+      proNote:'El certificado reconoce tu apoyo, pero no desbloquea funciones. La clave de activación PRO es la que habilita las funciones PRO en InstallerLab.',
       after:'¿Ya realizaste un aporte?',
-      afterText:'Envíame el comprobante y el nombre o alias que quieres en el certificado. Si también solicitas PRO, agrega el Machine Code.',
+      afterText:'Envíame el comprobante y el nombre o alias para el certificado. Si solicitas PRO, agrega el Machine Code para poder generar tu clave de activación.',
       name:'Nombre o alias para el certificado',
       reference:'Referencia / detalle del aporte',
-      machine:'Machine Code (solo si solicitas PRO)',
+      machine:'Machine Code (necesario para generar la clave PRO)',
       public:'Quiero aparecer en la página pública de supporters',
-      prepare:'Preparar correo de solicitud',
+      prepare:'Preparar solicitud de certificado / clave PRO',
       attach:'El botón abre tu correo con los datos preparados. Adjunta allí el comprobante de pago. No publiques contraseñas, documentos ni datos bancarios.',
       lifetime:'PERMANENTE · NO CADUCA',
       supporters:'supporters',
       raised:'recaudados',
-      manual:'La confirmación y emisión son manuales por ahora. Cuando conectemos un proveedor de pagos, esta misma página ya está preparada para recibir una redirección de éxito y mostrar la animación de agradecimiento.'
+      manual:'La confirmación, el certificado y la emisión de la clave PRO son manuales por ahora.',
+      supporterLabel:'SUPPORTER',
+      supporterTitle:'Aporte desde US$1',
+      supporterItems:['Supporter ID permanente','Certificado oficial permanente','Sin clave de activación PRO','No desbloquea funciones PRO'],
+      proLabel:'PRO',
+      proTitle:'Aporte desde US$10',
+      proItems:['Incluye Supporter ID y certificado permanente','Incluye clave de activación PRO tras verificación','Clave vinculada al Machine Code de 1 equipo','Desbloquea las funciones PRO de InstallerLab']
     } : {
       eyebrow:'Community funding',
       title:'Help keep InstallerLab alive.',
       intro:'InstallerLab is an independent project and most of its functionality is intentionally kept free. Every contribution helps sustain testing, documentation, the domain, maintenance and development time.',
       permanent:'A permanent certificate for every supporter',
-      permanentText:'Any contribution from US$1 receives an InstallerLab Supporter ID and an official certificate that does not expire. Your first contribution creates the ID; future contributions keep the same ID.',
+      permanentText:'Any contribution from US$1 receives an InstallerLab Supporter ID and an official certificate that does not expire. This also applies to PRO supporters: a PRO license includes that same recognition plus an activation key.',
       privacy:'Your contribution amount is never published. You can appear by name, alias, or as a Private Supporter.',
       button:'Support from US$1',
       demo:'View certificate demo',
@@ -48,20 +54,26 @@
       scope:'What your support already helps maintain',
       scopeText:'InstallerLab already covers several real Windows deployment workflows and continues to grow independently.',
       pro:'PRO license',
-      proText:'The current PRO policy remains separate from the certificate: contributions of US$10 or more may request one-machine PRO activation after manual verification.',
-      proNote:'A US$1–9 contribution still receives the permanent certificate; it simply does not activate PRO.',
+      proText:'Contributions of US$10 or more may request PRO for one machine. PRO includes the permanent supporter certificate and, after manual verification, an activation key tied to the Machine Code.',
+      proNote:'The certificate recognizes your support, but it does not unlock features. The PRO activation key is what enables InstallerLab PRO capabilities.',
       after:'Already contributed?',
-      afterText:'Send the receipt plus the name or alias you want on the certificate. If you are also requesting PRO, include the Machine Code.',
+      afterText:'Send the receipt plus the name or alias for the certificate. If you are requesting PRO, include the Machine Code so the activation key can be generated.',
       name:'Name or alias for the certificate',
       reference:'Contribution reference / details',
-      machine:'Machine Code (only when requesting PRO)',
+      machine:'Machine Code (required to generate the PRO key)',
       public:'I want to appear on the public supporters page',
-      prepare:'Prepare supporter request email',
+      prepare:'Prepare certificate / PRO key request',
       attach:'The button opens your mail app with the details prepared. Attach the payment receipt there. Never publish passwords, identity documents or banking data.',
       lifetime:'PERMANENT · DOES NOT EXPIRE',
       supporters:'supporters',
       raised:'raised',
-      manual:'Confirmation and certificate issuance are manual for now. Once a payment provider is connected, this page is already ready for a success redirect and the supporter celebration animation.'
+      manual:'Confirmation, certificate issuance and PRO key issuance are manual for now.',
+      supporterLabel:'SUPPORTER',
+      supporterTitle:'Contribution from US$1',
+      supporterItems:['Permanent Supporter ID','Permanent official certificate','No PRO activation key','Does not unlock PRO features'],
+      proLabel:'PRO',
+      proTitle:'Contribution from US$10',
+      proItems:['Includes Supporter ID and permanent certificate','Includes PRO activation key after verification','Key tied to the Machine Code of 1 computer','Unlocks InstallerLab PRO features']
     };
   }
 
@@ -114,13 +126,21 @@
       </section>
 
       <section class="donate-section">
+        <div class="section-head"><span class="eyebrow">${es?'Diferencia clara':'Clear difference'}</span><h2>${es?'Certificado y licencia PRO no son lo mismo.':'Certificate and PRO license are not the same thing.'}</h2></div>
+        <div class="support-scope-grid">
+          <article><span>★</span><div><h3>${t.supporterLabel} · ${t.supporterTitle}</h3><p>${t.supporterItems.map(x=>'✓ '+x).join('<br>')}</p></div></article>
+          <article><span>🔑</span><div><h3>${t.proLabel} · ${t.proTitle}</h3><p>${t.proItems.map(x=>'✓ '+x).join('<br>')}</p></div></article>
+        </div>
+      </section>
+
+      <section class="donate-section">
         <div class="section-head"><span class="eyebrow">InstallerLab today</span><h2>${t.scope}</h2><p>${t.scopeText}</p></div>
         <div class="support-scope-grid">${features.map(x=>`<article><span>✓</span><div><h3>${x[0]}</h3><p>${x[1]}</p></div></article>`).join('')}</div>
       </section>
 
       <section id="pro" class="license-card">
-        <div><span class="donate-badge">PRO</span><h2>${t.pro}</h2><p>${t.proText}</p><div class="license-machine"><span class="icon">🖥️</span><div><strong>${es?'Activación por máquina':'Per-machine activation'}</strong><span>${t.proNote}</span></div></div></div>
-        <a class="button" href="#supporter-request">${es?'Solicitar certificado / PRO':'Request certificate / PRO'}</a>
+        <div><span class="donate-badge">PRO</span><h2>${t.pro}</h2><p>${t.proText}</p><div class="license-machine"><span class="icon">🔑</span><div><strong>${es?'Clave de activación por máquina':'Per-machine activation key'}</strong><span>${t.proNote}</span></div></div></div>
+        <a class="button" href="#supporter-request">${es?'Solicitar certificado / clave PRO':'Request certificate / PRO key'}</a>
       </section>
 
       <section id="supporter-request" class="activation-card">
@@ -156,11 +176,11 @@
       const ref=document.getElementById('supporter-ref').value.trim();
       const machine=document.getElementById('supporter-machine').value.trim();
       const publicListing=document.getElementById('supporter-public').checked;
-      const subject=es?'[InstallerLab] Solicitud de certificado de supporter':'[InstallerLab] Supporter certificate request';
+      const subject=es?'[InstallerLab] Solicitud de certificado / clave PRO':'[InstallerLab] Certificate / PRO key request';
       const lines=es?[
-        'Hola, ya realicé un aporte para apoyar InstallerLab.','',`Nombre o alias del certificado: ${name}`,`Referencia del aporte: ${ref||'(adjunto comprobante)'}`,`Publicación en supporters: ${publicListing?'Sí':'No'}`,`Machine Code para PRO: ${machine||'No solicito PRO'}`,'','Adjunto el comprobante de pago. Entiendo que el certificado es un reconocimiento del proyecto y no un comprobante fiscal.'
+        'Hola, ya realicé un aporte para apoyar InstallerLab.','',`Nombre o alias del certificado: ${name}`,`Referencia del aporte: ${ref||'(adjunto comprobante)'}`,`Publicación en supporters: ${publicListing?'Sí':'No'}`,`Machine Code para clave PRO: ${machine||'No solicito PRO'}`,'','Adjunto el comprobante de pago. Entiendo que el certificado reconoce mi apoyo al proyecto y que solo una clave de activación PRO válida desbloquea las funciones PRO.'
       ]:[
-        'Hello, I have made a contribution to support InstallerLab.','',`Certificate name or alias: ${name}`,`Contribution reference: ${ref||'(receipt attached)'}`,`Public supporters listing: ${publicListing?'Yes':'No'}`,`Machine Code for PRO: ${machine||'Not requesting PRO'}`,'','I am attaching the payment receipt. I understand that the certificate is project recognition and not a tax receipt.'
+        'Hello, I have made a contribution to support InstallerLab.','',`Certificate name or alias: ${name}`,`Contribution reference: ${ref||'(receipt attached)'}`,`Public supporters listing: ${publicListing?'Yes':'No'}`,`Machine Code for PRO key: ${machine||'Not requesting PRO'}`,'','I am attaching the payment receipt. I understand that the certificate recognizes my support and that only a valid PRO activation key unlocks PRO features.'
       ];
       location.href=`mailto:${CONTACT}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
       const status=document.getElementById('supporter-status');if(status)status.textContent=es?'Correo preparado. Adjunta el comprobante antes de enviarlo.':'Email prepared. Attach the receipt before sending it.';
