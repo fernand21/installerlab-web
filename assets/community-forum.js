@@ -56,7 +56,7 @@
     const visible=posts.filter(p=>filter==='all'||p.category===filter);
     if(!visible.length){target.hidden=true;q('#community-empty').hidden=false;return;}
     q('#community-empty').hidden=true;
-    target.innerHTML=visible.map(p=>`<a class="post-card" href="${topicUrl(p.number)}"><div class="post-main"><div class="post-topline"><span class="post-category">${esc(p.category)}</span>${p.answered?`<span class="post-category">✓ ${copy[lang].answered}</span>`:''}<span class="post-author">@${esc(p.user)}</span><span class="post-date">${esc(dateText(p.updated))}</span></div><h3>${esc(p.title)}</h3>${p.summary?`<p class="post-snippet">${esc(strip(p.summary).slice(0,260))}</p>`:''}</div><div class="post-meta"><span class="comment-count">💬 ${p.comments}</span><span>→</span></div></a>`).join('');
+    target.innerHTML=visible.map(p=>`<a class="post-card${p.answered?' is-answered':''}" href="${topicUrl(p.number)}"><div class="post-main"><div class="post-avatar-shell"><img class="post-avatar" src="${esc(p.avatar||'../assets/icon.png')}" alt="" loading="lazy"></div><div class="post-content"><div class="post-topline"><span class="post-category">${esc(p.category)}</span>${p.answered?`<span class="post-category post-solved">✓ ${copy[lang].answered}</span>`:''}<span class="post-author">@${esc(p.user)}</span><span class="post-date">${esc(dateText(p.updated))}</span></div><h3>${esc(p.title)}</h3>${p.summary?`<p class="post-snippet">${esc(strip(p.summary).slice(0,260))}</p>`:''}</div></div><div class="post-meta"><span class="comment-count"><span aria-hidden="true">💬</span><strong>${p.comments}</strong></span><span class="post-arrow" aria-hidden="true">→</span></div></a>`).join('');
     target.hidden=false;
   }
 
