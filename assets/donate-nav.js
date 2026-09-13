@@ -4,6 +4,7 @@
   const homeUrl = projectBase;
   const forumUrl = projectBase + 'community/';
   const analyticsUrl = projectBase + 'analytics/';
+  const accountUrl = projectBase + 'account/';
   let scheduled = false;
 
   function isSpanish() {
@@ -34,6 +35,18 @@
     }
     analytics.textContent = 'Analytics';
     analytics.title = isSpanish() ? 'InstallerLab Analytics y TrackID' : 'InstallerLab Analytics and TrackID';
+
+    let account = links.querySelector('[data-installerlab-account-nav]');
+    if (!account) {
+      account = document.createElement('a');
+      account.dataset.installerlabAccountNav = '1';
+      account.href = accountUrl;
+      const analyticsLink = links.querySelector('[data-installerlab-analytics-nav]');
+      if (analyticsLink?.nextSibling) links.insertBefore(account, analyticsLink.nextSibling);
+      else links.appendChild(account);
+    }
+    account.textContent = isSpanish() ? 'Cuenta' : 'Account';
+    account.title = isSpanish() ? 'Cuenta, aplicaciones Analytics y Google Drive' : 'Account, Analytics applications and Google Drive';
 
     let forum = links.querySelector('[data-installerlab-forum-nav]');
     if (!forum) {
