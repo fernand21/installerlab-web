@@ -1,19 +1,11 @@
-name: Trigger community sync on discussion activity
+name: Manual community sync shortcut
 
 on:
-  discussion:
-    types: [created, edited, deleted, transferred, pinned, unpinned, labeled, unlabeled, locked, unlocked, category_changed, answered, unanswered]
-  discussion_comment:
-    types: [created, edited, deleted]
   workflow_dispatch:
 
 permissions:
   actions: write
   contents: read
-
-concurrency:
-  group: installerlab-community-live-trigger
-  cancel-in-progress: true
 
 jobs:
   dispatch-sync:
@@ -26,4 +18,4 @@ jobs:
           gh workflow run sync-community-discussions.yml \
             --repo "${{ github.repository }}" \
             --ref "${{ github.event.repository.default_branch }}"
-          echo "Community sync dispatched for discussion activity."
+          echo "Community sync dispatched manually."
