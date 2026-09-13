@@ -2,6 +2,10 @@ name: Sync InstallerLab community and sitemap
 
 on:
   workflow_dispatch:
+  discussion:
+    types: [created, edited, deleted, transferred, pinned, unpinned, labeled, unlabeled, locked, unlocked, category_changed, answered, unanswered]
+  discussion_comment:
+    types: [created, edited, deleted]
   schedule:
     - cron: "*/15 * * * *"
   workflow_run:
@@ -11,6 +15,7 @@ on:
     paths:
       - "**/*.html"
       - "community/guide-seeds/**"
+      - "scripts/community_sync.py"
       - ".github/workflows/sync-community-discussions.yml"
 
 concurrency:
@@ -127,238 +132,16 @@ jobs:
               > "/tmp/guide-rendered/${stem}.html"
           done
 
-      - name: Build community mirror and dynamic sitemap
-        run: |
-          mkdir -p community/data
-          python3 - <<'PY'
-          import json, os, glob, re, subprocess
-          from datetime import datetime, timezone
-          from xml.sax.saxutils import escape
-
-          BASE = 'https://fernand21.github.io/installerlab-web/'
-
-          with open('/tmp/discussions-graphql.json', 'r', encoding='utf-8') as f:
-              raw = json.load(f)
-
-          def markdown_plain(md):
-              s=str(md or '')
-              s=re.sub(r'```[^\n]*\n([\s\S]*?)```', r'\1', s)
-              s=re.sub(r'!\[([^\]]*)\]\([^)]+\)', r'\1', s)
-              s=re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', s)
-              s=re.sub(r'<[^>]+>', ' ', s)
-              s=re.sub(r'^[#>*+\-]+\s*', '', s, flags=re.M)
-              s=re.sub(r'\*\*|__|~~|`', '', s)
-              s=re.sub(r'\s+', ' ', s).strip()
-              return s
-
-          guide_by_title={}
-          if os.path.exists('/tmp/guide-meta.json'):
-              for g in json.load(open('/tmp/guide-meta.json','r',encoding='utf-8')):
-                  md_path=f"/tmp/guide-rendered/{g['stem']}.md"
-                  html_path=f"/tmp/guide-rendered/{g['stem']}.html"
-                  md=open(md_path,'r',encoding='utf-8').read() if os.path.exists(md_path) else ''
-                  html=open(html_path,'r',encoding='utf-8').read() if os.path.exists(html_path) else ''
-                  guide_by_title[g['title']]={
-                      'bodyText': markdown_plain(md),
-                      'bodyHTML': html,
-                      'lastmod': g.get('lastmod') or '',
-                      'categorySlug': g.get('categorySlug') or 'general',
-                  }
-
-          repo = raw.get('data', {}).get('repository') or {}
-          categories = []
-          for item in (repo.get('discussionCategories') or {}).get('nodes') or []:
-              if not item:
-                  continue
-              categories.append({
-                  'name': item.get('name') or 'General',
-                  'slug': item.get('slug') or 'general',
-                  'description': item.get('description') or '',
-                  'isAnswerable': bool(item.get('isAnswerable')),
-              })
-
-          discussions = []
-          current_numbers = set()
-          for item in (repo.get('discussions') or {}).get('nodes') or []:
-              if not item:
-                  continue
-              number = item.get('number')
-              if number is None:
-                  continue
-              current_numbers.add(str(number))
-              category = item.get('category') or {}
-              author = item.get('author') or {}
-              comments_block = item.get('comments') or {}
-              official = guide_by_title.get(item.get('title') or '')
-
-              comments = []
-              for comment in comments_block.get('nodes') or []:
-                  if not comment:
-                      continue
-                  cauthor = comment.get('author') or {}
-                  replies_block = comment.get('replies') or {}
-                  replies = []
-                  for reply in replies_block.get('nodes') or []:
-                      if not reply:
-                          continue
-                      rauthor = reply.get('author') or {}
-                      replies.append({
-                          'id': reply.get('id'),
-                          'url': reply.get('url') or '',
-                          'bodyText': reply.get('bodyText') or '',
-                          'bodyHTML': reply.get('bodyHTML') or '',
-                          'createdAt': reply.get('createdAt'),
-                          'updatedAt': reply.get('updatedAt'),
-                          'user': rauthor.get('login') or 'developer',
-                          'avatar': rauthor.get('avatarUrl') or '',
-                      })
-                  comments.append({
-                      'id': comment.get('id'),
-                      'url': comment.get('url') or '',
-                      'bodyText': comment.get('bodyText') or '',
-                      'bodyHTML': comment.get('bodyHTML') or '',
-                      'createdAt': comment.get('createdAt'),
-                      'updatedAt': comment.get('updatedAt'),
-                      'user': cauthor.get('login') or 'developer',
-                      'avatar': cauthor.get('avatarUrl') or '',
-                      'isAnswer': bool(comment.get('isAnswer')),
-                      'replyCount': int(replies_block.get('totalCount') or 0),
-                      'replies': replies,
-                  })
-
-              body_text=(official or {}).get('bodyText') or item.get('bodyText') or ''
-              body_html=(official or {}).get('bodyHTML') or item.get('bodyHTML') or ''
-              updated_at=item.get('updatedAt')
-              if official and official.get('lastmod'):
-                  local_stamp=official['lastmod']+'T00:00:00Z'
-                  if not updated_at or local_stamp > updated_at:
-                      updated_at=local_stamp
-
-              detail = {
-                  'number': number,
-                  'title': item.get('title') or '',
-                  'url': item.get('url') or '',
-                  'bodyText': body_text,
-                  'bodyHTML': body_html,
-                  'createdAt': item.get('createdAt'),
-                  'updatedAt': updated_at,
-                  'user': author.get('login') or 'developer',
-                  'avatar': author.get('avatarUrl') or '',
-                  'category': category.get('name') or 'General',
-                  'categorySlug': category.get('slug') or 'general',
-                  'isAnswerable': bool(category.get('isAnswerable')),
-                  'commentCount': int(comments_block.get('totalCount') or 0),
-                  'answered': bool(item.get('answerChosenAt')),
-                  'officialGuide': bool(official),
-                  'comments': comments,
-              }
-
-              with open(f'community/data/{number}.json', 'w', encoding='utf-8') as f:
-                  json.dump(detail, f, ensure_ascii=False, indent=2)
-                  f.write('\n')
-
-              discussions.append({
-                  'number': number,
-                  'title': detail['title'],
-                  'url': detail['url'],
-                  'bodyText': detail['bodyText'],
-                  'createdAt': detail['createdAt'],
-                  'updatedAt': detail['updatedAt'],
-                  'user': detail['user'],
-                  'avatar': detail['avatar'],
-                  'category': detail['category'],
-                  'categorySlug': detail['categorySlug'],
-                  'isAnswerable': detail['isAnswerable'],
-                  'comments': detail['commentCount'],
-                  'answered': detail['answered'],
-                  'officialGuide': detail['officialGuide'],
-              })
-
-          for path in glob.glob('community/data/*.json'):
-              stem = os.path.splitext(os.path.basename(path))[0]
-              if stem not in current_numbers:
-                  os.remove(path)
-
-          latest_update = max((d.get('updatedAt') or '' for d in discussions), default='')
-          generated_at = latest_update or '1970-01-01T00:00:00Z'
-
-          out = {
-              'generatedAt': generated_at,
-              'source': 'GitHub Discussions',
-              'repository': 'fernand21/installerlab-web',
-              'categories': categories,
-              'discussions': discussions,
-          }
-
-          with open('community/discussions.json', 'w', encoding='utf-8') as f:
-              json.dump(out, f, ensure_ascii=False, indent=2)
-              f.write('\n')
-
-          special = {
-              '': ('weekly', '1.0'),
-              'windows-installer-builder': ('weekly', '1.0'),
-              'inno-setup-alternative': ('monthly', '0.9'),
-              'msi-builder': ('monthly', '0.9'),
-              'portable-app-builder': ('monthly', '0.9'),
-              'b4j-installer': ('monthly', '0.9'),
-              'download': ('daily', '0.9'),
-              'docs': ('weekly', '0.9'),
-              'community': ('daily', '0.8'),
-              'features': ('monthly', '0.8'),
-              'b4j': ('monthly', '0.8'),
-              'changelog': ('weekly', '0.7'),
-              'faq': ('monthly', '0.6'),
-              'support': ('monthly', '0.6'),
-              'about': ('monthly', '0.5'),
-              'donate': ('monthly', '0.5'),
-          }
-
-          def git_lastmod(path):
-              try:
-                  return subprocess.check_output(['git','log','-1','--format=%cs','--',path], text=True).strip() or datetime.now(timezone.utc).date().isoformat()
-              except Exception:
-                  return datetime.now(timezone.utc).date().isoformat()
-
-          urls = []
-          for path in sorted(glob.glob('**/index.html', recursive=True)):
-              with open(path, 'r', encoding='utf-8', errors='ignore') as f:
-                  html = f.read(12000)
-              head = html.split('</head>', 1)[0].lower()
-              if 'noindex' in head:
-                  continue
-              folder = os.path.dirname(path).replace('\\', '/').strip('/')
-              loc = BASE if not folder else BASE + folder + '/'
-              freq, priority = special.get(folder, ('monthly', '0.5'))
-              urls.append({'loc':loc,'lastmod':git_lastmod(path),'changefreq':freq,'priority':priority})
-
-          for d in discussions:
-              number = d.get('number')
-              if number is None:
-                  continue
-              updated = (d.get('updatedAt') or d.get('createdAt') or '')[:10] or datetime.now(timezone.utc).date().isoformat()
-              urls.append({'loc':f'{BASE}community/topic/?id={number}','lastmod':updated,'changefreq':'daily','priority':'0.6'})
-
-          seen=set(); unique=[]
-          for item in urls:
-              if item['loc'] in seen:
-                  continue
-              seen.add(item['loc']); unique.append(item)
-
-          lines=['<?xml version="1.0" encoding="UTF-8"?>','<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-          for item in unique:
-              lines.extend(['  <url>',f"    <loc>{escape(item['loc'])}</loc>",f"    <lastmod>{item['lastmod']}</lastmod>",f"    <changefreq>{item['changefreq']}</changefreq>",f"    <priority>{item['priority']}</priority>",'  </url>'])
-          lines.append('</urlset>')
-          with open('sitemap.xml','w',encoding='utf-8') as f:
-              f.write('\n'.join(lines)+'\n')
-          PY
+      - name: Build community mirror, permanent media and sitemap
+        run: python3 scripts/community_sync.py
 
       - name: Publish mirror and sitemap when changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A community/discussions.json community/data sitemap.xml
+          git add -A community/discussions.json community/data community/media sitemap.xml
           if git diff --cached --quiet; then
-            echo "Community mirror and sitemap are already current."
+            echo "Community mirror, media and sitemap are already current."
             exit 0
           fi
           git commit -m "chore: sync community and sitemap"
