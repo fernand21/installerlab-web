@@ -15,13 +15,13 @@
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const es = () => (localStorage.getItem('il-lang') || 'en').toLowerCase() === 'es';
   const copy = () => es() ? {
-    connect:'Conectar aplicación', connected:'Backend conectado', pending:'Backend no conectado', live:'SUPABASE · EN VIVO',
+    connect:'Conectar aplicación', connected:'Backend conectado', pending:'Backend no conectado', live:'SUPABASE · EN VIVO', bannerConnected:'Analytics conectado', bannerText:'Los eventos en vivo se están leyendo para este TrackID.',
     prompt:'Introduce el TrackID del proyecto', invalid:'Introduce un TrackID válido para consultar Analytics.',
     loading:'Cargando datos reales…', error:'No se pudieron cargar los datos de Analytics.', noData:'Sin eventos para este TrackID.',
     success:'Correctas', eventUninstall:'Desinstalación', eventLaunch:'Ejecución', eventCustom:'Personalizado',
     app:'Aplicación conectada', track:'TrackID'
   } : {
-    connect:'Connect application', connected:'Backend connected', pending:'Backend not connected', live:'SUPABASE · LIVE',
+    connect:'Connect application', connected:'Backend connected', pending:'Backend not connected', live:'SUPABASE · LIVE', bannerConnected:'Analytics connected', bannerText:'Live events are being read for this TrackID.',
     prompt:'Enter the project TrackID', invalid:'Enter a valid TrackID to query Analytics.',
     loading:'Loading live data…', error:'Analytics data could not be loaded.', noData:'No events for this TrackID.',
     success:'Successful', eventUninstall:'Uninstall', eventLaunch:'Launch', eventCustom:'Custom',
@@ -55,6 +55,11 @@
     }
     setNodeText(side, label);
     setNodeText(document.querySelector('.iax-app-title span'), state === 'connected' ? t.live : state === 'loading' ? t.loading : 'INTERFACE READY · BACKEND PENDING');
+    if (state === 'connected') {
+      const banner = document.querySelector('.iax-connect-banner');
+      setNodeText(banner?.querySelector('strong'), t.bannerConnected);
+      setNodeText(banner?.querySelector('p'), t.bannerText);
+    }
     app()?.classList.toggle('live-connected', state === 'connected');
     app()?.classList.toggle('live-loading', state === 'loading');
     document.querySelectorAll('.iax-connect-banner button').forEach(button => setNodeText(button, state === 'connected' ? t.connected : t.connect));
