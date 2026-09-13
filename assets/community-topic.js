@@ -158,16 +158,42 @@
     setDynamicSeo();
   }
 
+  function setPagerCard(el,item,labelKey,alignRight=false){
+    if(!el) return;
+    const hasData=item&&String(item.title||'').trim()!==''&&String(item.number||'').trim()!=='';
+    if(!hasData){
+      el.hidden=true;
+      el.removeAttribute('href');
+      el.innerHTML='';
+      el.classList.remove('align-right');
+      return;
+    }
+    el.hidden=false;
+    el.href=`./?id=${encodeURIComponent(item.number)}`;
+    el.innerHTML=`<small>${copy[lang][labelKey]}</small><strong>${esc(item.title)}</strong>`;
+    el.classList.toggle('align-right',alignRight);
+  }
+
   function setupPager(feed){
     const list=feed.discussions||[];
     const index=list.findIndex(x=>Number(x.number)===Number(topic.number));
-    if(index<0) return;
-    const prev=list[index+1];
-    const next=list[index-1];
+    const nav=q('.topic-pager');
     const prevEl=q('#prev-topic');
     const nextEl=q('#next-topic');
-    if(prev){prevEl.hidden=false;prevEl.href=`./?id=${encodeURIComponent(prev.number)}`;prevEl.innerHTML=`<small>${copy[lang].previous}</small><strong>${esc(prev.title)}</strong>`;}
-    if(next){nextEl.hidden=false;nextEl.href=`./?id=${encodeURIComponent(next.number)}`;nextEl.innerHTML=`<small>${copy[lang].next}</small><strong>${esc(next.title)}</strong>`;}
+
+    if(!nav||!prevEl||!nextEl||index<0){
+      if(nav) nav.hidden=true;
+      return;
+    }
+
+    const prev=list[index+1]||null;
+    const next=list[index-1]||null;
+    setPagerCard(prevEl,prev,'previous',false);
+    setPagerCard(nextEl,next,'next',true);
+
+    const visibleCount=[prevEl,nextEl].filter(el=>!el.hidden).length;
+    nav.hidden=visibleCount===0;
+    nav.classList.toggle('single',visibleCount===1);
   }
 
   const id=new URLSearchParams(location.search).get('id')||new URLSearchParams(location.search).get('discussion');
