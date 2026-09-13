@@ -10,46 +10,50 @@
       nav:'Licencia PRO',
       badge:'LICENCIA PRO',
       title:'Obtén InstallerLab PRO',
-      lead:'Activa las funciones PRO en tu equipo y, al mismo tiempo, ayuda a sostener el desarrollo independiente de InstallerLab.',
+      lead:'Toda contribución recibe un certificado permanente de supporter. La licencia PRO añade algo distinto: una clave de activación vinculada al Machine Code que desbloquea las funciones PRO de InstallerLab.',
       primary:'Obtener licencia PRO →',
       paypal:'Pagar / aportar con PayPal ↗',
-      benefits:'¿Qué desbloquea la licencia PRO?',
-      b1:'01 · 21 temas visuales PRO',
-      b1b:'Desbloquea el catálogo de temas PRO para dar a tus instaladores una presentación más cuidada y diferenciada.',
-      b2:'02 · Portable Builder PRO',
-      b2b:'Permite crear paquetes Portable de otras aplicaciones Windows desde InstallerLab, además de usar la edición Portable de InstallerLab.',
-      b3:'03 · Más opciones de personalización visual',
-      b3b:'Los temas PRO amplían las posibilidades de apariencia y branding frente al catálogo gratuito y Community.',
+      benefits:'¿Qué añade PRO además del certificado?',
+      b1:'01 · Clave de activación PRO',
+      b1b:'Después de la verificación manual recibes una clave de activación para tu Machine Code. Esa clave —no el certificado— es la que desbloquea PRO.',
+      b2:'02 · Catálogo de temas PRO',
+      b2b:'La clave PRO desbloquea el catálogo de temas visuales PRO para ampliar la presentación y el branding de tus instaladores.',
+      b3:'03 · Portable Builder PRO',
+      b3b:'Permite crear paquetes Portable de otras aplicaciones Windows desde InstallerLab, además de usar la edición Portable de InstallerLab.',
+      b4:'04 · Personalización PRO ampliada',
+      b4b:'Acceso a las opciones de apariencia reservadas para PRO dentro de los flujos visuales compatibles.',
       process:'Cómo obtenerla',
       f1:'Desde US$10',
-      f1b:'Las contribuciones de US$10 o más pueden solicitar activación PRO tras verificación manual.',
+      f1b:'Un aporte de US$10 o más puede solicitar PRO tras verificación manual y también conserva su certificado permanente de supporter.',
       f2:'1 máquina',
-      f2b:'La activación PRO actual se vincula al Machine Code del equipo solicitado.',
-      f3:'Proceso simple',
-      f3b:'Realiza el aporte, copia tu Machine Code y envía el comprobante desde la página de licencia.',
-      note:'El certificado permanente es un beneficio separado para cualquier aporte desde US$1. La licencia PRO añade las funciones anteriores y se solicita desde US$10.'
+      f2b:'La clave PRO actual se genera para el Machine Code del equipo solicitado.',
+      f3:'Certificado + clave PRO',
+      f3b:'El certificado reconoce tu apoyo al proyecto; la clave de activación es la credencial que habilita las funciones PRO.',
+      note:'Importante: un certificado por sí solo no activa PRO. Todo supporter puede recibir certificado; solo una solicitud PRO aprobada recibe además una clave de activación.'
     } : {
       nav:'PRO License',
       badge:'PRO LICENSE',
       title:'Get InstallerLab PRO',
-      lead:'Unlock PRO capabilities on your machine while helping sustain InstallerLab as an independent project.',
+      lead:'Every contribution receives a permanent supporter certificate. A PRO license adds something different: an activation key tied to the Machine Code that unlocks InstallerLab PRO features.',
       primary:'Get PRO license →',
       paypal:'Pay / support with PayPal ↗',
-      benefits:'What does the PRO license unlock?',
-      b1:'01 · 21 PRO visual themes',
-      b1b:'Unlocks the PRO theme catalog for a more polished and distinctive installer presentation.',
-      b2:'02 · PRO Portable Builder',
-      b2b:'Lets you create Portable packages for other Windows applications from InstallerLab, beyond using InstallerLab itself as a portable app.',
-      b3:'03 · More visual customization options',
-      b3b:'PRO themes expand appearance and branding choices beyond the free and Community catalogs.',
+      benefits:'What does PRO add beyond the certificate?',
+      b1:'01 · PRO activation key',
+      b1b:'After manual verification you receive an activation key for your Machine Code. That key —not the certificate— is what unlocks PRO.',
+      b2:'02 · PRO theme catalog',
+      b2b:'The PRO key unlocks the PRO visual theme catalog for broader installer presentation and branding choices.',
+      b3:'03 · PRO Portable Builder',
+      b3b:'Lets you create Portable packages for other Windows applications from InstallerLab, beyond using InstallerLab itself as a portable app.',
+      b4:'04 · Expanded PRO customization',
+      b4b:'Access to appearance options reserved for PRO within supported visual workflows.',
       process:'How to get it',
       f1:'From US$10',
-      f1b:'Contributions of US$10 or more may request PRO activation after manual verification.',
+      f1b:'A contribution of US$10 or more may request PRO after manual verification and still keeps the permanent supporter certificate.',
       f2:'1 machine',
-      f2b:'The current PRO activation is tied to the Machine Code of the requested computer.',
-      f3:'Simple process',
-      f3b:'Make the contribution, copy your Machine Code, and send the receipt from the license page.',
-      note:'The permanent supporter certificate is a separate benefit for any contribution from US$1. The PRO license adds the capabilities above and may be requested from US$10.'
+      f2b:'The current PRO key is generated for the Machine Code of the requested computer.',
+      f3:'Certificate + PRO key',
+      f3b:'The certificate recognizes your support for the project; the activation key is the credential that enables PRO features.',
+      note:'Important: a certificate by itself does not activate PRO. Every supporter may receive a certificate; only an approved PRO request additionally receives an activation key.'
     };
   }
 
@@ -96,6 +100,7 @@
         <div class="license-highlight__fact"><strong>${t.b1}</strong><span>${t.b1b}</span></div>
         <div class="license-highlight__fact"><strong>${t.b2}</strong><span>${t.b2b}</span></div>
         <div class="license-highlight__fact"><strong>${t.b3}</strong><span>${t.b3b}</span></div>
+        <div class="license-highlight__fact"><strong>${t.b4}</strong><span>${t.b4b}</span></div>
       </div>
       <div class="license-highlight__facts">
         <div class="license-highlight__fact"><strong>${t.process}</strong><span></span></div>
