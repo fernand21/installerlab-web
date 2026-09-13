@@ -3,6 +3,7 @@
   const donateUrl = projectBase + 'donate/';
   const homeUrl = projectBase;
   const forumUrl = projectBase + 'community/';
+  const analyticsUrl = projectBase + 'analytics/';
   let scheduled = false;
 
   function isSpanish() {
@@ -22,13 +23,25 @@
     }
     home.textContent = isSpanish() ? 'Inicio' : 'Home';
 
+    let analytics = links.querySelector('[data-installerlab-analytics-nav]');
+    if (!analytics) {
+      analytics = document.createElement('a');
+      analytics.dataset.installerlabAnalyticsNav = '1';
+      analytics.href = analyticsUrl;
+      const download = [...links.querySelectorAll('a')].find(a => /download|descargar/i.test(a.textContent || ''));
+      if (download) links.insertBefore(analytics, download);
+      else links.appendChild(analytics);
+    }
+    analytics.textContent = 'Analytics';
+    analytics.title = isSpanish() ? 'InstallerLab Analytics y TrackID' : 'InstallerLab Analytics and TrackID';
+
     let forum = links.querySelector('[data-installerlab-forum-nav]');
     if (!forum) {
       forum = document.createElement('a');
       forum.dataset.installerlabForumNav = '1';
       forum.href = forumUrl;
-      const download = [...links.querySelectorAll('a')].find(a => /download|descargar/i.test(a.textContent || ''));
-      if (download) links.insertBefore(forum, download);
+      const analyticsLink = links.querySelector('[data-installerlab-analytics-nav]');
+      if (analyticsLink) links.insertBefore(forum, analyticsLink);
       else links.appendChild(forum);
     }
     forum.textContent = isSpanish() ? 'Foro' : 'Forum';
