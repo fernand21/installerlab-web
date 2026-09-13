@@ -82,7 +82,6 @@
     const clean = value.trim();
     if (!/^[A-Za-z0-9._:-]{8,80}$/.test(clean)) { setStatus('error', t.invalid); return; }
 
-    // Connect without reloading the whole GitHub Pages dashboard.
     trackId = clean;
     cachedSummary = null;
     cachedAt = 0;
@@ -172,6 +171,12 @@
     }).join('');
   }
 
+  function publishSummary(d) {
+    window.INSTALLERLAB_ANALYTICS_LIVE_SUMMARY = d;
+    window.INSTALLERLAB_ANALYTICS_TRACK_ID = trackId;
+    window.dispatchEvent(new CustomEvent('installerlab:analytics-summary', { detail: { data:d, trackId } }));
+  }
+
   function applySummary(data) {
     const d = data || {}, installs = Number(d.installs || 0), successful = Number(d.successful || 0), failed = Number(d.failed || 0), uninstalls = Number(d.uninstalls || 0), launches = Number(d.launches || 0), active = Number(d.active_installs || 0);
     const view = activeView();
@@ -184,6 +189,7 @@
     document.querySelectorAll('.iax-live-pill').forEach(node => setNodeText(node, installs || (d.recent_events || []).length ? 'LIVE' : copy().noData));
     const readOnly = document.querySelectorAll('.iax-view[data-view="settings"] .iax-readonly');
     setNodeText(readOnly[0], trackId ? copy().app : copy().pending); setNodeText(readOnly[1], trackId || '—'); setNodeText(readOnly[2], `${successful} ${copy().success}`);
+    publishSummary(d);
   }
 
   async function refresh(force = false) {
@@ -224,12 +230,10 @@
     }
   }
 
-  // Sidebar navigation already changes the view. Refresh from cache after it changes.
   document.addEventListener('click', event => {
     if (event.target.closest('.iax-sidebar nav button')) setTimeout(refreshForCurrentView, 0);
   });
 
-  // A root replacement happens on language rerender. No expensive subtree observer is needed.
   const appRoot = document.getElementById('app');
   if (appRoot) new MutationObserver(() => requestAnimationFrame(() => { wireConnectButtons(); refreshForCurrentView(); })).observe(appRoot, { childList:true });
 
