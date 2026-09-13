@@ -1,4 +1,11 @@
 /* InstallerLab Analytics — independent desktop workspace scroll */
+
+/* Once live data is connected, the large connection banner is redundant because
+   the application/backend state is already shown in the top Analytics header. */
+body[data-page="analytics"] .iax-app.live-connected .iax-connect-banner{
+  display:none !important;
+}
+
 @media (min-width:821px){
   body[data-page="analytics"]{overflow:hidden}
 
