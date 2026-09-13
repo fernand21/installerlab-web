@@ -2,7 +2,8 @@
   const FEED = '../discussions.json';
   const DATA = '../data/';
   const DISCUSSIONS = 'https://github.com/fernand21/installerlab-web/discussions';
-  const SITE_TOPIC = 'https://fernand21.github.io/installerlab-web/community/topic/';
+  const SITE_TOPIC = 'https://installerlab.website/community/topic/';
+  const OWNER = 'fernand21';
 
   const copy = {
     en:{navHome:'Home',navFeatures:'Features',navDocs:'Documentation',navCommunity:'Community',navDownload:'Download',backCommunity:'← Back to Community',loading:'Loading discussion…',errorTitle:'This discussion could not be loaded.',errorCopy:'You can still open it directly on GitHub.',replyGithub:'Reply on GitHub →',openGithub:'Open original discussion ↗',repliesEyebrow:'REPLIES',repliesTitle:'Community replies',noRepliesTitle:'No replies yet.',noRepliesCopy:'Be the first to continue the conversation on GitHub.',answered:'Answered',answer:'Accepted answer',viewReply:'Open on GitHub ↗',previous:'Previous discussion',next:'Next discussion',footerCopy:'Windows installer tooling for developers.',copyCode:'Copy',copied:'Copied!'},
@@ -109,7 +110,7 @@
       url:canonical.href,
       author:{'@type':'Person',name:topic.user||'InstallerLab Community'},
       interactionStatistic:{'@type':'InteractionCounter',interactionType:'https://schema.org/CommentAction',userInteractionCount:Number(topic.commentCount||0)},
-      isPartOf:{'@type':'DiscussionForumPosting',name:'InstallerLab Community',url:'https://fernand21.github.io/installerlab-web/community/'}
+      isPartOf:{'@type':'DiscussionForumPosting',name:'InstallerLab Community',url:'https://installerlab.website/community/'}
     });
   }
 
@@ -123,12 +124,14 @@
 
   function authorBlock(user,avatar,date,isAnswer=false){
     const fallback='../../assets/icon.png';
-    return `<div class="comment-author"><img class="comment-avatar" src="${esc(avatar||fallback)}" alt=""><div><strong>@${esc(user||'developer')}</strong><span>${esc(dateText(date))}</span>${isAnswer?`<span class="answer-label">✓ ${copy[lang].answer}</span>`:''}</div></div>`;
+    const isCreator=String(user||'').toLowerCase()===OWNER;
+    return `<div class="comment-author${isCreator?' creator-author':''}"><img class="comment-avatar" src="${esc(avatar||fallback)}" alt=""><div><strong>@${esc(user||'developer')}</strong><span>${esc(dateText(date))}</span>${isCreator?'<span class="creator-label">InstallerLab</span>':''}${isAnswer?`<span class="answer-label">✓ ${copy[lang].answer}</span>`:''}</div></div>`;
   }
 
   function renderComment(comment){
-    const replies=(comment.replies||[]).map(reply=>`<div class="nested-reply">${authorBlock(reply.user,reply.avatar,reply.createdAt)}<div class="github-body comment-body">${safeGithubHtml(reply.bodyHTML,reply.bodyText)}</div></div>`).join('');
-    return `<article class="comment-card${comment.isAnswer?' answer':''}"><div class="comment-head">${authorBlock(comment.user,comment.avatar,comment.createdAt,comment.isAnswer)}${comment.url?`<a class="comment-link" href="${esc(comment.url)}" target="_blank" rel="noreferrer">${copy[lang].viewReply}</a>`:''}</div><div class="github-body comment-body">${safeGithubHtml(comment.bodyHTML,comment.bodyText)}</div>${replies?`<div class="nested-replies">${replies}</div>`:''}</article>`;
+    const isCreator=String(comment.user||'').toLowerCase()===OWNER;
+    const replies=(comment.replies||[]).map(reply=>{const replyCreator=String(reply.user||'').toLowerCase()===OWNER;return `<div class="nested-reply${replyCreator?' creator-reply':''}">${authorBlock(reply.user,reply.avatar,reply.createdAt)}<div class="github-body comment-body">${safeGithubHtml(reply.bodyHTML,reply.bodyText)}</div></div>`;}).join('');
+    return `<article class="comment-card${comment.isAnswer?' answer':''}${isCreator?' creator-reply':''}"><div class="comment-head">${authorBlock(comment.user,comment.avatar,comment.createdAt,comment.isAnswer)}${comment.url?`<a class="comment-link" href="${esc(comment.url)}" target="_blank" rel="noreferrer">${copy[lang].viewReply}</a>`:''}</div><div class="github-body comment-body">${safeGithubHtml(comment.bodyHTML,comment.bodyText)}</div>${replies?`<div class="nested-replies">${replies}</div>`:''}</article>`;
   }
 
   function renderTopic(){
@@ -144,10 +147,11 @@
     q('#reply-on-github').href=topic.url||DISCUSSIONS;
     q('#topic-answered').hidden=!topic.answered;
     q('#topic-answered').textContent=`✓ ${copy[lang].answered}`;
-    q('#reply-count').textContent=String(topic.commentCount??(topic.comments||[]).length);
 
     const comments=q('#topic-comments');
     const list=topic.comments||[];
+    const totalReplies=list.reduce((sum,item)=>sum+1+(item.replies||[]).length,0);
+    q('#reply-count').textContent=String(totalReplies);
     comments.innerHTML=list.map(renderComment).join('');
     comments.querySelectorAll('.github-body').forEach(decorateGithubBody);
     q('#no-comments').hidden=list.length>0;
