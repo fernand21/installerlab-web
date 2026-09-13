@@ -1,5 +1,8 @@
 (() => {
   'use strict';
+  if (window.__INSTALLERLAB_GLOBAL_NAV_V4__) return;
+  window.__INSTALLERLAB_GLOBAL_NAV_V4__ = true;
+
   const projectBase = location.pathname.includes('/installerlab-web/') ? '/installerlab-web/' : '/';
   const sessionKey = 'installerlab-account-session-v1';
   const urls = {
@@ -25,13 +28,35 @@
   const chevron = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 7 5 5 5-5"/></svg>';
   const menuIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
 
-  function ensureStyle() {
-    if (document.querySelector('link[data-il-nav-v2]')) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = projectBase + 'assets/nav-v2.css?v=20260913-2';
-    link.dataset.ilNavV2 = '1';
-    document.head.appendChild(link);
+  function ensureStyles() {
+    if (!document.querySelector('link[href*="assets/site.css"]')) {
+      const core = document.createElement('link');
+      core.rel = 'stylesheet';
+      core.href = projectBase + 'assets/site.css?v=20260913-15';
+      core.dataset.ilSiteCore = '1';
+      document.head.appendChild(core);
+    }
+    if (!document.querySelector('link[data-il-nav-v2]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = projectBase + 'assets/nav-v2.css?v=20260913-3';
+      link.dataset.ilNavV2 = '1';
+      document.head.appendChild(link);
+    }
+  }
+
+  function ensureHeader() {
+    let nav = document.querySelector('.header .nav');
+    if (nav) return nav;
+
+    const oldCommunity = document.querySelector('.community-header');
+    if (oldCommunity) oldCommunity.classList.add('il-legacy-header-hidden');
+
+    const header = document.createElement('header');
+    header.className = 'header il-universal-header';
+    header.innerHTML = `<nav class="nav shell"><a class="brand" href="${urls.home}"><img src="${projectBase}assets/icon.png" alt="InstallerLab">InstallerLab</a><div class="links"></div><div class="actions"></div></nav>`;
+    document.body.insertBefore(header, document.body.firstChild);
+    return header.querySelector('.nav');
   }
 
   function firstName(session) {
@@ -44,7 +69,7 @@
     const u = session?.user;
     const url = u?.user_metadata?.avatar_url || u?.user_metadata?.picture || '';
     const name = firstName(session) || 'U';
-    return url ? `<span class="il-nav-avatar"><img src="${url.replace(/"/g,'&quot;')}" alt=""></span>` : `<span class="il-nav-avatar">${name.charAt(0).toUpperCase()}</span>`;
+    return url ? `<span class="il-nav-avatar"><img src="${String(url).replace(/"/g,'&quot;')}" alt=""></span>` : `<span class="il-nav-avatar">${name.charAt(0).toUpperCase()}</span>`;
   }
 
   function active(href) {
@@ -67,7 +92,7 @@
 
   function buildLinks(links) {
     const es = isSpanish();
-    const signature = `${es ? 'es' : 'en'}:${location.pathname}:v3`;
+    const signature = `${es ? 'es' : 'en'}:${location.pathname}:v4`;
     if (links.dataset.ilNavSignature === signature) return;
     links.dataset.ilNavSignature = signature;
 
@@ -102,7 +127,7 @@
     const es = isSpanish();
     const session = readSession();
     const userName = firstName(session);
-    const signature = `${es ? 'es' : 'en'}:${userName || 'guest'}:v3`;
+    const signature = `${es ? 'es' : 'en'}:${userName || 'guest'}:v4`;
     if (actions.dataset.ilNavSignature === signature) return;
     actions.dataset.ilNavSignature = signature;
 
@@ -112,6 +137,10 @@
       lang.className = 'lang';
       lang.setAttribute('aria-label', es ? 'Idioma' : 'Language');
       lang.innerHTML = '<option value="en">EN</option><option value="es">ES</option>';
+      lang.addEventListener('change', e => {
+        localStorage.setItem('il-lang', e.target.value);
+        location.reload();
+      });
     }
     lang.value = es ? 'es' : 'en';
 
@@ -174,7 +203,7 @@
       const signout = e.target.closest('[data-il-signout]');
       if (signout) {
         localStorage.removeItem(sessionKey);
-        window.dispatchEvent(new CustomEvent('installerlab:account-session', { detail: null }));
+        window.dispatchEvent(new CustomEvent('installerlab:account-session', { detail:null }));
         location.href = urls.account;
         return;
       }
@@ -183,8 +212,8 @@
   }
 
   function enhance() {
-    ensureStyle();
-    const nav = document.querySelector('.header .nav');
+    ensureStyles();
+    const nav = ensureHeader();
     if (!nav) return;
     const links = nav.querySelector('.links');
     const actions = nav.querySelector('.actions');
@@ -209,15 +238,12 @@
   });
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
-    document.querySelectorAll('.il-nav-group.is-open,.il-account-wrap.is-open').forEach(x => {
-      x.classList.remove('is-open');
-      x.querySelector(':scope > button')?.setAttribute('aria-expanded','false');
-    });
+    document.querySelectorAll('.il-nav-group.is-open,.il-account-wrap.is-open').forEach(x => x.classList.remove('is-open'));
     document.querySelector('.links.nav-open')?.classList.remove('nav-open');
   });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhance, { once:true }); else enhance();
-  new MutationObserver(schedule).observe(document.documentElement, { childList:true, subtree:true });
+  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
   window.addEventListener('storage', schedule);
   window.addEventListener('installerlab:account-session', schedule);
 })();
