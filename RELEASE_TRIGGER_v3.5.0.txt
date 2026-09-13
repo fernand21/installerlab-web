@@ -1,0 +1,3 @@
+InstallerLab v3.5.0 draft release trigger
+Created: 2026-09-13
+Release notes: RELEASE_NOTES_v3.5.0.md
