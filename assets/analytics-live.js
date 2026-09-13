@@ -10,9 +10,13 @@
   let lastView = '';
   let requestSerial = 0;
   let notice = null;
+  let cachedSummary = null;
+  let cachedAt = 0;
+  let cachedKey = '';
+  let activeController = null;
   if (trackId) { try { sessionStorage.setItem('installerlab-analytics-demo', '0'); } catch {} }
 
-  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[ch]));
   const es = () => (localStorage.getItem('il-lang') || 'en').toLowerCase() === 'es';
   const copy = () => es() ? {
     connect:'Conectar aplicación', connected:'Backend conectado', pending:'Backend no conectado', live:'SUPABASE · EN VIVO', bannerConnected:'Analytics conectado', bannerText:'Los eventos en vivo se están leyendo para este TrackID.',
@@ -77,10 +81,19 @@
     if (value === null) return;
     const clean = value.trim();
     if (!/^[A-Za-z0-9._:-]{8,80}$/.test(clean)) { setStatus('error', t.invalid); return; }
+
+    // Connect without reloading the whole GitHub Pages dashboard.
+    trackId = clean;
+    cachedSummary = null;
+    cachedAt = 0;
+    cachedKey = '';
+    try { sessionStorage.setItem('installerlab-analytics-demo', '0'); } catch {}
     const url = new URL(location.href);
     url.searchParams.set('trackId', clean);
     url.searchParams.delete('track');
-    location.assign(url.toString());
+    history.pushState({ trackId: clean }, '', url);
+    wireConnectButtons();
+    refresh(true);
   }
 
   function wireConnectButtons() {
@@ -101,7 +114,12 @@
     return new Date(Date.now() - (index === 2 ? 90 : index === 1 ? 30 : 7) * 86400000).toISOString();
   }
 
-  async function fetchSummary() {
+  function currentCacheKey() {
+    const period = document.querySelector('.iax-filterbar select')?.selectedIndex || 0;
+    return `${trackId}|${period}`;
+  }
+
+  async function fetchSummary(signal) {
     if (!trackId || !key || !config.url) return null;
     const payload = { p_track_id: trackId, p_to: new Date().toISOString() };
     const from = rangeForPeriod();
@@ -109,7 +127,8 @@
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      signal
     });
     if (!response.ok) throw new Error(`Supabase RPC ${response.status}`);
     return response.json();
@@ -167,23 +186,65 @@
     setNodeText(readOnly[0], trackId ? copy().app : copy().pending); setNodeText(readOnly[1], trackId || '—'); setNodeText(readOnly[2], `${successful} ${copy().success}`);
   }
 
-  async function refresh() {
+  async function refresh(force = false) {
     wireConnectButtons();
     if (!trackId) { setStatus('pending'); return; }
+
+    const keyNow = currentCacheKey();
+    if (!force && cachedSummary && cachedKey === keyNow && Date.now() - cachedAt < 30000) {
+      setStatus('connected');
+      applySummary(cachedSummary);
+      return;
+    }
+
     const serial = ++requestSerial;
+    if (activeController) activeController.abort();
+    activeController = new AbortController();
     setStatus('loading', copy().loading);
-    try { const data = await fetchSummary(); if (serial !== requestSerial) return; setStatus('connected'); applySummary(data); }
-    catch (error) { if (serial !== requestSerial) return; console.warn('[InstallerLab Analytics]', error); setStatus('error', copy().error); }
+    try {
+      const data = await fetchSummary(activeController.signal);
+      if (serial !== requestSerial) return;
+      cachedSummary = data;
+      cachedAt = Date.now();
+      cachedKey = keyNow;
+      setStatus('connected');
+      applySummary(data);
+    } catch (error) {
+      if (error?.name === 'AbortError' || serial !== requestSerial) return;
+      console.warn('[InstallerLab Analytics]', error);
+      setStatus('error', copy().error);
+    }
   }
 
-  function observeView() {
+  function refreshForCurrentView() {
     const view = activeView();
-    if (view !== lastView) { lastView = view; if (trackId) setTimeout(refresh, 0); }
-    wireConnectButtons();
+    if (view !== lastView) {
+      lastView = view;
+      if (trackId) refresh(false);
+    }
   }
-  const observer = new MutationObserver(observeView);
-  observer.observe(document.documentElement, { childList: true, subtree: true });
-  document.addEventListener('change', event => { if (event.target.closest('.iax-filterbar')) refresh(); });
-  window.addEventListener('storage', refresh);
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', refresh); else refresh();
+
+  // Sidebar navigation already changes the view. Refresh from cache after it changes.
+  document.addEventListener('click', event => {
+    if (event.target.closest('.iax-sidebar nav button')) setTimeout(refreshForCurrentView, 0);
+  });
+
+  // A root replacement happens on language rerender. No expensive subtree observer is needed.
+  const appRoot = document.getElementById('app');
+  if (appRoot) new MutationObserver(() => requestAnimationFrame(() => { wireConnectButtons(); refreshForCurrentView(); })).observe(appRoot, { childList:true });
+
+  document.addEventListener('change', event => { if (event.target.closest('.iax-filterbar')) { cachedSummary = null; refresh(true); } });
+  window.addEventListener('popstate', () => {
+    const params = new URLSearchParams(location.search);
+    trackId = params.get('trackId') || params.get('track') || '';
+    cachedSummary = null;
+    cachedAt = 0;
+    cachedKey = '';
+    refresh(true);
+  });
+  window.addEventListener('storage', () => refresh(false));
+
+  lastView = activeView();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => refresh(false), { once:true });
+  else refresh(false);
 })();
