@@ -1,5 +1,6 @@
 (() => {
   if (document.body.dataset.page !== 'docs') return;
+  let queued=false;
   const es = () => (localStorage.getItem('il-lang') || 'es').toLowerCase() !== 'en';
   const code = (s) => `<div class="docv2-code"><div class="docv2-codebar"><span>FSS</span></div><pre><code>${s.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</code></pre></div>`;
 
@@ -47,10 +48,10 @@
     </article>`;
     const ref=main.querySelector('#fss')||main.querySelector('article:last-of-type');
     if(ref) ref.insertAdjacentHTML('beforebegin',sections); else main.insertAdjacentHTML('beforeend',sections);
-
     document.querySelectorAll('.docv2-badges').forEach(b=>{if(!b.querySelector('.doc35-badge'))b.insertAdjacentHTML('beforeend','<span class="doc35-badge">v3.5 · Analytics</span>')});
   }
 
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',apply); else setTimeout(apply,0);
-  document.addEventListener('change',e=>{if(e.target?.classList?.contains('lang')) setTimeout(apply,0)},true);
+  function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;apply()})}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',schedule); else schedule();
+  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
 })();
