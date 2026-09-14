@@ -2,52 +2,106 @@
   'use strict';
   if (document.body?.dataset?.page !== 'analytics') return;
 
-  const API_ENDPOINT = 'https://b4xapp.com/aplicaciones/installerlab/api.php';
-  const cfg = window.INSTALLERLAB_ANALYTICS_CONFIG || {};
-  let storedReadToken = '';
-  try { storedReadToken = localStorage.getItem('installerlab_magicapi_read_token') || ''; } catch {}
-  const READ_TOKEN = String(cfg.magicApiReadToken || window.INSTALLERLAB_MAGICAPI_READ_TOKEN || storedReadToken || '').trim();
+  const API = 'https://b4xapp.com/aplicaciones/installerlab/api.php';
   const REQUEST_TIMEOUT_MS = 7000;
 
-  const params = new URLSearchParams(location.search);
-  let trackId = (params.get('trackId') || params.get('track') || '').trim().toUpperCase();
-  let controller = null;
-  let serial = 0;
+  const qs = new URLSearchParams(location.search);
+  let trackId = (qs.get('trackId') || qs.get('track') || '').trim().toUpperCase();
   let cache = null;
-  let cacheKey = '';
-  let cacheAt = 0;
+  let controller = null;
+  let requestSerial = 0;
 
   const es = () => (localStorage.getItem('il-lang') || 'en').toLowerCase() === 'es';
-  const copy = () => es() ? {
-    connected:'MySQL', loading:'Cargando…', pending:'Selecciona una aplicación', empty:'Sin datos', error:'Sin conexión',
-    loadingText:'Leyendo Analytics desde MySQL…', noData:'No hay datos para este periodo.',
-    unavailable:'No se pudo consultar InstallerLab Analytics.', timeout:'El servidor tardó demasiado en responder.',
+  const t = () => es() ? {
+    loading:'Leyendo Analytics desde MySQL…',
+    connected:'MySQL',
+    empty:'Sin datos',
+    error:'Sin conexión',
+    pending:'Selecciona una aplicación',
+    noData:'No hay datos para este periodo.',
+    unavailable:'No se pudo consultar InstallerLab Analytics.',
+    timeout:'El servidor tardó demasiado en responder.',
     tokenMissing:'La conexión de lectura de Analytics todavía no está configurada.',
-    prompt:'Introduce el TrackID del proyecto', invalid:'Introduce un TrackID válido.',
-    history:'Histórico permanente en MySQL', events:'eventos', connect:'Conectar aplicación', banner:'Analytics conectado'
+    prompt:'Introduce el TrackID del proyecto',
+    invalid:'Introduce un TrackID válido.',
+    history:'Histórico permanente en MySQL',
+    events:'eventos',
+    banner:'Analytics conectado',
+    connect:'Conectar aplicación'
   } : {
-    connected:'MySQL', loading:'Loading…', pending:'Select an application', empty:'No data', error:'Connection unavailable',
-    loadingText:'Reading Analytics from MySQL…', noData:'No data for this period.',
-    unavailable:'InstallerLab Analytics could not be queried.', timeout:'The server took too long to respond.',
+    loading:'Reading Analytics from MySQL…',
+    connected:'MySQL',
+    empty:'No data',
+    error:'Connection unavailable',
+    pending:'Select an application',
+    noData:'No data for this period.',
+    unavailable:'InstallerLab Analytics could not be queried.',
+    timeout:'The server took too long to respond.',
     tokenMissing:'The Analytics read connection is not configured yet.',
-    prompt:'Enter the project TrackID', invalid:'Enter a valid TrackID.',
-    history:'Permanent history in MySQL', events:'events', connect:'Connect application', banner:'Analytics connected'
+    prompt:'Enter the project TrackID',
+    invalid:'Enter a valid TrackID.',
+    history:'Permanent history in MySQL',
+    events:'events',
+    banner:'Analytics connected',
+    connect:'Connect application'
   };
 
-  const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const array = value => Array.isArray(value) ? value : [];
-  const number = value => Number.isFinite(Number(value)) ? Number(value) : 0;
-  const lower = value => String(value || '').toLowerCase();
+  const number = v => Number.isFinite(Number(v)) ? Number(v) : 0;
+  const arr = v => Array.isArray(v) ? v : [];
+  const lower = v => String(v || '').toLowerCase();
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function readToken() {
+    try {
+      return String(
+        window.INSTALLERLAB_MAGICAPI_READ_TOKEN ||
+        window.INSTALLERLAB_ANALYTICS_CONFIG?.magicApiReadToken ||
+        localStorage.getItem('installerlab_magicapi_read_token') ||
+        ''
+      ).trim();
+    } catch {
+      return '';
+    }
+  }
 
   function emptySummary(extra = {}) {
     return {
-      ok:true, storage_mode:'mysql', event_count:0,
-      installs:0, started:0, successful:0, failed:0, cancelled:0,
-      uninstalls:0, launches:0, active_installs:0, unique_installs:0,
-      success_rate:0, avg_install_duration_ms:0,
-      versions:[], platforms:[], windows:[], packages:[], languages:[], errors:[],
-      recent_events:[], daily:[], ...extra
+      ok:true,
+      storage_mode:'mysql',
+      event_count:0,
+      installs:0,
+      started:0,
+      successful:0,
+      failed:0,
+      cancelled:0,
+      uninstalls:0,
+      launches:0,
+      active_installs:0,
+      unique_installs:0,
+      unique_users:0,
+      success_rate:0,
+      avg_install_duration_ms:0,
+      versions:[],
+      platforms:[],
+      architectures:[],
+      windows:[],
+      packages:[],
+      languages:[],
+      errors:[],
+      recent_events:[],
+      events:[],
+      daily:[],
+      ...extra
     };
+  }
+
+  function publish(data) {
+    const value = data && typeof data === 'object' ? data : emptySummary();
+    window.INSTALLERLAB_ANALYTICS_LIVE_SUMMARY = value;
+    window.INSTALLERLAB_ANALYTICS_TRACK_ID = trackId;
+    window.dispatchEvent(new CustomEvent('installerlab:analytics-summary', {
+      detail:{data:value, trackId}
+    }));
   }
 
   function notice() {
@@ -57,30 +111,99 @@
     if (!workspace) return null;
     node = document.createElement('div');
     node.className = 'iax-live-notice';
-    node.setAttribute('role', 'status');
+    node.setAttribute('role','status');
     workspace.insertBefore(node, workspace.firstElementChild);
     return node;
   }
 
   function setStatus(state, message = '') {
-    const t = copy();
-    const labels = {connected:t.connected, loading:t.loading, empty:t.empty, error:t.error, pending:t.pending};
-    const label = labels[state] || t.pending;
+    const c = t();
+    const labels = {
+      loading: c.loading,
+      connected: c.connected,
+      empty: c.empty,
+      error: c.error,
+      pending: c.pending
+    };
+    const label = labels[state] || c.pending;
+
     const backend = document.querySelector('.iax-backend');
     if (backend) backend.innerHTML = `<i></i>${esc(label)}`;
+
     const side = document.querySelector('.iax-side-status small');
-    if (side && side.textContent !== label) side.textContent = label;
-    const title = document.querySelector('.iax-app-title span');
-    if (title && (state === 'connected' || state === 'empty')) title.textContent = 'MYSQL';
+    if (side) side.textContent = label;
+
     const banner = document.querySelector('.iax-connect-banner strong');
-    if (banner && (state === 'connected' || state === 'empty')) banner.textContent = state === 'connected' ? t.banner : t.noData;
-    document.querySelector('.iax-app')?.classList.toggle('live-connected', state === 'connected' || state === 'empty');
+    if (banner && state === 'connected') banner.textContent = c.banner;
+    if (banner && state === 'empty') banner.textContent = c.noData;
+
+    document.querySelector('.iax-app')?.classList.toggle(
+      'live-connected',
+      state === 'connected' || state === 'empty'
+    );
+
     const node = notice();
     if (node) {
       node.className = `iax-live-notice ${state === 'empty' ? 'connected' : state}`;
-      if (node.textContent !== message) node.textContent = message;
+      node.textContent = message;
       node.hidden = !message;
     }
+  }
+
+  function updateTrackUi() {
+    const picker = document.querySelector('.iax-picker span');
+    if (picker) picker.textContent = trackId ? `TrackID ${trackId}` : t().connect;
+    document.querySelectorAll('.iax-picker,.iax-connect-banner button,.iax-side-foot button')
+      .forEach(btn => { btn.disabled = false; });
+  }
+
+  async function getTable(table, signal) {
+    const token = readToken();
+    if (!token) {
+      const e = new Error(t().tokenMissing);
+      e.code = 'READ_TOKEN_MISSING';
+      throw e;
+    }
+
+    const url = new URL(API);
+    url.searchParams.set('table', table);
+
+    let response;
+    try {
+      response = await fetch(url.toString(), {
+        method:'GET',
+        headers:{
+          'Authorization':`Bearer ${token}`,
+          'Accept':'application/json'
+        },
+        cache:'no-store',
+        signal
+      });
+    } catch (err) {
+      const e = new Error(err?.name === 'AbortError' ? t().timeout : t().unavailable);
+      e.code = err?.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK_ERROR';
+      throw e;
+    }
+
+    const raw = await response.text();
+    let json;
+    try {
+      json = raw ? JSON.parse(raw) : [];
+    } catch {
+      const e = new Error(t().unavailable);
+      e.code = 'INVALID_JSON';
+      throw e;
+    }
+
+    if (!response.ok) {
+      const e = new Error(json?.error || json?.response || `${t().unavailable} HTTP ${response.status}`);
+      e.code = `HTTP_${response.status}`;
+      throw e;
+    }
+
+    if (Array.isArray(json)) return json;
+    if (Array.isArray(json?.data)) return json.data;
+    return [];
   }
 
   function periodStart() {
@@ -90,169 +213,172 @@
     return Date.now() - days * 86400000;
   }
 
-  function filteredByPeriod(events) {
+  function applyPeriod(events) {
     const start = periodStart();
     if (!start) return events;
     return events.filter(row => {
-      const n = Date.parse(row?.event_at || row?.created_at || '');
-      return Number.isFinite(n) && n >= start;
+      const value = Date.parse(row?.event_at || row?.created_at || '');
+      return Number.isFinite(value) && value >= start;
     });
   }
 
-  function dist(events, getter) {
-    const m = new Map();
+  function distribution(events, getter) {
+    const map = new Map();
     for (const row of events) {
       const label = String(getter(row) || '').trim();
       if (!label) continue;
-      m.set(label, (m.get(label) || 0) + 1);
+      map.set(label, (map.get(label) || 0) + 1);
     }
-    return [...m].map(([label, value]) => ({label, value, count:value})).sort((a,b) => b.value - a.value);
+    return [...map]
+      .map(([label,value]) => ({label,value,count:value}))
+      .sort((a,b) => b.value - a.value);
   }
 
-  function buildSummary(allEvents, daily) {
-    const events = filteredByPeriod(array(allEvents)).sort((a,b) => Date.parse(b.event_at || b.created_at || 0) - Date.parse(a.event_at || a.created_at || 0));
-    const installStarted = events.filter(r => lower(r.event_type) === 'install_started');
-    const installSucceeded = events.filter(r => lower(r.event_type) === 'install_succeeded');
-    const installFailed = events.filter(r => lower(r.event_type) === 'install_failed' || lower(r.result).includes('fail'));
+  function buildSummary(project, allEvents, allDaily) {
+    const projectId = String(project.id);
+    const projectEvents = arr(allEvents).filter(row => String(row.project_id) === projectId);
+    const events = applyPeriod(projectEvents).sort((a,b) =>
+      Date.parse(b.event_at || b.created_at || 0) - Date.parse(a.event_at || a.created_at || 0)
+    );
+    const daily = arr(allDaily).filter(row => String(row.project_id) === projectId);
+
+    const started = events.filter(r => lower(r.event_type) === 'install_started');
+    const successful = events.filter(r => lower(r.event_type) === 'install_succeeded');
+    const failed = events.filter(r => lower(r.event_type) === 'install_failed' || lower(r.result).includes('fail'));
     const cancelled = events.filter(r => lower(r.event_type).includes('cancel') || lower(r.result).includes('cancel'));
     const uninstalls = events.filter(r => lower(r.event_type).includes('uninstall'));
     const launches = events.filter(r => lower(r.event_type) === 'launch');
-    const ids = new Set(events.map(r => r.install_id).filter(Boolean));
-    const successfulIds = new Set(installSucceeded.map(r => r.install_id).filter(Boolean));
+
+    const installIds = new Set(events.map(r => r.install_id).filter(Boolean));
+    const successfulIds = new Set(successful.map(r => r.install_id).filter(Boolean));
     const removedIds = new Set(uninstalls.map(r => r.install_id).filter(Boolean));
     let active = [...successfulIds].filter(id => !removedIds.has(id)).length;
-    if (!active && installSucceeded.length) active = Math.max(0, installSucceeded.length - uninstalls.length);
-    const durations = installSucceeded.map(r => number(r.duration_ms)).filter(n => n > 0);
+    if (!active && successful.length) active = Math.max(0, successful.length - uninstalls.length);
+
+    const durations = successful.map(r => number(r.duration_ms)).filter(v => v > 0);
     const avg = durations.length ? Math.round(durations.reduce((a,b)=>a+b,0) / durations.length) : 0;
-    const errors = dist(installFailed, r => r.error_code || r.stage || 'Install failed');
 
     return {
-      ok:true, storage_mode:'mysql', event_count:events.length,
-      installs:installStarted.length, started:installStarted.length,
-      successful:installSucceeded.length, failed:installFailed.length,
-      cancelled:cancelled.length, uninstalls:uninstalls.length,
-      launches:launches.length, active_installs:active,
-      unique_installs:ids.size, unique_users:ids.size,
-      success_rate:installStarted.length ? Math.round((installSucceeded.length / installStarted.length) * 10000) / 100 : 0,
+      ...emptySummary(),
+      project,
+      event_count:events.length,
+      installs:started.length,
+      started:started.length,
+      successful:successful.length,
+      failed:failed.length,
+      cancelled:cancelled.length,
+      uninstalls:uninstalls.length,
+      launches:launches.length,
+      active_installs:active,
+      unique_installs:installIds.size,
+      unique_users:installIds.size,
+      success_rate:started.length ? Math.round((successful.length / started.length) * 10000) / 100 : 0,
       avg_install_duration_ms:avg,
-      versions:dist(events, r => r.app_version),
-      platforms:dist(events, r => r.architecture), architectures:dist(events, r => r.architecture),
-      windows:dist(events, r => r.windows_version), packages:dist(events, r => r.package_type),
-      languages:dist(events, r => r.language), errors,
-      recent_events:events.slice(0, 100), events:events.slice(0, 100), daily:array(daily)
+      versions:distribution(events, r => r.app_version),
+      platforms:distribution(events, r => r.architecture),
+      architectures:distribution(events, r => r.architecture),
+      windows:distribution(events, r => r.windows_version),
+      packages:distribution(events, r => r.package_type),
+      languages:distribution(events, r => r.language),
+      errors:distribution(failed, r => r.error_code || r.stage || 'Install failed'),
+      recent_events:events.slice(0,100),
+      events:events.slice(0,100),
+      daily
     };
   }
 
-  async function apiGet(table, column = '', value = '', signal) {
-    if (!READ_TOKEN) {
-      const e = new Error(copy().tokenMissing); e.code = 'READ_TOKEN_MISSING'; throw e;
-    }
-    const url = new URL(API_ENDPOINT);
-    url.searchParams.set('table', table);
-    if (column) url.searchParams.set('column', column);
-    if (value !== '') url.searchParams.set('value', String(value));
-    let response;
-    try {
-      response = await fetch(url.toString(), {
-        method:'GET', headers:{'Authorization':`Bearer ${READ_TOKEN}`,'Accept':'application/json'},
-        cache:'no-store', signal
-      });
-    } catch (err) {
-      const e = new Error(err?.name === 'AbortError' ? copy().timeout : copy().unavailable);
-      e.code = err?.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK_ERROR'; throw e;
-    }
-    const raw = await response.text();
-    let data;
-    try { data = raw ? JSON.parse(raw) : []; }
-    catch { const e = new Error(copy().unavailable); e.code = 'INVALID_JSON'; throw e; }
-    if (!response.ok) {
-      const e = new Error(data?.error || data?.response || `${copy().unavailable} HTTP ${response.status}`);
-      e.code = `HTTP_${response.status}`; throw e;
-    }
-    return Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
-  }
-
-  async function loadSummary(signal) {
-    const projects = await apiGet('analytics_projects', 'track_id', trackId, signal);
-    const project = projects.find(row => String(row.track_id || '').toUpperCase() === trackId) || projects[0];
-    if (!project?.id) return emptySummary({project:null});
-    const [events, daily] = await Promise.all([
-      apiGet('analytics_events', 'project_id', project.id, signal),
-      apiGet('analytics_daily', 'project_id', project.id, signal).catch(() => [])
+  async function load(signal) {
+    // Exactly the same pattern shown by MagicApi Explorer:
+    // GET api.php?table=TABLE_NAME + Authorization: Bearer TOKEN
+    const [projects, events, daily] = await Promise.all([
+      getTable('analytics_projects', signal),
+      getTable('analytics_events', signal),
+      getTable('analytics_daily', signal)
     ]);
-    return {...buildSummary(events, daily), project};
+
+    const project = projects.find(row =>
+      String(row.track_id || '').trim().toUpperCase() === trackId
+    );
+
+    if (!project) return emptySummary({project:null});
+    return buildSummary(project, events, daily);
   }
 
-  function publish(data) {
-    const value = data && typeof data === 'object' ? data : emptySummary();
-    window.INSTALLERLAB_ANALYTICS_LIVE_SUMMARY = value;
-    window.INSTALLERLAB_ANALYTICS_TRACK_ID = trackId;
-    window.dispatchEvent(new CustomEvent('installerlab:analytics-summary', {detail:{data:value, trackId}}));
-  }
+  async function refresh() {
+    updateTrackUi();
 
-  function cacheId() { return `${trackId}|${document.querySelector('.iax-filterbar select')?.selectedIndex || 0}`; }
-
-  async function refresh(force = false) {
-    wire();
-    if (!trackId) { publish(emptySummary()); setStatus('pending'); return; }
-    const key = cacheId();
-    if (!force && cache && cacheKey === key && Date.now() - cacheAt < 30000) {
+    if (!trackId) {
+      cache = emptySummary();
       publish(cache);
-      setStatus(cache.event_count ? 'connected' : 'empty', cache.event_count ? `${copy().history} · ${cache.event_count} ${copy().events}` : copy().noData);
+      setStatus('pending');
       return;
     }
+
     controller?.abort();
-    const own = new AbortController(); controller = own;
-    const seq = ++serial;
+    const own = new AbortController();
+    controller = own;
+    const serial = ++requestSerial;
     const timer = setTimeout(() => own.abort(), REQUEST_TIMEOUT_MS);
-    setStatus('loading', copy().loadingText);
+
+    setStatus('loading', t().loading);
+
     try {
-      const data = await loadSummary(own.signal);
-      if (seq !== serial) return;
-      cache = data; cacheKey = key; cacheAt = Date.now();
+      const data = await load(own.signal);
+      if (serial !== requestSerial) return;
+      cache = data;
       publish(data);
-      setStatus(data.event_count ? 'connected' : 'empty', data.event_count ? `${copy().history} · ${data.event_count} ${copy().events}` : copy().noData);
+      setStatus(
+        data.event_count ? 'connected' : 'empty',
+        data.event_count ? `${t().history} · ${data.event_count} ${t().events}` : t().noData
+      );
     } catch (err) {
-      if (seq !== serial) return;
+      if (serial !== requestSerial) return;
       console.warn('[InstallerLab Analytics]', err);
-      cache = null;
-      publish(emptySummary({unavailable:true, error_code:err?.code || 'UNKNOWN'}));
-      setStatus('error', err?.message || copy().unavailable);
-    } finally { clearTimeout(timer); }
+      cache = emptySummary({unavailable:true,error_code:err?.code || 'UNKNOWN'});
+      publish(cache);
+      setStatus('error', err?.message || t().unavailable);
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
-  function choose() {
-    const t = copy();
-    const value = window.prompt(t.prompt, trackId || '');
+  function chooseTrack() {
+    const value = window.prompt(t().prompt, trackId || '');
     if (value === null) return;
     const clean = value.trim().toUpperCase();
-    if (!/^IL-TRK-[0-9A-F]{24}$/.test(clean)) { setStatus('error', t.invalid); return; }
-    trackId = clean; cache = null;
+    if (!/^IL-TRK-[0-9A-F]{24}$/.test(clean)) {
+      setStatus('error', t().invalid);
+      return;
+    }
+    trackId = clean;
     const url = new URL(location.href);
-    url.searchParams.set('trackId', clean); url.searchParams.delete('track');
-    history.pushState({trackId:clean}, '', url);
-    wire(); refresh(true);
-  }
-
-  function wire() {
-    const picker = document.querySelector('.iax-picker span');
-    const wanted = trackId ? `TrackID ${trackId}` : copy().connect;
-    if (picker && picker.textContent !== wanted) picker.textContent = wanted;
-    document.querySelectorAll('.iax-picker,.iax-connect-banner button,.iax-side-foot button').forEach(btn => { btn.disabled = false; });
+    url.searchParams.set('trackId', clean);
+    url.searchParams.delete('track');
+    history.pushState({trackId:clean},'',url);
+    refresh();
   }
 
   document.addEventListener('click', event => {
-    if (event.target.closest('.iax-picker,.iax-connect-banner button,.iax-side-foot button')) choose();
-    if (event.target.closest('.iax-sidebar nav button')) setTimeout(() => publish(cache || emptySummary()), 0);
-  });
-  document.addEventListener('change', event => { if (event.target.closest('.iax-filterbar')) { cache = null; refresh(true); } });
-  window.addEventListener('popstate', () => {
-    const p = new URLSearchParams(location.search);
-    trackId = (p.get('trackId') || p.get('track') || '').trim().toUpperCase();
-    cache = null; refresh(true);
+    if (event.target.closest('.iax-picker,.iax-connect-banner button,.iax-side-foot button')) {
+      chooseTrack();
+      return;
+    }
+    if (event.target.closest('.iax-sidebar nav button')) {
+      setTimeout(() => publish(cache || emptySummary()), 0);
+    }
   });
 
-  function start() { requestAnimationFrame(() => { wire(); refresh(false); }); }
+  document.addEventListener('change', event => {
+    if (event.target.closest('.iax-filterbar')) refresh();
+  });
+
+  window.addEventListener('popstate', () => {
+    const params = new URLSearchParams(location.search);
+    trackId = (params.get('trackId') || params.get('track') || '').trim().toUpperCase();
+    refresh();
+  });
+
+  const start = () => requestAnimationFrame(refresh);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, {once:true});
   else start();
 })();
