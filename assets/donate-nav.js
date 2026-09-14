@@ -33,7 +33,6 @@
       const core = document.createElement('link');
       core.rel = 'stylesheet';
       core.href = projectBase + 'assets/site.css?v=20260913-15';
-      core.dataset.ilSiteCore = '1';
       document.head.appendChild(core);
     }
     if (!document.querySelector('link[data-il-nav-v2]')) {
@@ -79,7 +78,7 @@
 
   function buildLinks(links) {
     const es = isSpanish();
-    const signature = `${es ? 'es' : 'en'}:${location.pathname}:v5`;
+    const signature = `${es ? 'es' : 'en'}:${location.pathname}:v6`;
     if (links.dataset.ilNavSignature === signature) return;
     links.dataset.ilNavSignature = signature;
 
@@ -101,8 +100,8 @@
       { href: urls.about, label: es ? 'Acerca de' : 'About' }
     ]);
 
-    // Analytics remains accessible from account/application workflows, but it
-    // is intentionally not exposed in the global site navigation.
+    // Analytics stays out of the global navigation; it is opened from account
+    // and application workflows in a separate tab.
     links.innerHTML = [
       navLink(urls.home, es ? 'Inicio' : 'Home'),
       product,
@@ -114,41 +113,33 @@
   function buildActions(actions) {
     const es = isSpanish();
     const session = readSession();
-    const signature = `${es ? 'es' : 'en'}:${session?.access_token ? 'auth' : 'guest'}:v5`;
+    const authenticated = !!session?.access_token;
+    const signature = `${es ? 'es' : 'en'}:${authenticated ? 'auth' : 'guest'}:v6`;
     if (actions.dataset.ilNavSignature === signature) return;
     actions.dataset.ilNavSignature = signature;
 
-    let lang = actions.querySelector('.lang');
-    if (!lang) {
-      lang = document.createElement('select');
-      lang.className = 'lang';
-      lang.setAttribute('aria-label', es ? 'Idioma' : 'Language');
-      lang.innerHTML = '<option value="en">EN</option><option value="es">ES</option>';
-      lang.addEventListener('change', e => {
-        localStorage.setItem('il-lang', e.target.value);
-        location.reload();
-      });
-    }
+    const lang = document.createElement('select');
+    lang.className = 'lang';
+    lang.setAttribute('aria-label', es ? 'Idioma' : 'Language');
+    lang.innerHTML = '<option value="en">EN</option><option value="es">ES</option>';
     lang.value = es ? 'es' : 'en';
-
-    actions.innerHTML = '';
-    actions.appendChild(lang);
+    lang.addEventListener('change', e => {
+      localStorage.setItem('il-lang', e.target.value);
+      location.reload();
+    });
 
     const cta = document.createElement('a');
     cta.className = 'button primary';
     cta.href = urls.download;
     cta.textContent = es ? 'Descargar' : 'Download';
-    actions.appendChild(cta);
 
-    // Keep authentication/session active, but do not expose the account block
-    // in the global header after login. Guests can still reach Sign in.
-    if (!session?.access_token) {
-      const signIn = document.createElement('a');
-      signIn.className = 'il-signin';
-      signIn.href = urls.account;
-      signIn.textContent = es ? 'Iniciar sesión' : 'Sign in';
-      actions.appendChild(signIn);
-    }
+    const account = document.createElement('a');
+    account.className = 'il-signin il-account-link';
+    account.href = urls.account;
+    account.textContent = authenticated
+      ? (es ? 'Mi cuenta' : 'My account')
+      : (es ? 'Cuenta' : 'Account');
+    if (active(urls.account)) account.classList.add('is-active');
 
     const toggle = document.createElement('button');
     toggle.className = 'il-nav-toggle';
@@ -156,7 +147,8 @@
     toggle.setAttribute('aria-label', es ? 'Abrir menú' : 'Open menu');
     toggle.setAttribute('aria-expanded', 'false');
     toggle.innerHTML = menuIcon;
-    actions.appendChild(toggle);
+
+    actions.replaceChildren(lang, cta, account, toggle);
   }
 
   function enforceAnalyticsTargets() {
