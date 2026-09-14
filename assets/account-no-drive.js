@@ -24,6 +24,9 @@
         heading.includes('google drive') ||
         kicker === 'archive' ||
         kicker === 'archivo' ||
+        text.includes('google drive') ||
+        text.includes('drive archive') ||
+        text.includes('archivo en drive') ||
         text.includes('connect google drive') ||
         text.includes('conectar google drive')
       ) card.remove();
@@ -41,9 +44,9 @@
         .replace(/One account for Analytics, projects and your Drive archive\.?/gi, 'One account for Analytics and your projects.')
         .replace(/, proyectos y tu archivo en Drive\.?/gi, ' y tus proyectos.')
         .replace(/projects and your Drive archive\.?/gi, 'projects.')
-        .replace(/Google Drive/gi, 'Cloud')
-        .replace(/Drive archive/gi, 'Cloud history')
-        .replace(/archivo en Drive/gi, 'histórico Cloud')
+        .replace(/Google Drive/gi, '')
+        .replace(/Drive archive/gi, '')
+        .replace(/archivo en Drive/gi, '')
         .replace(/Supabase/gi, 'Cloud');
     });
   }

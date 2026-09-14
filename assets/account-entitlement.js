@@ -13,25 +13,27 @@
 
   const isSpanish = () => (localStorage.getItem('il-lang') || 'en').toLowerCase().startsWith('es');
   const copy = () => isSpanish() ? {
-    kicker: 'Activación segura', title: 'Canjear licencia',
-    intro: 'Pega aquí el token de un solo uso que recibiste para activar Supporter o PRO en esta cuenta.',
+    kicker: 'Activación segura', title: 'Canjear beneficio de InstallerLab',
+    intro: 'Si recibiste un QR/código Supporter o PRO, vincúlalo aquí a tu cuenta.',
     found: 'Beneficio de InstallerLab encontrado', foundText: 'Este beneficio de un solo uso quedará vinculado a tu cuenta.',
-    label: 'Token de licencia', placeholder: 'Pega el token firmado…', button: 'Canjear token',
+    label: 'Token de beneficio', placeholder: 'Pega el token firmado…', button: 'Canjear',
     linkButton: 'Vincular a mi cuenta',
     help: 'El token se valida en el servidor y no se guarda en el navegador.', loading: 'Validando…',
-    success: 'Licencia activada. Actualizando tu cuenta…',
+    success: 'Beneficio activado. Actualizando tu cuenta…', linkedPro: '✓ InstallerLab PRO vinculado', linkedSupporter: '✓ InstallerLab Supporter vinculado',
+    redeemed: 'Este beneficio ya fue canjeado.', revoked: 'Este beneficio ya no es válido.', expired: 'Este beneficio ha expirado.',
     notSigned: 'Inicia sesión para canjear una licencia.',
     invalid: 'El token no es válido, está vencido, revocado o ya fue canjeado.',
     unavailable: 'El servicio de activación no está disponible todavía.',
     error: 'No se pudo activar la licencia.'
   } : {
-    kicker: 'Secure activation', title: 'Redeem a license',
-    intro: 'Paste the single-use token you received to activate Supporter or PRO on this account.',
+    kicker: 'Secure activation', title: 'Redeem InstallerLab benefit',
+    intro: 'If you received a Supporter or PRO QR/code, link it to your account here.',
     found: 'InstallerLab benefit found', foundText: 'This one-time benefit will be linked to your account.',
-    label: 'License token', placeholder: 'Paste the signed token…', button: 'Redeem token',
+    label: 'Benefit token', placeholder: 'Paste the signed token…', button: 'Redeem',
     linkButton: 'Link to my account',
     help: 'The token is verified server-side and is not stored in your browser.', loading: 'Validating…',
-    success: 'License activated. Refreshing your account…',
+    success: 'Benefit activated. Refreshing your account…', linkedPro: '✓ InstallerLab PRO linked', linkedSupporter: '✓ InstallerLab Supporter linked',
+    redeemed: 'This benefit has already been redeemed.', revoked: 'This benefit is no longer valid.', expired: 'This benefit has expired.',
     notSigned: 'Sign in to redeem a license.',
     invalid: 'The token is invalid, expired, revoked, or already redeemed.',
     unavailable: 'The activation service is not available yet.',
@@ -108,14 +110,20 @@
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok || data.success !== true) {
-          const known = ['invalid', 'expired', 'revoked', 'redeemed'];
-          message(status, known.includes(String(data.reason || '').toLowerCase()) ? t.invalid : (response.status >= 500 ? t.unavailable : t.error), 'error');
+          const apiMessage = String(data.message || '').toLowerCase();
+          let errorText = t.error;
+          if (response.status === 409 || apiMessage.includes('already been redeemed')) errorText = t.redeemed;
+          else if (response.status === 410 && apiMessage.includes('expired')) errorText = t.expired;
+          else if (response.status === 410) errorText = t.revoked;
+          else if (response.status === 400) errorText = t.invalid;
+          else if (response.status >= 500) errorText = t.unavailable;
+          message(status, errorText, 'error');
           submit.disabled = false;
           return;
         }
         input.value = '';
         try { sessionStorage.removeItem(pendingClaimKey); } catch {}
-        message(status, t.success, 'ok');
+        message(status, result.tier === 'pro' ? t.linkedPro : t.linkedSupporter, 'ok');
         setTimeout(async () => {
           if (typeof window.installerLabAccountRefresh === 'function') {
             await window.installerLabAccountRefresh();
