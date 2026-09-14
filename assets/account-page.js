@@ -241,6 +241,7 @@
         if(password!==confirmation){setMessage('account-message',t.passwordMismatch,'error');return;}
       }else if(!password){setMessage('account-message',t.badLogin,'error');return;}
       setMessage('account-message',signup?t.creating:t.loading);
+      if(submit) submit.textContent=signup?t.creating:t.signIn;
       if(submit) submit.disabled=true;
       if(toggle) toggle.disabled=true;
       if(google) google.disabled=true;
@@ -270,7 +271,7 @@
         if(submit) submit.disabled=false;
         if(toggle) toggle.disabled=false;
         if(google) google.disabled=false;
-        if(mode==='signup'&&submit) submit.textContent=t.create;
+        if(submit) submit.textContent=mode==='signup'?t.create:t.signIn;
       }
     });
     toggle?.addEventListener('click',()=>{
