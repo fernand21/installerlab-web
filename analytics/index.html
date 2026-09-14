@@ -25,7 +25,29 @@
 <script src="../assets/site.js?v=20260913-14"></script>
 <script src="../assets/donate-nav.js?v=20260913-14"></script>
 <script src="../assets/analytics-config.js?v=20260913-14"></script>
-<script src="../assets/analytics-page.js?v=20260913-14"></script>
+<script>
+/* One-shot guard for analytics-page.js. The page renderer observes the whole
+   document so it can recover after site.js redraws the body on language
+   changes. Ignore mutations produced inside the Analytics UI itself to avoid
+   a requestAnimationFrame/render loop. Only the next MutationObserver created
+   (the analytics page renderer) is wrapped; later observers use the native API. */
+(() => {
+  const NativeMutationObserver = window.MutationObserver;
+  if (!NativeMutationObserver) return;
+  window.MutationObserver = class InstallerLabAnalyticsObserver extends NativeMutationObserver {
+    constructor(callback) {
+      super((records, observer) => {
+        const app = document.getElementById('app');
+        const analytics = app?.querySelector('.iax-app');
+        if (analytics && records.length && records.every(record => analytics.contains(record.target))) return;
+        callback(records, observer);
+      });
+      window.MutationObserver = NativeMutationObserver;
+    }
+  };
+})();
+</script>
+<script src="../assets/analytics-page.js?v=20260913-15"></script>
 <script src="../assets/analytics-demo.js?v=20260913-14"></script>
 <script src="../assets/analytics-mysql-live.js?v=20260913-2"></script>
 <script src="../assets/analytics-live-all.js?v=20260913-14"></script>
