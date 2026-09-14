@@ -4,7 +4,9 @@
 
   const API_ENDPOINT = 'https://b4xapp.com/aplicaciones/installerlab/api.php';
   const cfg = window.INSTALLERLAB_ANALYTICS_CONFIG || {};
-  const READ_TOKEN = String(cfg.magicApiReadToken || window.INSTALLERLAB_MAGICAPI_READ_TOKEN || '').trim();
+  let storedReadToken = '';
+  try { storedReadToken = localStorage.getItem('installerlab_magicapi_read_token') || ''; } catch {}
+  const READ_TOKEN = String(cfg.magicApiReadToken || window.INSTALLERLAB_MAGICAPI_READ_TOKEN || storedReadToken || '').trim();
   const REQUEST_TIMEOUT_MS = 7000;
 
   const params = new URLSearchParams(location.search);
@@ -126,36 +128,24 @@
 
     return {
       ok:true, storage_mode:'mysql', event_count:events.length,
-      installs:installStarted.length,
-      started:installStarted.length,
-      successful:installSucceeded.length,
-      failed:installFailed.length,
-      cancelled:cancelled.length,
-      uninstalls:uninstalls.length,
-      launches:launches.length,
-      active_installs:active,
-      unique_installs:ids.size,
-      unique_users:ids.size,
+      installs:installStarted.length, started:installStarted.length,
+      successful:installSucceeded.length, failed:installFailed.length,
+      cancelled:cancelled.length, uninstalls:uninstalls.length,
+      launches:launches.length, active_installs:active,
+      unique_installs:ids.size, unique_users:ids.size,
       success_rate:installStarted.length ? Math.round((installSucceeded.length / installStarted.length) * 10000) / 100 : 0,
       avg_install_duration_ms:avg,
       versions:dist(events, r => r.app_version),
-      platforms:dist(events, r => r.architecture),
-      architectures:dist(events, r => r.architecture),
-      windows:dist(events, r => r.windows_version),
-      packages:dist(events, r => r.package_type),
-      languages:dist(events, r => r.language),
-      errors,
-      recent_events:events.slice(0, 100),
-      events:events.slice(0, 100),
-      daily:array(daily)
+      platforms:dist(events, r => r.architecture), architectures:dist(events, r => r.architecture),
+      windows:dist(events, r => r.windows_version), packages:dist(events, r => r.package_type),
+      languages:dist(events, r => r.language), errors,
+      recent_events:events.slice(0, 100), events:events.slice(0, 100), daily:array(daily)
     };
   }
 
   async function apiGet(table, column = '', value = '', signal) {
     if (!READ_TOKEN) {
-      const e = new Error(copy().tokenMissing);
-      e.code = 'READ_TOKEN_MISSING';
-      throw e;
+      const e = new Error(copy().tokenMissing); e.code = 'READ_TOKEN_MISSING'; throw e;
     }
     const url = new URL(API_ENDPOINT);
     url.searchParams.set('table', table);
@@ -164,27 +154,20 @@
     let response;
     try {
       response = await fetch(url.toString(), {
-        method:'GET',
-        headers:{'Authorization':`Bearer ${READ_TOKEN}`,'Accept':'application/json'},
+        method:'GET', headers:{'Authorization':`Bearer ${READ_TOKEN}`,'Accept':'application/json'},
         cache:'no-store', signal
       });
     } catch (err) {
       const e = new Error(err?.name === 'AbortError' ? copy().timeout : copy().unavailable);
-      e.code = err?.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK_ERROR';
-      throw e;
+      e.code = err?.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK_ERROR'; throw e;
     }
     const raw = await response.text();
     let data;
     try { data = raw ? JSON.parse(raw) : []; }
-    catch {
-      const e = new Error(copy().unavailable);
-      e.code = 'INVALID_JSON';
-      throw e;
-    }
+    catch { const e = new Error(copy().unavailable); e.code = 'INVALID_JSON'; throw e; }
     if (!response.ok) {
       const e = new Error(data?.error || data?.response || `${copy().unavailable} HTTP ${response.status}`);
-      e.code = `HTTP_${response.status}`;
-      throw e;
+      e.code = `HTTP_${response.status}`; throw e;
     }
     return Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
   }
@@ -207,17 +190,11 @@
     window.dispatchEvent(new CustomEvent('installerlab:analytics-summary', {detail:{data:value, trackId}}));
   }
 
-  function cacheId() {
-    return `${trackId}|${document.querySelector('.iax-filterbar select')?.selectedIndex || 0}`;
-  }
+  function cacheId() { return `${trackId}|${document.querySelector('.iax-filterbar select')?.selectedIndex || 0}`; }
 
   async function refresh(force = false) {
     wire();
-    if (!trackId) {
-      publish(emptySummary());
-      setStatus('pending');
-      return;
-    }
+    if (!trackId) { publish(emptySummary()); setStatus('pending'); return; }
     const key = cacheId();
     if (!force && cache && cacheKey === key && Date.now() - cacheAt < 30000) {
       publish(cache);
@@ -225,8 +202,7 @@
       return;
     }
     controller?.abort();
-    const own = new AbortController();
-    controller = own;
+    const own = new AbortController(); controller = own;
     const seq = ++serial;
     const timer = setTimeout(() => own.abort(), REQUEST_TIMEOUT_MS);
     setStatus('loading', copy().loadingText);
@@ -242,9 +218,7 @@
       cache = null;
       publish(emptySummary({unavailable:true, error_code:err?.code || 'UNKNOWN'}));
       setStatus('error', err?.message || copy().unavailable);
-    } finally {
-      clearTimeout(timer);
-    }
+    } finally { clearTimeout(timer); }
   }
 
   function choose() {
@@ -252,18 +226,12 @@
     const value = window.prompt(t.prompt, trackId || '');
     if (value === null) return;
     const clean = value.trim().toUpperCase();
-    if (!/^IL-TRK-[0-9A-F]{24}$/.test(clean)) {
-      setStatus('error', t.invalid);
-      return;
-    }
-    trackId = clean;
-    cache = null;
+    if (!/^IL-TRK-[0-9A-F]{24}$/.test(clean)) { setStatus('error', t.invalid); return; }
+    trackId = clean; cache = null;
     const url = new URL(location.href);
-    url.searchParams.set('trackId', clean);
-    url.searchParams.delete('track');
+    url.searchParams.set('trackId', clean); url.searchParams.delete('track');
     history.pushState({trackId:clean}, '', url);
-    wire();
-    refresh(true);
+    wire(); refresh(true);
   }
 
   function wire() {
@@ -277,22 +245,14 @@
     if (event.target.closest('.iax-picker,.iax-connect-banner button,.iax-side-foot button')) choose();
     if (event.target.closest('.iax-sidebar nav button')) setTimeout(() => publish(cache || emptySummary()), 0);
   });
-
-  document.addEventListener('change', event => {
-    if (event.target.closest('.iax-filterbar')) { cache = null; refresh(true); }
-  });
-
+  document.addEventListener('change', event => { if (event.target.closest('.iax-filterbar')) { cache = null; refresh(true); } });
   window.addEventListener('popstate', () => {
     const p = new URLSearchParams(location.search);
     trackId = (p.get('trackId') || p.get('track') || '').trim().toUpperCase();
-    cache = null;
-    refresh(true);
+    cache = null; refresh(true);
   });
 
-  function start() {
-    requestAnimationFrame(() => { wire(); refresh(false); });
-  }
-
+  function start() { requestAnimationFrame(() => { wire(); refresh(false); }); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, {once:true});
   else start();
 })();
