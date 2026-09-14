@@ -234,13 +234,16 @@
       .sort((a,b) => b.value - a.value);
   }
 
-  function buildSummary(project, allEvents, allDaily) {
-    const projectId = String(project.id);
-    const projectEvents = arr(allEvents).filter(row => String(row.project_id) === projectId);
-    const events = applyPeriod(projectEvents).sort((a,b) =>
+  function buildSummary(allEvents) {
+    // Analytics events are identified directly by TrackID.  Do not depend on
+    // the legacy analytics_projects/project_id relationship: newer events
+    // intentionally contain only track_id.
+    const trackEvents = arr(allEvents).filter(row =>
+      String(row.track_id || '').trim().toUpperCase() === trackId
+    );
+    const events = applyPeriod(trackEvents).sort((a,b) =>
       Date.parse(b.event_at || b.created_at || 0) - Date.parse(a.event_at || a.created_at || 0)
     );
-    const daily = arr(allDaily).filter(row => String(row.project_id) === projectId);
 
     const started = events.filter(r => lower(r.event_type) === 'install_started');
     const successful = events.filter(r => lower(r.event_type) === 'install_succeeded');
@@ -260,7 +263,7 @@
 
     return {
       ...emptySummary(),
-      project,
+      track_id:trackId,
       event_count:events.length,
       installs:started.length,
       started:started.length,
@@ -283,25 +286,15 @@
       errors:distribution(failed, r => r.error_code || r.stage || 'Install failed'),
       recent_events:events.slice(0,100),
       events:events.slice(0,100),
-      daily
+      daily:[]
     };
   }
 
   async function load(signal) {
     // Exactly the same pattern shown by MagicApi Explorer:
     // GET api.php?table=TABLE_NAME + Authorization: Bearer TOKEN
-    const [projects, events, daily] = await Promise.all([
-      getTable('analytics_projects', signal),
-      getTable('analytics_events', signal),
-      getTable('analytics_daily', signal)
-    ]);
-
-    const project = projects.find(row =>
-      String(row.track_id || '').trim().toUpperCase() === trackId
-    );
-
-    if (!project) return emptySummary({project:null});
-    return buildSummary(project, events, daily);
+    const events = await getTable('analytics_events', signal);
+    return buildSummary(events);
   }
 
   async function refresh() {
