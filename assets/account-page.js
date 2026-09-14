@@ -15,7 +15,7 @@
     kicker:'Cuenta InstallerLab', title:'Una cuenta para Analytics, proyectos y tu archivo en Drive.',
     intro:'InstallerLab Desktop continúa libre. La cuenta web se usa únicamente para los servicios online de Analytics.',
     free:'Gratis registrado', supporter:'Supporter', pro:'PRO', one:'1 aplicación Analytics', more:'Más aplicaciones Analytics', drive:'Archivo en Google Drive',
-    signIn:'Iniciar sesión', create:'Crear cuenta', createTitle:'Crear tu cuenta', alreadyAccount:'¿Ya tienes una cuenta?', confirmPassword:'Confirmar contraseña', email:'Correo electrónico', password:'Contraseña', google:'Continuar con Google',
+    signIn:'Iniciar sesión', create:'Crear cuenta', createTitle:'Crear tu cuenta', alreadyAccount:'¿Ya tienes una cuenta?', confirmPassword:'Confirmar contraseña', email:'Correo electrónico', password:'Contraseña', google:'Continuar con Google', github:'Continuar con GitHub',
     signed:'Sesión iniciada', signOut:'Cerrar sesión', analytics:'Aplicaciones Analytics', add:'Agregar aplicación', appName:'Nombre de la aplicación', track:'TrackID', register:'Registrar TrackID',
     noApps:'Aún no has registrado una aplicación Analytics.', usage:'Uso de Analytics', account:'Cuenta', status:'Estado', driveTitle:'Google Drive', drivePending:'La conexión de Google Drive será la siguiente fase. La estructura de la cuenta ya reserva esta sección sin fingir una conexión que todavía no existe.',
     connectDrive:'Conectar Google Drive', archive:'Archivo automático', archiveText:'Los datos se enviarán a Drive y solo después de verificarlos se eliminarán de Supabase.',
@@ -29,7 +29,7 @@
     kicker:'InstallerLab Account', title:'One account for Analytics, projects and your Drive archive.',
     intro:'InstallerLab Desktop remains free. The web account is used only for online Analytics services.',
     free:'Registered free', supporter:'Supporter', pro:'PRO', one:'1 Analytics application', more:'More Analytics applications', drive:'Google Drive archive',
-    signIn:'Sign in', create:'Create account', createTitle:'Create your account', alreadyAccount:'Already have an account?', confirmPassword:'Confirm password', email:'Email address', password:'Password', google:'Continue with Google',
+    signIn:'Sign in', create:'Create account', createTitle:'Create your account', alreadyAccount:'Already have an account?', confirmPassword:'Confirm password', email:'Email address', password:'Password', google:'Continue with Google', github:'Continue with GitHub',
     signed:'Signed in', signOut:'Sign out', analytics:'Analytics applications', add:'Add application', appName:'Application name', track:'TrackID', register:'Register TrackID',
     noApps:'You have not registered an Analytics application yet.', usage:'Analytics usage', account:'Account', status:'Status', driveTitle:'Google Drive', drivePending:'Google Drive connection is the next phase. The account structure already reserves this area without pretending a connection exists.',
     connectDrive:'Connect Google Drive', archive:'Automatic archive', archiveText:'Data will be sent to Drive and deleted from Supabase only after the archive has been verified.',
@@ -139,7 +139,7 @@
       </div>
       <div class="account-grid">
         <article class="account-card account-span-6"><div class="account-head"><div><span class="account-kicker">${t.account}</span><h2 id="account-login-title">${t.signIn}</h2></div></div>
-          <form id="account-login" class="account-form" novalidate><label>${t.email}<input id="account-email" type="email" autocomplete="email" required></label><label>${t.password}<input id="account-password" type="password" autocomplete="current-password" minlength="6" required></label><label id="account-confirm-label" hidden>${t.confirmPassword}<input id="account-confirm-password" type="password" autocomplete="new-password" minlength="8"></label><div class="account-actions"><button class="account-btn primary" type="submit" id="account-submit">${t.signIn}</button><button class="account-btn" type="button" id="account-signup" aria-controls="account-confirm-label">${t.create}</button><button class="account-btn" type="button" id="account-google">${t.google}</button></div><div id="account-message" class="account-message" aria-live="polite"></div></form>
+          <form id="account-login" class="account-form" novalidate><label>${t.email}<input id="account-email" type="email" autocomplete="email" required></label><label>${t.password}<input id="account-password" type="password" autocomplete="current-password" minlength="6" required></label><label id="account-confirm-label" hidden>${t.confirmPassword}<input id="account-confirm-password" type="password" autocomplete="new-password" minlength="8"></label><div class="account-actions"><button class="account-btn primary" type="submit" id="account-submit">${t.signIn}</button><button class="account-btn" type="button" id="account-signup" aria-controls="account-confirm-label">${t.create}</button><button class="account-btn" type="button" id="account-google">${t.google}</button><button class="account-btn" type="button" id="account-github">${t.github}</button></div><div id="account-message" class="account-message" aria-live="polite"></div></form>
         </article>
         <article class="account-card account-span-6"><div class="account-head"><div><span class="account-kicker">Analytics access</span><h2>${t.free}</h2></div><span class="account-badge free">1 APP</span></div><div class="account-tiers"><div class="account-tier"><h4>${t.free}</h4><strong>1</strong><p>${t.freeDesc}</p></div><div class="account-tier"><h4>${t.supporter}</h4><strong>+</strong><p>${t.supporterDesc}</p></div><div class="account-tier"><h4>${t.pro}</h4><strong>+</strong><p>${t.proDesc}</p></div></div></article>
       </div>
@@ -199,6 +199,7 @@
     const submit=document.getElementById('account-submit');
     const toggle=document.getElementById('account-signup');
     const google=document.getElementById('account-google');
+    const github=document.getElementById('account-github');
 
     function setMode(next){
       mode=next==='signup'?'signup':'signin';
@@ -245,6 +246,7 @@
       if(submit) submit.disabled=true;
       if(toggle) toggle.disabled=true;
       if(google) google.disabled=true;
+      if(github) github.disabled=true;
       try{
         if(!signup){
           const r=await fetch(`${base}/auth/v1/token?grant_type=password`,{method:'POST',headers:apiHeaders(null),body:JSON.stringify({email,password})});
@@ -271,6 +273,7 @@
         if(submit) submit.disabled=false;
         if(toggle) toggle.disabled=false;
         if(google) google.disabled=false;
+        if(github) github.disabled=false;
         if(submit) submit.textContent=mode==='signup'?t.create:t.signIn;
       }
     });
@@ -278,10 +281,12 @@
       setMode(mode==='signup'?'signin':'signup');
       if(mode==='signup') confirmInput?.focus();
     });
-    document.getElementById('account-google')?.addEventListener('click',()=>{
+    function startOAuth(provider){
       const redirect=location.origin+projectBase+'account/';
-      location.href=`${base}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirect)}`;
-    });
+      location.href=`${base}/auth/v1/authorize?provider=${encodeURIComponent(provider)}&redirect_to=${encodeURIComponent(redirect)}`;
+    }
+    google?.addEventListener('click',()=>startOAuth('google'));
+    github?.addEventListener('click',()=>startOAuth('github'));
   }
 
   function wireDashboard(t,backendReady){
