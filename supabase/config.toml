@@ -1,0 +1,4 @@
+# Edge Functions used by InstallerLab.
+# Keep JWT verification enabled; the redeem endpoint is never anonymous.
+[functions.redeem-entitlement]
+verify_jwt = true
