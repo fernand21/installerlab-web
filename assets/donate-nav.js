@@ -59,19 +59,6 @@
     return header.querySelector('.nav');
   }
 
-  function firstName(session) {
-    const u = session?.user;
-    const full = u?.user_metadata?.full_name || u?.user_metadata?.name || '';
-    return (full || u?.email || '').trim().split(/\s+|@/)[0] || '';
-  }
-
-  function avatar(session) {
-    const u = session?.user;
-    const url = u?.user_metadata?.avatar_url || u?.user_metadata?.picture || '';
-    const name = firstName(session) || 'U';
-    return url ? `<span class="il-nav-avatar"><img src="${String(url).replace(/"/g,'&quot;')}" alt=""></span>` : `<span class="il-nav-avatar">${name.charAt(0).toUpperCase()}</span>`;
-  }
-
   function active(href) {
     const p = location.pathname.replace(/\/+$/, '/') || '/';
     try {
@@ -92,7 +79,7 @@
 
   function buildLinks(links) {
     const es = isSpanish();
-    const signature = `${es ? 'es' : 'en'}:${location.pathname}:v4`;
+    const signature = `${es ? 'es' : 'en'}:${location.pathname}:v5`;
     if (links.dataset.ilNavSignature === signature) return;
     links.dataset.ilNavSignature = signature;
 
@@ -114,10 +101,11 @@
       { href: urls.about, label: es ? 'Acerca de' : 'About' }
     ]);
 
+    // Analytics remains accessible from account/application workflows, but it
+    // is intentionally not exposed in the global site navigation.
     links.innerHTML = [
       navLink(urls.home, es ? 'Inicio' : 'Home'),
       product,
-      navLink(urls.analytics, 'Analytics'),
       resources,
       community
     ].join('');
@@ -126,8 +114,7 @@
   function buildActions(actions) {
     const es = isSpanish();
     const session = readSession();
-    const userName = firstName(session);
-    const signature = `${es ? 'es' : 'en'}:${userName || 'guest'}:v4`;
+    const signature = `${es ? 'es' : 'en'}:${session?.access_token ? 'auth' : 'guest'}:v5`;
     if (actions.dataset.ilNavSignature === signature) return;
     actions.dataset.ilNavSignature = signature;
 
@@ -153,12 +140,9 @@
     cta.textContent = es ? 'Descargar' : 'Download';
     actions.appendChild(cta);
 
-    if (session?.access_token) {
-      const wrap = document.createElement('div');
-      wrap.className = 'il-account-wrap';
-      wrap.innerHTML = `<button class="il-account-trigger" type="button" aria-expanded="false">${avatar(session)}<span class="il-account-meta"><span>${userName || (es ? 'Cuenta' : 'Account')}</span><small>${es ? 'Mi cuenta' : 'My account'}</small></span>${chevron}</button><div class="il-popover"><a href="${urls.account}">${es ? 'Mi cuenta' : 'My Account'}</a><a href="${urls.analytics}">Analytics</a><a href="${urls.donate}">${es ? 'Supporter / Licencia' : 'Supporter / License'}</a><div class="il-popover-sep"></div><button type="button" data-il-signout>${es ? 'Cerrar sesión' : 'Sign out'}</button></div>`;
-      actions.appendChild(wrap);
-    } else {
+    // Keep authentication/session active, but do not expose the account block
+    // in the global header after login. Guests can still reach Sign in.
+    if (!session?.access_token) {
       const signIn = document.createElement('a');
       signIn.className = 'il-signin';
       signIn.href = urls.account;
@@ -175,15 +159,29 @@
     actions.appendChild(toggle);
   }
 
+  function enforceAnalyticsTargets() {
+    document.querySelectorAll('a[href]').forEach(anchor => {
+      try {
+        const u = new URL(anchor.getAttribute('href'), location.href);
+        const analyticsPath = new URL(urls.analytics, location.origin).pathname.replace(/\/+$/, '/');
+        const candidate = u.pathname.replace(/\/+$/, '/');
+        if (u.origin === location.origin && candidate === analyticsPath) {
+          anchor.target = '_blank';
+          anchor.rel = 'noopener';
+        }
+      } catch {}
+    });
+  }
+
   function wire(nav) {
     if (nav.dataset.ilNavWired === '1') return;
     nav.dataset.ilNavWired = '1';
     nav.addEventListener('click', e => {
-      const trigger = e.target.closest('.il-nav-trigger,.il-account-trigger');
+      const trigger = e.target.closest('.il-nav-trigger');
       if (trigger) {
         const wrap = trigger.parentElement;
         const open = !wrap.classList.contains('is-open');
-        nav.querySelectorAll('.il-nav-group.is-open,.il-account-wrap.is-open').forEach(x => {
+        nav.querySelectorAll('.il-nav-group.is-open').forEach(x => {
           x.classList.remove('is-open');
           x.querySelector(':scope > button')?.setAttribute('aria-expanded','false');
         });
@@ -200,13 +198,6 @@
         mobile.setAttribute('aria-expanded', String(open));
         return;
       }
-      const signout = e.target.closest('[data-il-signout]');
-      if (signout) {
-        localStorage.removeItem(sessionKey);
-        window.dispatchEvent(new CustomEvent('installerlab:account-session', { detail:null }));
-        location.href = urls.account;
-        return;
-      }
       if (e.target.closest('.links a')) nav.querySelector('.links')?.classList.remove('nav-open');
     });
   }
@@ -220,6 +211,7 @@
     if (!links || !actions) return;
     buildLinks(links);
     buildActions(actions);
+    enforceAnalyticsTargets();
     wire(nav);
   }
 
@@ -230,15 +222,27 @@
   }
 
   document.addEventListener('click', e => {
-    if (e.target.closest('.il-nav-group,.il-account-wrap')) return;
-    document.querySelectorAll('.il-nav-group.is-open,.il-account-wrap.is-open').forEach(x => {
+    const analyticsAnchor = e.target.closest('a[href]');
+    if (analyticsAnchor) {
+      try {
+        const u = new URL(analyticsAnchor.getAttribute('href'), location.href);
+        const analyticsPath = new URL(urls.analytics, location.origin).pathname.replace(/\/+$/, '/');
+        if (u.origin === location.origin && u.pathname.replace(/\/+$/, '/') === analyticsPath) {
+          analyticsAnchor.target = '_blank';
+          analyticsAnchor.rel = 'noopener';
+        }
+      } catch {}
+    }
+    if (e.target.closest('.il-nav-group')) return;
+    document.querySelectorAll('.il-nav-group.is-open').forEach(x => {
       x.classList.remove('is-open');
       x.querySelector(':scope > button')?.setAttribute('aria-expanded','false');
     });
   });
+
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
-    document.querySelectorAll('.il-nav-group.is-open,.il-account-wrap.is-open').forEach(x => x.classList.remove('is-open'));
+    document.querySelectorAll('.il-nav-group.is-open').forEach(x => x.classList.remove('is-open'));
     document.querySelector('.links.nav-open')?.classList.remove('nav-open');
   });
 
