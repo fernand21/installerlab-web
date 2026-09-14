@@ -147,7 +147,7 @@
   captureClaimFromUrl();
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', schedule, { once: true });
   else schedule();
-  new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true });
+  window.addEventListener('installerlab:account-rendered', schedule);
   window.addEventListener('installerlab:account-session', schedule);
   window.addEventListener('storage', event => { if (event.key === sessionKey || event.key === 'il-lang') schedule(); });
 })();
