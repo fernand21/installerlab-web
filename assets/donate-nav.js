@@ -78,7 +78,7 @@
 
   function buildLinks(links) {
     const es = isSpanish();
-    const signature = `${es ? 'es' : 'en'}:${location.pathname}:v6`;
+    const signature = `${es ? 'es' : 'en'}:${location.pathname}:v7`;
     if (links.dataset.ilNavSignature === signature) return;
     links.dataset.ilNavSignature = signature;
 
@@ -100,8 +100,6 @@
       { href: urls.about, label: es ? 'Acerca de' : 'About' }
     ]);
 
-    // Analytics stays out of the global navigation; it is opened from account
-    // and application workflows in a separate tab.
     links.innerHTML = [
       navLink(urls.home, es ? 'Inicio' : 'Home'),
       product,
@@ -114,7 +112,7 @@
     const es = isSpanish();
     const session = readSession();
     const authenticated = !!session?.access_token;
-    const signature = `${es ? 'es' : 'en'}:${authenticated ? 'auth' : 'guest'}:v6`;
+    const signature = `${es ? 'es' : 'en'}:${authenticated ? 'auth' : 'guest'}:v7`;
     if (actions.dataset.ilNavSignature === signature) return;
     actions.dataset.ilNavSignature = signature;
 
@@ -138,7 +136,7 @@
     account.href = urls.account;
     account.textContent = authenticated
       ? (es ? 'Mi cuenta' : 'My account')
-      : (es ? 'Cuenta' : 'Account');
+      : (es ? 'Iniciar sesión' : 'Sign in');
     if (active(urls.account)) account.classList.add('is-active');
 
     const toggle = document.createElement('button');
