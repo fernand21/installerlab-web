@@ -83,6 +83,9 @@
     const style = document.createElement('style');
     style.id = 'iax-nav-icon-style';
     style.textContent = `
+      .header .il-account-wrap {
+        display: none !important;
+      }
       .iax-sidebar nav button > i.iax-nav-icon {
         width: 26px;
         height: 26px;
