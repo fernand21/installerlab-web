@@ -15,7 +15,9 @@
   const copy = () => isSpanish() ? {
     kicker: 'Activación segura', title: 'Canjear licencia',
     intro: 'Pega aquí el token de un solo uso que recibiste para activar Supporter o PRO en esta cuenta.',
+    found: 'Beneficio de InstallerLab encontrado', foundText: 'Este beneficio de un solo uso quedará vinculado a tu cuenta.',
     label: 'Token de licencia', placeholder: 'Pega el token firmado…', button: 'Canjear token',
+    linkButton: 'Vincular a mi cuenta',
     help: 'El token se valida en el servidor y no se guarda en el navegador.', loading: 'Validando…',
     success: 'Licencia activada. Actualizando tu cuenta…',
     notSigned: 'Inicia sesión para canjear una licencia.',
@@ -25,7 +27,9 @@
   } : {
     kicker: 'Secure activation', title: 'Redeem a license',
     intro: 'Paste the single-use token you received to activate Supporter or PRO on this account.',
+    found: 'InstallerLab benefit found', foundText: 'This one-time benefit will be linked to your account.',
     label: 'License token', placeholder: 'Paste the signed token…', button: 'Redeem token',
+    linkButton: 'Link to my account',
     help: 'The token is verified server-side and is not stored in your browser.', loading: 'Validating…',
     success: 'License activated. Refreshing your account…',
     notSigned: 'Sign in to redeem a license.',
@@ -58,6 +62,17 @@
     node.className = `account-entitlement-message ${state}`;
   }
 
+  function mountPendingNotice() {
+    const root = document.getElementById('app');
+    if (!root || !pendingClaim() || root.querySelector('[data-entitlement-pending]') || root.querySelector('#account-logout')) return;
+    const notice = document.createElement('div');
+    notice.className = 'account-note account-entitlement-pending';
+    notice.dataset.entitlementPending = '1';
+    notice.textContent = isSpanish() ? 'Inicia sesión para vincular este beneficio a tu cuenta.' : 'Sign in to link this benefit to your account.';
+    const shell = root.querySelector('.account-shell');
+    shell?.prepend(notice);
+  }
+
   function mount() {
     const root = document.getElementById('app');
     if (!root || root.querySelector('[data-entitlement-claim]')) return;
@@ -66,7 +81,8 @@
     const card = document.createElement('article');
     card.className = 'account-card account-entitlement-card';
     card.dataset.entitlementClaim = '1';
-    card.innerHTML = `<div class="account-head"><div><span class="account-kicker">${t.kicker}</span><h2>${t.title}</h2></div><span class="account-badge supporter">ONE-TIME</span></div><p class="account-entitlement-copy">${t.intro}</p><form class="account-entitlement-form"><label>${t.label}<input name="token" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="20000" placeholder="${t.placeholder}" required></label><button class="account-btn primary" type="submit">${t.button}</button></form><div class="account-entitlement-help">${t.help}</div><div class="account-entitlement-message" role="status" aria-live="polite"></div>`;
+    const fromQr = !!pendingClaim();
+    card.innerHTML = `<div class="account-head"><div><span class="account-kicker">${t.kicker}</span><h2>${t.title}</h2></div><span class="account-badge supporter">ONE-TIME</span></div>${fromQr ? `<p class="account-entitlement-found"><strong>${t.found}</strong><span>${t.foundText}</span></p>` : ''}<p class="account-entitlement-copy">${t.intro}</p><form class="account-entitlement-form"><label>${t.label}<input name="token" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="20000" placeholder="${t.placeholder}" required></label><button class="account-btn primary" type="submit">${fromQr ? t.linkButton : t.button}</button></form><div class="account-entitlement-help">${t.help}</div><div class="account-entitlement-message" role="status" aria-live="polite"></div>`;
     const grid = root.querySelector('.account-grid');
     if (!grid) return;
     grid.appendChild(card);
@@ -100,7 +116,13 @@
         input.value = '';
         try { sessionStorage.removeItem(pendingClaimKey); } catch {}
         message(status, t.success, 'ok');
-        setTimeout(() => window.location.reload(), 700);
+        setTimeout(async () => {
+          if (typeof window.installerLabAccountRefresh === 'function') {
+            await window.installerLabAccountRefresh();
+          } else {
+            window.location.reload();
+          }
+        }, 350);
       } catch {
         message(status, t.unavailable, 'error');
         submit.disabled = false;
@@ -111,7 +133,7 @@
   function schedule() {
     if (scheduled) return;
     scheduled = true;
-    requestAnimationFrame(() => { scheduled = false; mount(); });
+    requestAnimationFrame(() => { scheduled = false; mountPendingNotice(); mount(); });
   }
 
   captureClaimFromUrl();

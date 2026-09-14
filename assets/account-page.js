@@ -233,6 +233,9 @@
     }));
   }
 
+  // Allow small account extensions (for example, entitlement redemption) to
+  // refresh the existing dashboard without replacing the whole document.
+  window.installerLabAccountRefresh = render;
   consumeOAuthHash();
   if (!base || !anon) {
     if (root()) root().innerHTML='<section class="account-shell"><div class="account-note">InstallerLab Analytics configuration is unavailable.</div></section>';

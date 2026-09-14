@@ -2,6 +2,7 @@
    portal's existing visual language and never exposes claim internals. */
 .account-entitlement-card{grid-column:span 12;border-color:rgba(52,211,153,.24);background:radial-gradient(circle at 92% 0,rgba(52,211,153,.12),transparent 33%),linear-gradient(180deg,rgba(13,39,55,.96),rgba(7,23,41,.98))}
 .account-entitlement-copy{max-width:760px;color:#9fb4cf;line-height:1.6;margin:0 0 18px}
+.account-entitlement-found{display:grid;gap:4px;margin:0 0 14px;padding:12px 14px;border-left:3px solid #34d399;border-radius:0 11px 11px 0;background:rgba(52,211,153,.08);color:#ccefe1}.account-entitlement-found span{color:#9fb4cf;font-size:12px}
 .account-entitlement-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
 .account-entitlement-form label{display:grid;gap:7px;color:#b9cce0;font-size:12px;font-weight:700}
 .account-entitlement-form input{width:100%;box-sizing:border-box;border-radius:11px;border:1px solid rgba(125,171,218,.24);background:#071829;color:#eff8ff;padding:12px 13px;font:inherit;outline:none}
