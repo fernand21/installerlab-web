@@ -15,28 +15,28 @@
     kicker:'Cuenta InstallerLab', title:'Una cuenta para Analytics, proyectos y tu archivo en Drive.',
     intro:'InstallerLab Desktop continúa libre. La cuenta web se usa únicamente para los servicios online de Analytics.',
     free:'Gratis registrado', supporter:'Supporter', pro:'PRO', one:'1 aplicación Analytics', more:'Más aplicaciones Analytics', drive:'Archivo en Google Drive',
-    signIn:'Iniciar sesión', create:'Crear cuenta', email:'Correo electrónico', password:'Contraseña', google:'Continuar con Google',
+    signIn:'Iniciar sesión', create:'Crear cuenta', createTitle:'Crear tu cuenta', alreadyAccount:'¿Ya tienes una cuenta?', confirmPassword:'Confirmar contraseña', email:'Correo electrónico', password:'Contraseña', google:'Continuar con Google',
     signed:'Sesión iniciada', signOut:'Cerrar sesión', analytics:'Aplicaciones Analytics', add:'Agregar aplicación', appName:'Nombre de la aplicación', track:'TrackID', register:'Registrar TrackID',
     noApps:'Aún no has registrado una aplicación Analytics.', usage:'Uso de Analytics', account:'Cuenta', status:'Estado', driveTitle:'Google Drive', drivePending:'La conexión de Google Drive será la siguiente fase. La estructura de la cuenta ya reserva esta sección sin fingir una conexión que todavía no existe.',
     connectDrive:'Conectar Google Drive', archive:'Archivo automático', archiveText:'Los datos se enviarán a Drive y solo después de verificarlos se eliminarán de Supabase.',
     support:'Supporter / licencia', supportText:'El plan gratuito tendrá 1 aplicación. Supporters y usuarios PRO podrán registrar más aplicaciones sin quitar funciones al programa de escritorio.',
     pendingBackend:'La cuenta está lista, pero el esquema de permisos de Analytics aún debe instalarse en Supabase para registrar proyectos.',
     invalidTrack:'El TrackID debe tener el formato IL-TRK- seguido de 24 caracteres hexadecimales.',
-    created:'Cuenta creada. Si Supabase solicita confirmación por correo, confirma el mensaje antes de iniciar sesión.',
+    created:'Cuenta creada. Si Supabase solicita confirmación por correo, confirma el mensaje antes de iniciar sesión.', accountCreated:'Cuenta creada.', checkEmail:'Revisa tu correo para confirmar tu cuenta antes de iniciar sesión.', emailRegistered:'Este correo ya está registrado.', passwordMismatch:'Las contraseñas no coinciden.', passwordShort:'La contraseña debe tener al menos 8 caracteres.', invalidEmail:'Introduce un correo electrónico válido.', tooMany:'Demasiados intentos. Inténtalo más tarde.', unableCreate:'No se pudo crear la cuenta.', creating:'Creando cuenta…',
     badLogin:'No se pudo iniciar sesión.', registered:'Aplicación registrada.', removed:'Aplicación eliminada de tu cuenta.', loading:'Cargando…', backendError:'El backend de cuentas todavía no está disponible.',
     freeDesc:'Analytics completo para una aplicación.', supporterDesc:'Más aplicaciones para quienes apoyan InstallerLab.', proDesc:'Más capacidad para usuarios con licencia PRO.'
   } : {
     kicker:'InstallerLab Account', title:'One account for Analytics, projects and your Drive archive.',
     intro:'InstallerLab Desktop remains free. The web account is used only for online Analytics services.',
     free:'Registered free', supporter:'Supporter', pro:'PRO', one:'1 Analytics application', more:'More Analytics applications', drive:'Google Drive archive',
-    signIn:'Sign in', create:'Create account', email:'Email address', password:'Password', google:'Continue with Google',
+    signIn:'Sign in', create:'Create account', createTitle:'Create your account', alreadyAccount:'Already have an account?', confirmPassword:'Confirm password', email:'Email address', password:'Password', google:'Continue with Google',
     signed:'Signed in', signOut:'Sign out', analytics:'Analytics applications', add:'Add application', appName:'Application name', track:'TrackID', register:'Register TrackID',
     noApps:'You have not registered an Analytics application yet.', usage:'Analytics usage', account:'Account', status:'Status', driveTitle:'Google Drive', drivePending:'Google Drive connection is the next phase. The account structure already reserves this area without pretending a connection exists.',
     connectDrive:'Connect Google Drive', archive:'Automatic archive', archiveText:'Data will be sent to Drive and deleted from Supabase only after the archive has been verified.',
     support:'Supporter / license', supportText:'The free tier will include 1 application. Supporters and PRO users can register more applications without removing features from the desktop app.',
     pendingBackend:'The account is ready, but the Analytics entitlement schema still needs to be installed in Supabase before projects can be registered.',
     invalidTrack:'TrackID must use IL-TRK- followed by 24 hexadecimal characters.',
-    created:'Account created. If Supabase requires email confirmation, confirm the message before signing in.',
+    created:'Account created. If Supabase requires email confirmation, confirm the message before signing in.', accountCreated:'Account created.', checkEmail:'Check your email to confirm your account before signing in.', emailRegistered:'Email already registered.', passwordMismatch:'Passwords do not match.', passwordShort:'Password must contain at least 8 characters.', invalidEmail:'Enter a valid email address.', tooMany:'Too many attempts. Try again later.', unableCreate:'Unable to create account.', creating:'Creating account…',
     badLogin:'Unable to sign in.', registered:'Application registered.', removed:'Application removed from your account.', loading:'Loading…', backendError:'The account backend is not available yet.',
     freeDesc:'Complete Analytics for one application.', supporterDesc:'More applications for people who support InstallerLab.', proDesc:'More capacity for users with a PRO license.'
   };
@@ -138,8 +138,8 @@
         <aside class="account-card"><div class="account-policy"><div><b>${t.free}</b><span>${t.one}</span></div><div><b>${t.supporter}</b><span>${t.more}</span></div><div><b>${t.pro}</b><span>${t.more}</span></div><div><b>Drive</b><span>${t.drive}</span></div></div></aside>
       </div>
       <div class="account-grid">
-        <article class="account-card account-span-6"><div class="account-head"><div><span class="account-kicker">${t.account}</span><h2>${t.signIn}</h2></div></div>
-          <form id="account-login" class="account-form"><label>${t.email}<input id="account-email" type="email" autocomplete="email" required></label><label>${t.password}<input id="account-password" type="password" autocomplete="current-password" minlength="6" required></label><div class="account-actions"><button class="account-btn primary" type="submit">${t.signIn}</button><button class="account-btn" type="button" id="account-signup">${t.create}</button><button class="account-btn" type="button" id="account-google">${t.google}</button></div><div id="account-message" class="account-message"></div></form>
+        <article class="account-card account-span-6"><div class="account-head"><div><span class="account-kicker">${t.account}</span><h2 id="account-login-title">${t.signIn}</h2></div></div>
+          <form id="account-login" class="account-form" novalidate><label>${t.email}<input id="account-email" type="email" autocomplete="email" required></label><label>${t.password}<input id="account-password" type="password" autocomplete="current-password" minlength="6" required></label><label id="account-confirm-label" hidden>${t.confirmPassword}<input id="account-confirm-password" type="password" autocomplete="new-password" minlength="8"></label><div class="account-actions"><button class="account-btn primary" type="submit" id="account-submit">${t.signIn}</button><button class="account-btn" type="button" id="account-signup" aria-controls="account-confirm-label">${t.create}</button><button class="account-btn" type="button" id="account-google">${t.google}</button></div><div id="account-message" class="account-message" aria-live="polite"></div></form>
         </article>
         <article class="account-card account-span-6"><div class="account-head"><div><span class="account-kicker">Analytics access</span><h2>${t.free}</h2></div><span class="account-badge free">1 APP</span></div><div class="account-tiers"><div class="account-tier"><h4>${t.free}</h4><strong>1</strong><p>${t.freeDesc}</p></div><div class="account-tier"><h4>${t.supporter}</h4><strong>+</strong><p>${t.supporterDesc}</p></div><div class="account-tier"><h4>${t.pro}</h4><strong>+</strong><p>${t.proDesc}</p></div></div></article>
       </div>
@@ -190,24 +190,92 @@
 
   function wireLogin(t){
     const form=document.getElementById('account-login'); if(!form)return;
+    let mode='signin';
+    const emailInput=document.getElementById('account-email');
+    const passwordInput=document.getElementById('account-password');
+    const confirmInput=document.getElementById('account-confirm-password');
+    const confirmLabel=document.getElementById('account-confirm-label');
+    const title=document.getElementById('account-login-title');
+    const submit=document.getElementById('account-submit');
+    const toggle=document.getElementById('account-signup');
+    const google=document.getElementById('account-google');
+
+    function setMode(next){
+      mode=next==='signup'?'signup':'signin';
+      const signup=mode==='signup';
+      if(title) title.textContent=signup?t.createTitle:t.signIn;
+      if(submit) submit.textContent=signup?t.create:t.signIn;
+      if(toggle) toggle.textContent=signup?`${t.alreadyAccount} ${t.signIn}`:t.create;
+      if(confirmLabel) confirmLabel.hidden=!signup;
+      if(confirmInput){confirmInput.required=signup; confirmInput.value='';}
+      if(passwordInput) passwordInput.autocomplete=signup?'new-password':'current-password';
+      setMessage('account-message','');
+    }
+
+    function friendlySignupError(data,status){
+      const raw=String(data?.msg||data?.message||data?.error_description||'').toLowerCase();
+      if(status===429||raw.includes('rate limit')||raw.includes('too many')||raw.includes('captcha')) return t.tooMany;
+      if(raw.includes('already registered')||raw.includes('already exists')) return t.emailRegistered;
+      if(raw.includes('invalid email')||raw.includes('email address')) return t.invalidEmail;
+      if(raw.includes('password')&&(raw.includes('at least')||raw.includes('minimum')||raw.includes('character')||raw.includes('weak'))) return t.passwordShort;
+      return t.unableCreate;
+    }
+
+    function clearSignupPasswords(signup){
+      if(signup){
+        if(passwordInput) passwordInput.value='';
+        if(confirmInput) confirmInput.value='';
+      }
+    }
+
     form.addEventListener('submit',async e=>{
-      e.preventDefault(); setMessage('account-message',t.loading);
+      e.preventDefault();
+      const signup=mode==='signup';
+      const email=emailInput?.value.trim()||'';
+      const password=passwordInput?.value||'';
+      const confirmation=confirmInput?.value||'';
+      if(emailInput) emailInput.value=email;
+      if(!emailInput?.checkValidity()){setMessage('account-message',t.invalidEmail,'error');return;}
+      if(signup){
+        if(password.length<8){setMessage('account-message',t.passwordShort,'error');return;}
+        if(password!==confirmation){setMessage('account-message',t.passwordMismatch,'error');return;}
+      }else if(!password){setMessage('account-message',t.badLogin,'error');return;}
+      setMessage('account-message',signup?t.creating:t.loading);
+      if(submit) submit.disabled=true;
+      if(toggle) toggle.disabled=true;
+      if(google) google.disabled=true;
       try{
-        const email=document.getElementById('account-email').value.trim(); const password=document.getElementById('account-password').value;
-        const r=await fetch(`${base}/auth/v1/token?grant_type=password`,{method:'POST',headers:apiHeaders(null),body:JSON.stringify({email,password})});
-        const d=await r.json(); if(!r.ok)throw new Error(d?.msg||d?.message||t.badLogin);
-        saveSession(normalizeSession(d)); await render();
-      }catch(err){setMessage('account-message',err.message||t.badLogin,'error')}
+        if(!signup){
+          const r=await fetch(`${base}/auth/v1/token?grant_type=password`,{method:'POST',headers:apiHeaders(null),body:JSON.stringify({email,password})});
+          const d=await r.json().catch(()=>null);
+          if(!r.ok) throw new Error(t.badLogin);
+          saveSession(normalizeSession(d)); await render();
+          return;
+        }
+        const redirect=location.origin+projectBase+'account/';
+        const r=await fetch(`${base}/auth/v1/signup?redirect_to=${encodeURIComponent(redirect)}`,{method:'POST',headers:apiHeaders(null),body:JSON.stringify({email,password})});
+        const d=await r.json().catch(()=>null);
+        if(!r.ok) throw new Error(friendlySignupError(d,r.status));
+        const s=normalizeSession(d);
+        if(s){saveSession(s);await render();}
+        else{
+          setMode('signin');
+          setMessage('account-message',`${t.accountCreated} ${t.checkEmail}`,'ok');
+        }
+      }catch(err){
+        const knownSignupError=signup&&[t.tooMany,t.emailRegistered,t.invalidEmail,t.passwordShort,t.unableCreate].includes(err?.message);
+        setMessage('account-message',signup&&knownSignupError?err.message:(signup?t.unableCreate:t.badLogin),'error');
+      }finally{
+        clearSignupPasswords(signup);
+        if(submit) submit.disabled=false;
+        if(toggle) toggle.disabled=false;
+        if(google) google.disabled=false;
+        if(mode==='signup'&&submit) submit.textContent=t.create;
+      }
     });
-    document.getElementById('account-signup')?.addEventListener('click',async()=>{
-      setMessage('account-message',t.loading);
-      try{
-        const email=document.getElementById('account-email').value.trim(); const password=document.getElementById('account-password').value;
-        if(!email||password.length<6)throw new Error(t.badLogin);
-        const r=await fetch(`${base}/auth/v1/signup`,{method:'POST',headers:apiHeaders(null),body:JSON.stringify({email,password})});
-        const d=await r.json(); if(!r.ok)throw new Error(d?.msg||d?.message||t.badLogin);
-        const s=normalizeSession(d); if(s){saveSession(s);await render()} else setMessage('account-message',t.created,'ok');
-      }catch(err){setMessage('account-message',err.message||t.badLogin,'error')}
+    toggle?.addEventListener('click',()=>{
+      setMode(mode==='signup'?'signin':'signup');
+      if(mode==='signup') confirmInput?.focus();
     });
     document.getElementById('account-google')?.addEventListener('click',()=>{
       const redirect=location.origin+projectBase+'account/';
