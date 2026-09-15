@@ -6,7 +6,28 @@
     return (localStorage.getItem('il-lang') || 'en').toLowerCase() === 'es';
   }
 
-  function ensureLinks(){
+  function ensureLegalLinks(){
+    const legal = document.querySelector('.footer .legal');
+    if(!legal) return;
+
+    let wrap = legal.querySelector('[data-installerlab-legal-links]');
+    if(!wrap){
+      wrap = document.createElement('span');
+      wrap.dataset.installerlabLegalLinks = '1';
+      wrap.style.marginLeft = '10px';
+      legal.appendChild(wrap);
+    }
+
+    wrap.innerHTML = isSpanish()
+      ? ` · <a href="${base}privacy/">Privacidad</a> · <a href="${base}terms/">Condiciones del servicio</a>`
+      : ` · <a href="${base}privacy/">Privacy</a> · <a href="${base}terms/">Terms of Service</a>`;
+  }
+
+  function ensureLegacyLinks(){
+    // The universal navigation already provides Home and Community.
+    // Do not add the old direct links when that navigation is active.
+    if(window.__INSTALLERLAB_GLOBAL_NAV_V4__) return;
+
     const links = document.querySelector('.header .links');
     if(!links) return;
 
@@ -31,17 +52,22 @@
     forum.textContent = isSpanish() ? 'Foro' : 'Forum';
   }
 
+  function apply(){
+    ensureLegacyLinks();
+    ensureLegalLinks();
+  }
+
   function queue(){
     if(queued) return;
     queued = true;
     requestAnimationFrame(() => {
       queued = false;
-      ensureLinks();
+      apply();
     });
   }
 
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureLinks, {once:true});
-  else ensureLinks();
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, {once:true});
+  else apply();
 
   new MutationObserver(queue).observe(document.body, {childList:true, subtree:true});
   window.addEventListener('storage', queue);
