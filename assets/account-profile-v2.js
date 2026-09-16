@@ -11,6 +11,7 @@
   };
   const getSession = () => { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; } };
   const fmt = d => { if (!d) return '—'; try { return new Intl.DateTimeFormat(es()?'es-EC':'en-US',{year:'numeric',month:'short',day:'numeric'}).format(new Date(d)); } catch { return '—'; } };
+  const analyticsIcon = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19H2"/><path d="m4 7 5-4 6 5 5-4"/></svg>';
 
   function enhance() {
     const shell = document.querySelector('.account-shell');
@@ -51,7 +52,7 @@
     const grid = shell.querySelector('.account-grid');
     if (grid && !shell.querySelector('.account-summary-grid')) {
       const summary = document.createElement('div'); summary.className = 'account-summary-grid';
-      summary.innerHTML = `<article class="account-card account-stat-card"><div class="account-stat-head"><span class="account-kicker">${x.analytics}</span><span class="account-stat-icon">↗</span></div><div class="account-stat-value">${used} / ${max}</div><div class="account-stat-note">${left} ${left===1?x.available:x.available2}</div></article><article class="account-card account-stat-card"><div class="account-stat-head"><span class="account-kicker">${x.drive}</span><span class="account-status ${driveOn?'ok':'warn'}"><i></i>${driveOn?x.connected:x.off}</span></div><div class="account-stat-value">${driveOn?'Ready':'—'}</div><div class="account-stat-note">${x.freeNote}</div></article><article class="account-card account-stat-card"><div class="account-stat-head"><span class="account-kicker">${x.support}</span><span class="account-badge">${tier}</span></div><div class="account-stat-value">${tier}</div><div class="account-stat-note">${x.freeNote}</div></article>`;
+      summary.innerHTML = `<article class="account-card account-stat-card"><div class="account-stat-head"><span class="account-kicker">${x.analytics}</span><span class="account-stat-icon" aria-label="Analytics">${analyticsIcon}</span></div><div class="account-stat-value">${used} / ${max}</div><div class="account-stat-note">${left} ${left===1?x.available:x.available2}</div></article><article class="account-card account-stat-card"><div class="account-stat-head"><span class="account-kicker">${x.drive}</span><span class="account-status ${driveOn?'ok':'warn'}"><i></i>${driveOn?x.connected:x.off}</span></div><div class="account-stat-value">${driveOn?'Ready':'—'}</div><div class="account-stat-note">${x.freeNote}</div></article><article class="account-card account-stat-card"><div class="account-stat-head"><span class="account-kicker">${x.support}</span><span class="account-badge">${tier}</span></div><div class="account-stat-value">${tier}</div><div class="account-stat-note">${x.freeNote}</div></article>`;
       grid.before(summary);
     }
 
