@@ -3,7 +3,7 @@
 // service_role/secret key in this static site or in a generated installer.
 window.INSTALLERLAB_ANALYTICS_CONFIG = Object.freeze({
   magicApiUrl: 'https://b4xapp.com/aplicaciones/installerlab/api.php',
-  magicApiReadToken: 'magic_af65ec2e57161dc5f5ca25687f40f0d3c8e9c616235be382eb50d1016b0ae542',
+  magicApiReadToken: 'magic_87b9a72c228001c616f8a5f300b13eed09e8b162d0a7304726c827b41783e5b7',
   url: 'https://kjbmheqsebikpvamotov.supabase.co',
   publishableKey: 'sb_publishable_0fA4y3-87oHZEaA2zZZGUQ_d__9tteR',
 
