@@ -167,13 +167,13 @@
 
     const url = new URL(API);
     url.searchParams.set('table', table);
+    url.searchParams.set('api_key', token);
 
     let response;
     try {
       response = await fetch(url.toString(), {
         method:'GET',
         headers:{
-          'Authorization':`Bearer ${token}`,
           'Accept':'application/json'
         },
         cache:'no-store',
