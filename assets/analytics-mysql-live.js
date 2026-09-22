@@ -2,7 +2,10 @@
   'use strict';
   if (document.body?.dataset?.page !== 'analytics') return;
 
-  const API = 'https://b4xapp.com/aplicaciones/installerlab/api.php';
+  const cfg = window.INSTALLERLAB_ANALYTICS_CONFIG || {};
+  const API_BASE = String(cfg.magicApiUrl || 'https://b4xapp.com/aplicaciones/api').replace(/\/$/, '');
+  const API_PROJECT = String(cfg.magicApiProject || 'installerlab').trim();
+  const API = `${API_BASE}/api.php`;
   const REQUEST_TIMEOUT_MS = 7000;
 
   const qs = new URLSearchParams(location.search);
@@ -166,14 +169,15 @@
     }
 
     const url = new URL(API);
+    url.searchParams.set('project', API_PROJECT);
     url.searchParams.set('table', table);
-    url.searchParams.set('api_key', token);
 
     let response;
     try {
       response = await fetch(url.toString(), {
         method:'GET',
         headers:{
+          'Authorization':`Bearer ${token}`,
           'Accept':'application/json'
         },
         cache:'no-store',
@@ -291,8 +295,9 @@
   }
 
   async function load(signal) {
-    // Exactly the same pattern shown by MagicApi Explorer:
-    // GET api.php?table=TABLE_NAME + Authorization: Bearer TOKEN
+    // MagicAPI v2:
+    // GET api.php?project=PROJECT_ALIAS&table=TABLE_NAME
+    // Authorization: Bearer TOKEN
     const events = await getTable('analytics_events', signal);
     return buildSummary(events);
   }
