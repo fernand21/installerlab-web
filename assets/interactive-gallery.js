@@ -1,13 +1,21 @@
 (() => {
   if (document.body.dataset.page !== 'home') return;
+
   document.head.insertAdjacentHTML('beforeend', '<link rel="stylesheet" href="assets/gallery-overrides.css">');
   document.querySelectorAll('[href^="/"], [src^="/"]').forEach(element => {
     const attribute = element.hasAttribute('href') ? 'href' : 'src';
     element.setAttribute(attribute, element.getAttribute(attribute).replace(/^\//, ''));
   });
+
   const visual = document.querySelector('.hero .visual');
   if (visual) {
-    visual.innerHTML = `<div class="app-switch" aria-label="InstallerLab appearance preview"><div class="app-tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-shot="dark">VS Dark · InstallerLab</button><button type="button" role="tab" aria-selected="false" data-shot="light">VS Light · InstallerLab</button></div><img class="app-shot" src="assets/screenshots/app-dark.png" alt="InstallerLab application — VS Dark theme"></div>`;
+    visual.innerHTML = `<div class="app-switch" aria-label="InstallerLab appearance preview">
+      <div class="app-tabs" role="tablist">
+        <button type="button" role="tab" aria-selected="true" data-shot="dark">VS Dark · InstallerLab</button>
+        <button type="button" role="tab" aria-selected="false" data-shot="light">VS Light · InstallerLab</button>
+      </div>
+      <img class="app-shot" src="assets/screenshots/app-dark.png" alt="InstallerLab application — VS Dark theme">
+    </div>`;
     const image = visual.querySelector('img');
     visual.querySelectorAll('[data-shot]').forEach(button => button.addEventListener('click', () => {
       const dark = button.dataset.shot === 'dark';
@@ -16,74 +24,105 @@
       visual.querySelectorAll('[data-shot]').forEach(item => item.setAttribute('aria-selected', String(item === button)));
     }));
   }
-  const themes = {free:[['community','Azure'],['free','CanvasLight'],['community','CompactClassic'],['community','Corporate'],['community','FluentLight'],['free','FocusLight'],['community','Graphite'],['community','ModernDark'],['free','NewFlow'],['community','Serene'],['free','Surface']],pro:[['pro','AeroGlass'],['pro','AuroraDaylight'],['pro','AuroraPro'],['pro','Blueprint'],['pro','BlueprintStudio'],['pro','CosmicGlow'],['pro','GeometricPro'],['pro','GlassPro'],['pro','HeroBanner'],['pro','Launchpad'],['pro','MidnightPro'],['pro','NeonFlow'],['pro','Orbit'],['pro','PaperLight'],['pro','ProductDelivery'],['pro','SidebarWizard'],['pro','SilkLight'],['pro','SoftwareStage'],['pro','StudioCard'],['pro','Vivid'],['pro','WaveFlow']]};
-  const name = value => value.replace(/([A-Z])/g, ' $1').trim();
-  const tiles = Object.entries(themes).flatMap(([tier, items]) => items.map(([folder,item]) => `<article class="theme-tile" data-tier="${tier}"><img loading="lazy" src="assets/themes/${folder}/${item}.svg" alt="${name(item)} installer theme preview"><div><strong>${name(item)}</strong><span>${tier === 'free' ? 'Free' : 'PRO'}</span></div></article>`)).join('');
-  document.querySelector('#app').insertAdjacentHTML('beforeend', `<section class="theme-catalog" aria-labelledby="catalog-title"><div class="shell"><span class="eyebrow">Theme catalog</span><h2 id="catalog-title">Choose the visual language of your installer.</h2><p>Explore all 32 real SVG previews from the official InstallerLab catalog. Free themes are available at no cost; PRO themes require licensing.</p><div class="catalog-toolbar" role="group" aria-label="Filter themes"><button class="active" data-filter="all">All · 32</button><button data-filter="free">Free · 11</button><button data-filter="pro">PRO · 21</button></div><div class="theme-grid">${tiles}</div></div></section>`);
-  const silkLightPreview = document.querySelector('img[alt="Silk Light installer theme preview"]');
-  if (silkLightPreview) silkLightPreview.src = 'assets/screenshots/silk-light.png';
-  const waveFlowPreview = document.querySelector('img[alt="Wave Flow installer theme preview"]');
-  if (waveFlowPreview) waveFlowPreview.src = 'assets/screenshots/wave-flow.png';
-  const aeroGlassPreview = document.querySelector('img[alt="Aero Glass installer theme preview"]');
-  if (aeroGlassPreview) aeroGlassPreview.src = 'assets/screenshots/aero-glass.png';
-  const azurePreview = document.querySelector('img[alt="Azure installer theme preview"]');
-  if (azurePreview) azurePreview.src = 'assets/screenshots/azure.png';
-  const compactClassicPreview = document.querySelector('img[alt="Compact Classic installer theme preview"]');
-  if (compactClassicPreview) compactClassicPreview.src = 'assets/screenshots/compact-classic.png';
-  const corporatePreview = document.querySelector('img[alt="Corporate installer theme preview"]');
-  if (corporatePreview) corporatePreview.src = 'assets/screenshots/corporate.png';
-  const fluentLightPreview = document.querySelector('img[alt="Fluent Light installer theme preview"]');
-  if (fluentLightPreview) fluentLightPreview.src = 'assets/screenshots/fluent-light.png';
-  const graphitePreview = document.querySelector('img[alt="Graphite installer theme preview"]');
-  if (graphitePreview) graphitePreview.src = 'assets/screenshots/graphite.png';
-  const modernDarkPreview = document.querySelector('img[alt="Modern Dark installer theme preview"]');
-  if (modernDarkPreview) modernDarkPreview.src = 'assets/screenshots/modern-dark.png';
-  const serenePreview = document.querySelector('img[alt="Serene installer theme preview"]');
-  if (serenePreview) serenePreview.src = 'assets/screenshots/serene.png';
-  const surfacePreview = document.querySelector('img[alt="Surface installer theme preview"]');
-  if (surfacePreview) surfacePreview.src = 'assets/screenshots/surface.png';
-  const blueprintPreview = document.querySelector('img[alt="Blueprint installer theme preview"]');
-  if (blueprintPreview) blueprintPreview.src = 'assets/screenshots/blueprint.png';
-  const blueprintStudioPreview = document.querySelector('img[alt="Blueprint Studio installer theme preview"]');
-  if (blueprintStudioPreview) blueprintStudioPreview.src = 'assets/screenshots/blueprint-studio.png';
-  const cosmicGlowPreview = document.querySelector('img[alt="Cosmic Glow installer theme preview"]');
-  if (cosmicGlowPreview) cosmicGlowPreview.src = 'assets/screenshots/cosmic-glow.png';
-  const geometricProPreview = document.querySelector('img[alt="Geometric Pro installer theme preview"]');
-  if (geometricProPreview) geometricProPreview.src = 'assets/screenshots/geometric-pro.png';
-  const heroBannerPreview = document.querySelector('img[alt="Hero Banner installer theme preview"]');
-  if (heroBannerPreview) heroBannerPreview.src = 'assets/screenshots/hero-banner.png';
-  const paperLightPreview = document.querySelector('img[alt="Paper Light installer theme preview"]');
-  if (paperLightPreview) paperLightPreview.src = 'assets/screenshots/paper-light.png';
-  const productDeliveryPreview = document.querySelector('img[alt="Product Delivery installer theme preview"]');
-  if (productDeliveryPreview) productDeliveryPreview.src = 'assets/screenshots/product-delivery.png';
-  const sidebarWizardPreview = document.querySelector('img[alt="Sidebar Wizard installer theme preview"]');
-  if (sidebarWizardPreview) sidebarWizardPreview.src = 'assets/screenshots/sidebar-wizard.png';
-  const studioCardPreview = document.querySelector('img[alt="Studio Card installer theme preview"]');
-  if (studioCardPreview) studioCardPreview.src = 'assets/screenshots/studio-card.png';
-  const canvasLightPreview = document.querySelector('img[alt="Canvas Light installer theme preview"]');
-  if (canvasLightPreview) canvasLightPreview.src = 'assets/screenshots/canvas-light.png';
-  const focusLightPreview = document.querySelector('img[alt="Focus Light installer theme preview"]');
-  if (focusLightPreview) focusLightPreview.src = 'assets/screenshots/focus-light.png';
-  const neonFlowPreview = document.querySelector('img[alt="Neon Flow installer theme preview"]');
-  if (neonFlowPreview) neonFlowPreview.src = 'assets/screenshots/neon-flow.png';
-  const newFlowPreview = document.querySelector('img[alt="New Flow installer theme preview"]');
-  if (newFlowPreview) newFlowPreview.src = 'assets/screenshots/new-flow.png';
-  const auroraProPreview = document.querySelector('img[alt="Aurora Pro installer theme preview"]');
-  if (auroraProPreview) auroraProPreview.src = 'assets/screenshots/aurora-pro.png';
-  const auroraDaylightPreview = document.querySelector('img[alt="Aurora Daylight installer theme preview"]');
-  if (auroraDaylightPreview) auroraDaylightPreview.src = 'assets/screenshots/aurora-daylight.png';
-  const glassProPreview = document.querySelector('img[alt="Glass Pro installer theme preview"]');
-  if (glassProPreview) glassProPreview.src = 'assets/screenshots/glass-pro.png';
-  const midnightProPreview = document.querySelector('img[alt="Midnight Pro installer theme preview"]');
-  if (midnightProPreview) midnightProPreview.src = 'assets/screenshots/midnight-pro.png';
-  const launchpadPreview = document.querySelector('img[alt="Launchpad installer theme preview"]');
-  if (launchpadPreview) launchpadPreview.src = 'assets/screenshots/launchpad.png';
-  const orbitPreview = document.querySelector('img[alt="Orbit installer theme preview"]');
-  if (orbitPreview) orbitPreview.src = 'assets/screenshots/orbit.png';
-  const softwareStagePreview = document.querySelector('img[alt="Software Stage installer theme preview"]');
-  if (softwareStagePreview) softwareStagePreview.src = 'assets/screenshots/software-stage.png';
-  const vividPreview = document.querySelector('img[alt="Vivid installer theme preview"]');
-  if (vividPreview) vividPreview.src = 'assets/screenshots/vivid.png';
-  document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => { const filter = button.dataset.filter; document.querySelectorAll('.theme-tile').forEach(tile => tile.hidden = filter !== 'all' && tile.dataset.tier !== filter); document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('active', item === button)); }));
-  document.querySelectorAll('.theme-tile').forEach(tile => { tile.tabIndex = 0; const open = () => { const image = tile.querySelector('img'); const title = tile.querySelector('strong').textContent; document.body.insertAdjacentHTML('beforeend', `<div class="theme-dialog" role="dialog" aria-modal="true" aria-label="${title} preview"><div class="theme-dialog-card"><button class="theme-dialog-close" aria-label="Close preview">×</button><img src="${image.src}" alt="${image.alt}"><h3>${title}</h3></div></div>`); const dialog = document.querySelector('.theme-dialog'); const close = () => dialog.remove(); dialog.querySelector('.theme-dialog-close').onclick = close; dialog.onclick = event => { if (event.target === dialog) close(); }; document.onkeydown = event => { if (event.key === 'Escape') close(); }; }; tile.onclick = open; tile.onkeydown = event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(); } }; });
+
+  const catalog = [
+    ['Azure','Azure','free','community','azure','Fluent'],
+    ['CanvasLight','Canvas Light','free','free','canvas-light','Editorial'],
+    ['CompactClassic','Compact Classic','free','community','compact-classic','Technical'],
+    ['Corporate','Corporate','free','community','corporate','Business'],
+    ['FluentLight','Fluent Light','free','community','fluent-light','Fluent'],
+    ['FocusLight','Focus Light','free','free','focus-light','Minimal'],
+    ['Graphite','Graphite','free','community','graphite','Dark'],
+    ['ModernDark','Modern Dark','free','community','modern-dark','Dark'],
+    ['NewFlow','New Flow','free','free','new-flow','Dark'],
+    ['Serene','Serene','free','community','serene','Soft'],
+    ['Surface','Surface','free','free','surface','Fluent'],
+    ['AeroGlass','Aero Glass','pro','pro','aero-glass','Glass'],
+    ['AuroraDaylight','Aurora Daylight','pro','pro','aurora-daylight','Editorial'],
+    ['AuroraPro','Aurora Pro','pro','pro','aurora-pro','Aurora'],
+    ['Blueprint','Blueprint','pro','pro','blueprint','Technical'],
+    ['BlueprintStudio','Blueprint Studio','pro','pro','blueprint-studio','Technical'],
+    ['CosmicGlow','Cosmic Glow','pro','pro','cosmic-glow','Glow'],
+    ['GeometricPro','Geometric Pro','pro','pro','geometric-pro','Technical'],
+    ['GlassPro','Glass Pro','pro','pro','glass-pro','Glass'],
+    ['HeroBanner','Hero Banner','pro','pro','hero-banner','Product'],
+    ['Launchpad','Launchpad','pro','pro','launchpad','Product'],
+    ['MidnightPro','Midnight Pro','pro','pro','midnight-pro','Dark'],
+    ['NeonFlow','Neon Flow','pro','pro','neon-flow','Product'],
+    ['Orbit','Orbit','pro','pro','orbit','Product'],
+    ['PaperLight','Paper Light','pro','pro','paper-light','Editorial'],
+    ['ProductDelivery','Product Delivery','pro','pro','product-delivery','Product'],
+    ['SidebarWizard','Sidebar Wizard','pro','pro','sidebar-wizard','Technical'],
+    ['SilkLight','Silk Light','pro','pro','silk-light','Minimal'],
+    ['SoftwareStage','Software Stage','pro','pro','software-stage','Technical'],
+    ['StudioCard','Studio Card','pro','pro','studio-card','Fluent'],
+    ['Vivid','Vivid','pro','pro','vivid','Glow'],
+    ['WaveFlow','Wave Flow','pro','pro','wave-flow','Product']
+  ].map(([id,name,tier,folder,slug,style]) => ({
+    id,name,tier,folder,slug,style,
+    screenshot:`assets/screenshots/${slug}.png`,
+    fallback:`assets/themes/${folder}/${id}.svg`
+  }));
+
+  const tiles = catalog.map(theme => `<article class="theme-tile" data-tier="${theme.tier}" data-style="${theme.style}" tabindex="0" aria-label="Open ${theme.name} preview">
+    <div class="theme-shot-wrap">
+      <img loading="lazy" decoding="async" src="${theme.screenshot}" data-fallback="${theme.fallback}" alt="${theme.name} installer theme preview">
+      <span class="theme-style">${theme.style}</span>
+    </div>
+    <div class="theme-tile-meta"><strong>${theme.name}</strong><span class="theme-tier ${theme.tier}">${theme.tier === 'free' ? 'Free' : 'PRO'}</span></div>
+  </article>`).join('');
+
+  document.querySelector('#app').insertAdjacentHTML('beforeend', `<section class="theme-catalog" aria-labelledby="catalog-title">
+    <div class="shell">
+      <span class="eyebrow">Theme catalog</span>
+      <h2 id="catalog-title">32 installer identities. One engine.</h2>
+      <p>Explore the complete InstallerLab catalog. Every preview is backed by the real theme artwork and installer layout, with Free and PRO options designed for different product personalities.</p>
+      <div class="catalog-toolbar" role="group" aria-label="Filter themes">
+        <button class="active" data-filter="all">All · ${catalog.length}</button>
+        <button data-filter="free">Free · ${catalog.filter(x => x.tier === 'free').length}</button>
+        <button data-filter="pro">PRO · ${catalog.filter(x => x.tier === 'pro').length}</button>
+      </div>
+      <div class="theme-grid">${tiles}</div>
+    </div>
+  </section>`);
+
+  document.querySelectorAll('.theme-tile img').forEach(image => {
+    image.addEventListener('error', () => {
+      if (image.dataset.fallback && image.src !== image.dataset.fallback) image.src = image.dataset.fallback;
+    }, {once:true});
+  });
+
+  document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => {
+    const filter = button.dataset.filter;
+    document.querySelectorAll('.theme-tile').forEach(tile => tile.hidden = filter !== 'all' && tile.dataset.tier !== filter);
+    document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('active', item === button));
+  }));
+
+  const openPreview = tile => {
+    const image = tile.querySelector('img');
+    const title = tile.querySelector('strong').textContent;
+    const tier = tile.dataset.tier === 'free' ? 'Free' : 'PRO';
+    const style = tile.dataset.style;
+    document.body.insertAdjacentHTML('beforeend', `<div class="theme-dialog" role="dialog" aria-modal="true" aria-labelledby="theme-dialog-title">
+      <div class="theme-dialog-card">
+        <button class="theme-dialog-close" aria-label="Close preview">×</button>
+        <div class="theme-dialog-visual"><img src="${image.src}" alt="${image.alt}"></div>
+        <div class="theme-dialog-meta"><div><span>${style} · ${tier}</span><h3 id="theme-dialog-title">${title}</h3></div><small>InstallerLab theme preview</small></div>
+      </div>
+    </div>`);
+    const dialog = document.querySelector('.theme-dialog');
+    const close = () => { document.removeEventListener('keydown', keyClose); dialog.remove(); tile.focus(); };
+    const keyClose = event => { if (event.key === 'Escape') close(); };
+    dialog.querySelector('.theme-dialog-close').onclick = close;
+    dialog.onclick = event => { if (event.target === dialog) close(); };
+    document.addEventListener('keydown', keyClose);
+    dialog.querySelector('.theme-dialog-close').focus();
+  };
+
+  document.querySelectorAll('.theme-tile').forEach(tile => {
+    tile.onclick = () => openPreview(tile);
+    tile.onkeydown = event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openPreview(tile); }
+    };
+  });
 })();
