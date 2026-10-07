@@ -1,0 +1,1 @@
+InstallerLab v4.0.0 draft release trigger. Binary assets will be uploaded separately before publication.
