@@ -1,60 +1,54 @@
-# Documentación de InstallerLab v3.5
+# Documentación de InstallerLab v4.0
 
-La documentación pública se sirve desde `docs/index.html`. InstallerLab v3.5 conserva la base documental de versiones anteriores y añade arquitectura de paquete, Tracking & Statistics, TrackID e InstallerLab Analytics.
+InstallerLab v4 mantiene toda la arquitectura de deployment de v3.5 y añade **WebToExe** como un ProjectType de primera clase. La documentación pública ahora cubre el flujo completo **URL o HTML local → aplicación Windows WebView2 → Web-to-EXE / Setup EXE / MSI / Bundle**.
 
-Recursos principales:
+La guía dedicada se publica en:
 
-- `assets/docs-v2.css` / `assets/docs-v2.js`: base visual y contenido heredado.
-- `assets/docs-v2-release.js`: Bundle/Burn, FSS Analyzer, ISS → FSS y ZERO-TRASH.
-- `assets/docs-v3-release.css` / `assets/docs-v3-release.js`: Office Add-ins, QGIS Plugins, CLI, SBOM, signing, Services y Smart Build Targets.
-- `assets/docs-v3.5.css`: capa visual de v3.5.
-- `assets/docs-v35.js`: arquitectura, Tracking & Statistics, TrackID, registro, niveles de cuenta, Analytics e historial.
-- `assets/docs-v35-runtime.css`: refinamientos visuales de v3.5.
-- `comparison/index.html` + `assets/comparison-v3.*`: comparativa independiente de herramientas.
+- `https://installerlab.website/web-to-exe/`
+- `docs/index.html#webtoexe-v4`
+- `comparison/index.html#webtoexe-difference`
 
-El archivo `.fss` continúa siendo la definición ligera y permanente del proyecto. El staging de compilación sigue siendo temporal.
+## Novedad principal de v4
 
-## Capacidades documentadas en v3.5
+`ProjectType=WebToExe` permite definir una aplicación web directamente en el FSS. InstallerLab prepara el host WebView2 y reutiliza su pipeline de deployment para generar los targets válidos del proyecto.
 
-- ProjectType `Application`
-- ProjectType `OfficeAddin`
-- ProjectType `QgisPlugin`
-- Smart Build Targets según el tipo de proyecto
-- Setup EXE
-- MSI mediante WiX 7.x
-- Bundle / WiX Burn
-- Portable
-- B4J Portable
-- Office Add-ins VBA para Excel, Word y PowerPoint
-- QGIS Python Plugins desde carpeta o ZIP
-- Arquitectura principal del paquete: `x64`, `x86` o `arm64`
-- Tracking & Statistics dentro del Project Explorer
-- Sección FSS `[Analytics]`
-- TrackID con formato `IL-TRK-` + 24 caracteres hexadecimales
-- Selección de categorías Install, Uninstall, Errors y Environment
-- Registro de TrackID en una cuenta InstallerLab para activar Analytics web
-- Niveles Analytics: Free, Supporter y PRO
-- Historial móvil de hasta 24 meses por TrackID
-- InstallerLab Analytics web por TrackID
-- Modo Live y modo Demo claramente separados
-- CLI headless (`analyze`, `build`, `sbom`)
-- SBOM CycloneDX y SPDX
-- Firma Authenticode mediante SignTool
-- Windows Services para proyectos Application compatibles
-- Resolución automática genérica de idioma
-- FSS Analyzer
-- Importador ISS → FSS
-- Política ZERO-TRASH bajo `%TEMP%\InstallerLab`
-- Idiomas, temas y branding
-- Archivos, carpetas, accesos directos, registro e integración con Windows
+Capacidades documentadas:
 
-## Matriz de build
+- URL remota como origen de la aplicación.
+- Carpeta HTML local con `index.html` para proyectos PRO.
+- Tema web System / Light / Dark.
+- Toolbar de navegación opcional.
+- Apertura de enlaces externos en el navegador del sistema.
+- Bloqueo del flujo de instalación PWA dentro del host.
+- Ocultar elementos por ID, clase CSS o selector CSS.
+- Desactivar elementos por ID, clase CSS o selector CSS.
+- Web-to-EXE de archivo único.
+- Setup EXE para la aplicación WebView2.
+- MSI.
+- WiX Burn Bundle.
+- Preparación del Microsoft WebView2 Evergreen Bootstrapper en EXE/Bundle.
+- Smart Build Targets específicos para WebToExe.
+- ProjectSession para documentos/proyectos Monaco.
+- Apertura de archivos `.fss` enviados por Windows sin duplicar una sesión ya abierta.
 
-| ProjectType | EXE | Portable | B4J Portable | MSI | Bundle |
-|---|:---:|:---:|:---:|:---:|:---:|
-| Application | ✅ | ✅ | ✅ | ✅ | ✅ |
-| OfficeAddin | — | — | — | ✅ | ✅ |
-| QgisPlugin | — | — | — | ✅ | ✅ |
+## Matriz v4
+
+| ProjectType | Setup EXE | Portable | B4J Portable | MSI | Bundle | Web-to-EXE |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| Application | ✅ | ✅ | ✅ | ✅ | ✅ | — |
+| OfficeAddin | — | — | — | ✅ | ✅ | — |
+| QgisPlugin | — | — | — | ✅ | ✅ | — |
+| WebToExe | ✅ | — | — | ✅ | ✅ | ✅ |
+
+## Diferenciación Web-to-EXE
+
+La comparación pública se actualizó con fuentes oficiales revisadas el 7 de octubre de 2026.
+
+La afirmación se formula de manera verificable: **dentro de Inno Setup, WiX, Advanced Installer, NSIS e InstallShield, no se identificó otro flujo documentado que integre en un mismo ProjectType la creación de la app desde URL/HTML y la generación posterior de EXE/MSI/Bundle.**
+
+Advanced Installer documenta un escenario similar, pero su guía de agosto de 2026 usa Nativefier para crear primero los binarios Windows y Advanced Installer después para empaquetarlos. Esto se refleja como flujo parcial/externo, no como incapacidad absoluta.
+
+---
 
 ## Arquitectura del paquete
 
