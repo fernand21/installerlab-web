@@ -37,15 +37,21 @@
       <span class="docv2-kicker">v4 · Smart Build Targets</span><h2>${spanish?'Una definición WebToExe, varios destinos de Windows.':'One WebToExe definition, multiple Windows destinations.'}</h2>
       <table class="doc35-matrix"><tr><th>Target</th><th>WebToExe</th><th>${spanish?'Comportamiento':'Behavior'}</th></tr>
       <tr><td>Web-to-EXE</td><td>✓</td><td>${spanish?'Ejecutable único mediante el motor Portable interno.':'Single-file output through the internal Portable engine.'}</td></tr>
-      <tr><td>Setup EXE</td><td>✓</td><td>${spanish?'Instalador del payload WebView2 preparado.':'Installer around the prepared WebView2 payload.'}</td></tr>
-      <tr><td>MSI</td><td>✓</td><td>${spanish?'Windows Installer; no encadena de forma segura un EXE prerequisite por sí solo.':'Windows Installer; it cannot safely chain an EXE prerequisite by itself.'}</td></tr>
-      <tr><td>Bundle</td><td>✓</td><td>${spanish?'WiX Burn puede encadenar WebView2 + MSI principal.':'WiX Burn can chain WebView2 + the main MSI.'}</td></tr>
+      <tr><td>Setup EXE</td><td>✓</td><td>${spanish?'Instalador de la aplicación WebView2 autocontenida.':'Installer for the self-contained WebView2 application.'}</td></tr>
+      <tr><td>MSI</td><td>✓</td><td>${spanish?'Paquete Windows Installer de la aplicación autocontenida.':'Windows Installer package for the self-contained application.'}</td></tr>
+      <tr><td>Bundle</td><td>✓</td><td>${spanish?'Bundle WiX Burn para la misma aplicación autocontenida.':'WiX Burn Bundle for the same self-contained application.'}</td></tr>
       <tr><td>Portable clásico</td><td>—</td><td>Application ProjectType</td></tr>
       <tr><td>B4J Portable</td><td>—</td><td>B4J workflow</td></tr></table>
-      <p>${spanish?'En EXE y Bundle, el motor puede descargar y verificar el bootstrapper Evergreen oficial de Microsoft WebView2 cuando hace falta preparar el requisito.':'For EXE and Bundle, the engine can download and verify the official Microsoft WebView2 Evergreen Bootstrapper when the prerequisite needs to be staged.'}</p>
+      <p>${spanish?'WebView2 se distribuye de forma autocontenida con la aplicación generada: el equipo de destino no necesita instalar WebView2 por separado.':'WebView2 is distributed self-contained with the generated application: the destination PC does not need a separate WebView2 installation.'}</p>
     </article>
 
-    <article id="web-control-v4" data-title="${spanish?'Control del WebView2':'WebView2 controls'}" data-keywords="theme toolbar PWA external links hide disable css selectors">
+    <article id="web-modes-v4" data-title="${spanish?'Modo online y offline':'Online and offline modes'}" data-keywords="online offline local html no internet url">
+<span class="docv2-kicker">v4.0.0 · Online / Offline</span><h2>${spanish?'Una URL en vivo o una aplicación HTML local autocontenida.':'A live URL or a self-contained local HTML application.'}</h2>
+<div class="doc35-feature-grid"><div class="doc35-feature"><h3>Online</h3><p>${spanish?'La app carga una URL remota y recibe los cambios publicados en el servidor sin recompilar.':'The app loads a remote URL and receives server-side updates without rebuilding.'}</p></div><div class="doc35-feature"><h3>Offline / Local</h3><p>${spanish?'HTML, CSS, JavaScript e imágenes pueden viajar dentro de la aplicación. Puede funcionar sin Internet cuando su propia lógica no usa APIs o recursos remotos.':'HTML, CSS, JavaScript and images can travel inside the application. It can work without Internet when its own logic does not call remote APIs or resources.'}</p></div></div>
+<div class="doc35-note"><strong>WebView2 self-contained:</strong> ${spanish?'el runtime viaja con la aplicación; no hay que instalar WebView2 aparte.':'the runtime ships with the application; WebView2 does not need to be installed separately.'}</div>
+</article>
+
+<article id="web-control-v4" data-title="${spanish?'Control del WebView2':'WebView2 controls'}" data-keywords="theme toolbar PWA external links hide disable css selectors">
       <span class="docv2-kicker">v4 · Web application controls</span><h2>${spanish?'El host puede adaptarse al sitio sin modificar el código fuente de la web.':'The host can adapt to the site without modifying the website source code.'}</h2>
       <div class="doc35-feature-grid">
       <div class="doc35-feature"><h3>Theme</h3><p>System · Light · Dark</p></div>
@@ -53,7 +59,7 @@
       <div class="doc35-feature"><h3>PWA</h3><p>${spanish?'Puede bloquear el flujo de instalación PWA del sitio dentro del host.':'Can block the website PWA installation flow inside the host.'}</p></div>
       <div class="doc35-feature"><h3>DOM</h3><p>${spanish?'Ocultar o desactivar elementos por ID, clase o selector CSS.':'Hide or disable elements by ID, class or CSS selector.'}</p></div>
       </div>
-      <div class="doc35-note"><strong>Community:</strong> ${spanish?'URL → Web-to-EXE básico. <strong>PRO:</strong> HTML local, personalización de elementos y targets instalables EXE/MSI/Bundle.':'basic URL → Web-to-EXE. <strong>PRO:</strong> local HTML, element customization and installable EXE/MSI/Bundle targets.'}</div>
+      <div class="doc35-note"><strong>Community:</strong> ${spanish?'URL → Web-to-EXE básico. <strong>PRO desde US$10:</strong> HTML local, personalización de elementos y targets instalables EXE/MSI/Bundle para una máquina tras verificación.':'basic URL → Web-to-EXE. <strong>PRO from US$10:</strong> local HTML, element customization and installable EXE/MSI/Bundle targets for one machine after verification.'}</div>
     </article>
 
     <article id="workspace-v4" data-title="${spanish?'Workspace v4':'v4 workspace'}" data-keywords="Monaco project sessions multiple documents fss open with edit menu">
