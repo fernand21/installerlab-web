@@ -1,6 +1,7 @@
 (() => {
   const BASE = location.pathname.includes('/installerlab-web/') ? '/installerlab-web/' : '/';
-  const CONTACT = 'farevbalo210@gmail.com';
+  const CONTACT = 'farevalo210@gmail.com';
+  const FORM_ENDPOINT = `https://formsubmit.co/${CONTACT}`;
   let queued = false;
 
   const isSpanish = () => (localStorage.getItem('il-lang') || 'es').toLowerCase() === 'es';
@@ -26,10 +27,13 @@
       afterText:'Envíame el comprobante y el nombre o alias para el certificado. Si solicitas PRO, agrega el Machine Code para poder generar tu clave de activación.',
       name:'Nombre o alias para el certificado',
       reference:'Referencia / detalle del aporte',
+      email:'Correo de contacto',
+      receipt:'Comprobante de PayPal',
+      receiptHelp:'PNG, JPG o PDF. Máximo 10 MB.',
       machine:'Machine Code (necesario para generar la clave PRO)',
       public:'Quiero aparecer en la página pública de supporters',
-      prepare:'Preparar solicitud de certificado / clave PRO',
-      attach:'El botón abre tu correo con los datos preparados. Adjunta allí el comprobante de pago. No publiques contraseñas, documentos ni datos bancarios.',
+      prepare:'Enviar solicitud de certificado / clave PRO',
+      attach:'Adjunta aquí el comprobante de PayPal. Se aceptan PNG, JPG o PDF de hasta 10 MB. La solicitud se enviará directamente al correo oficial de InstallerLab.',
       lifetime:'PERMANENTE · NO CADUCA',
       supporters:'supporters',
       raised:'recaudados',
@@ -60,10 +64,13 @@
       afterText:'Send the receipt plus the name or alias for the certificate. If you are requesting PRO, include the Machine Code so the activation key can be generated.',
       name:'Name or alias for the certificate',
       reference:'Contribution reference / details',
+      email:'Contact email',
+      receipt:'PayPal receipt',
+      receiptHelp:'PNG, JPG or PDF. Maximum 10 MB.',
       machine:'Machine Code (required to generate the PRO key)',
       public:'I want to appear on the public supporters page',
-      prepare:'Prepare certificate / PRO key request',
-      attach:'The button opens your mail app with the details prepared. Attach the payment receipt there. Never publish passwords, identity documents or banking data.',
+      prepare:'Send certificate / PRO key request',
+      attach:'Attach the PayPal receipt here. PNG, JPG or PDF files up to 10 MB are accepted. The request will be sent directly to the official InstallerLab email.',
       lifetime:'PERMANENT · DOES NOT EXPIRE',
       supporters:'supporters',
       raised:'raised',
@@ -145,14 +152,21 @@
 
       <section id="supporter-request" class="activation-card">
         <h2>${t.after}</h2><p class="activation-subtitle">${t.afterText}</p>
-        <form class="activation-form" id="supporter-form">
-          <div class="form-field"><label for="supporter-name">${t.name}</label><input id="supporter-name" name="name" maxlength="80" required></div>
-          <div class="form-field"><label for="supporter-ref">${t.reference}</label><input id="supporter-ref" name="reference" maxlength="140" placeholder="PayPal / transaction / date"></div>
-          <div class="form-field full"><label for="supporter-machine">${t.machine}</label><textarea id="supporter-machine" name="machine" rows="3"></textarea></div>
-          <label class="activation-check"><input id="supporter-public" type="checkbox"><span>${t.public}</span></label>
-          <div class="activation-note">${t.attach}<br><br><strong>${es?'Contacto':'Contact'}:</strong> <span class="activation-email">${CONTACT}</span></div>
-          <div class="activation-actions"><button class="button primary" type="submit">${t.prepare}</button><a class="button" href="${BASE}supporters/">${es?'Ver supporters':'View supporters'}</a></div>
-          <div class="form-status" id="supporter-status" role="status"></div>
+        <form class="activation-form" id="supporter-form" action="${FORM_ENDPOINT}" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="_subject" value="${es?'InstallerLab - Solicitud de certificado / clave PRO':'InstallerLab - Certificate / PRO key request'}">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_next" value="https://installerlab.website/donate/?sent=1&thanks=1">
+          <input type="hidden" name="_url" value="https://installerlab.website/donate/">
+          <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="display:none">
+          <div class="form-field"><label for="supporter-name">${t.name}</label><input id="supporter-name" name="${es?'Nombre o alias':'Name or alias'}" maxlength="80" required></div>
+          <div class="form-field"><label for="supporter-email">${t.email}</label><input id="supporter-email" name="email" type="email" maxlength="160" autocomplete="email" required placeholder="${es?'tu@email.com':'you@email.com'}"></div>
+          <div class="form-field"><label for="supporter-ref">${t.reference}</label><input id="supporter-ref" name="${es?'Referencia PayPal':'PayPal reference'}" maxlength="140" placeholder="PayPal / transaction / date"></div>
+          <div class="form-field"><label for="supporter-receipt">${t.receipt}</label><input id="supporter-receipt" name="attachment" type="file" required accept="image/png,image/jpeg,application/pdf"><span class="form-help">${t.receiptHelp}</span></div>
+          <div class="form-field full"><label for="supporter-machine">${t.machine}</label><textarea id="supporter-machine" name="Machine Code" rows="3" placeholder="${es?'Déjalo vacío si solo solicitas el certificado Supporter':'Leave blank if you only request the Supporter certificate'}"></textarea></div>
+          <label class="activation-check"><input id="supporter-public" name="${es?'Publicación en supporters':'Public supporters listing'}" value="${es?'Sí':'Yes'}" type="checkbox"><span>${t.public}</span></label>
+          <div class="activation-note">${t.attach}<br><br><strong>${es?'Correo oficial':'Official email'}:</strong> <span class="activation-email">${CONTACT}</span><br><span>${es?'El envío usa FormSubmit para poder adjuntar el archivo desde GitHub Pages. No adjuntes contraseñas, documentos de identidad ni datos bancarios.':'Submission uses FormSubmit so the file can be attached from GitHub Pages. Do not attach passwords, identity documents or banking information.'}</span></div>
+          <div class="activation-actions"><button class="button primary" id="supporter-submit" type="submit">${t.prepare}</button><a class="button" href="${BASE}supporters/">${es?'Ver supporters':'View supporters'}</a></div>
+          <div class="form-status" id="supporter-status" role="status" aria-live="polite"></div>
         </form>
       </section>
     </main>`;
@@ -169,29 +183,48 @@
   }
 
   function wireForm(es){
-    const form=document.getElementById('supporter-form'); if(!form) return;
+    const form=document.getElementById('supporter-form'); if(!form || form.dataset.wired==='1') return;
+    form.dataset.wired='1';
+    const file=document.getElementById('supporter-receipt');
+    const status=document.getElementById('supporter-status');
+    const submit=document.getElementById('supporter-submit');
+
+    if(file){
+      file.addEventListener('change',()=>{
+        const selected=file.files&&file.files[0];
+        if(!selected){ if(status)status.textContent=''; return; }
+        if(selected.size>10*1024*1024){
+          file.value='';
+          if(status) status.textContent=es?'El comprobante supera 10 MB. Selecciona un archivo más pequeño.':'The receipt is larger than 10 MB. Please choose a smaller file.';
+          return;
+        }
+        if(status) status.textContent=es?`Comprobante seleccionado: ${selected.name}`:`Receipt selected: ${selected.name}`;
+      });
+    }
+
     form.addEventListener('submit',e=>{
-      e.preventDefault();
-      const name=document.getElementById('supporter-name').value.trim();
-      const ref=document.getElementById('supporter-ref').value.trim();
-      const machine=document.getElementById('supporter-machine').value.trim();
-      const publicListing=document.getElementById('supporter-public').checked;
-      const subject=es?'[InstallerLab] Solicitud de certificado / clave PRO':'[InstallerLab] Certificate / PRO key request';
-      const lines=es?[
-        'Hola, ya realicé un aporte para apoyar InstallerLab.','',`Nombre o alias del certificado: ${name}`,`Referencia del aporte: ${ref||'(adjunto comprobante)'}`,`Publicación en supporters: ${publicListing?'Sí':'No'}`,`Machine Code para clave PRO: ${machine||'No solicito PRO'}`,'','Adjunto el comprobante de pago. Entiendo que el certificado reconoce mi apoyo al proyecto y que solo una clave de activación PRO válida desbloquea las funciones PRO.'
-      ]:[
-        'Hello, I have made a contribution to support InstallerLab.','',`Certificate name or alias: ${name}`,`Contribution reference: ${ref||'(receipt attached)'}`,`Public supporters listing: ${publicListing?'Yes':'No'}`,`Machine Code for PRO key: ${machine||'Not requesting PRO'}`,'','I am attaching the payment receipt. I understand that the certificate recognizes my support and that only a valid PRO activation key unlocks PRO features.'
-      ];
-      location.href=`mailto:${CONTACT}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
-      const status=document.getElementById('supporter-status');if(status)status.textContent=es?'Correo preparado. Adjunta el comprobante antes de enviarlo.':'Email prepared. Attach the receipt before sending it.';
-    });
-    document.querySelector('[data-support-contact]')?.addEventListener('click',e=>{
-      e.currentTarget.href=`mailto:${CONTACT}?subject=${encodeURIComponent(es?'Quiero apoyar InstallerLab':'I want to support InstallerLab')}&body=${encodeURIComponent(es?'Hola, quiero apoyar InstallerLab desde US$1. Por favor indícame el método/enlace de pago disponible.':'Hello, I want to support InstallerLab from US$1. Please send me the currently available payment method/link.')}`;
+      if(!form.reportValidity()){ e.preventDefault(); return; }
+      const selected=file&&file.files&&file.files[0];
+      if(!selected){
+        e.preventDefault();
+        if(status) status.textContent=es?'Adjunta el comprobante de PayPal antes de enviar la solicitud.':'Attach the PayPal receipt before sending the request.';
+        return;
+      }
+      if(selected.size>10*1024*1024){
+        e.preventDefault();
+        if(status) status.textContent=es?'El comprobante supera el límite de 10 MB.':'The receipt exceeds the 10 MB limit.';
+        return;
+      }
+      if(submit){
+        submit.disabled=true;
+        submit.textContent=es?'Enviando solicitud…':'Sending request…';
+      }
+      if(status) status.textContent=es?`Enviando solicitud y comprobante a ${CONTACT}…`:`Sending request and receipt to ${CONTACT}…`;
     });
   }
 
   function celebrate(){
-    if(!new URLSearchParams(location.search).has('thanks')) return;
+    if(!new URLSearchParams(location.search).has('thanks') && !new URLSearchParams(location.search).has('sent')) return;
     if(document.querySelector('.support-celebration')) return;
     const es=isSpanish();
     const wrap=document.createElement('div');wrap.className='support-celebration';
