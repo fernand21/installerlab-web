@@ -38,7 +38,7 @@
   </url>
   <url>
     <loc>https://installerlab.website/changelog/</loc>
-    <lastmod>2026-09-12</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -74,7 +74,7 @@
   </url>
   <url>
     <loc>https://installerlab.website/download/</loc>
-    <lastmod>2026-09-12</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -158,7 +158,7 @@
   </url>
   <url>
     <loc>https://installerlab.website/windows-installer-builder/</loc>
-    <lastmod>2026-09-13</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
