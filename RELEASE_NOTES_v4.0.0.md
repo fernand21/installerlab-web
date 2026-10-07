@@ -105,8 +105,6 @@ Version 4 keeps the major capabilities introduced throughout the v3 line, includ
 
 ## Release status
 
-This GitHub release is being prepared as a **draft**.
+The v4.0.0 GitHub release is being finalized as a **draft** while documentation and comparison pages are updated.
 
-**Binary assets are intentionally not attached yet.** The InstallerLab v4.0.0 Setup EXE, MSI, Bundle and/or Portable assets will be uploaded after the corresponding builds have been compiled and verified.
-
-Do not treat the absence of binaries in this draft as a missing download.
+Binary assets have been uploaded separately to the draft release by the maintainer. The release should remain unpublished until the final documentation review is complete.
