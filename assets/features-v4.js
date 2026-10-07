@@ -1,0 +1,18 @@
+(() => {
+  if(document.body.dataset.page!=='features') return;
+  let queued=false;
+  const es=()=>((localStorage.getItem('il-lang')||'es').toLowerCase()!=='en');
+  const ES="<h2>Nuevo en v4: Web-to-EXE como ProjectType</h2><p>InstallerLab ahora puede empezar en una URL o aplicación HTML local, crear la aplicación Windows basada en WebView2 y generar sus formatos de deployment desde el mismo FSS.</p><div class=\"grid\"><article class=\"card\"><h3>URL → Windows app</h3><p>Convierte una URL en una aplicación de escritorio WebView2 sin preparar primero un proyecto externo.</p></article><article class=\"card\"><h3>HTML local</h3><p>Empaqueta una carpeta web local con <code>index.html</code> como aplicación Windows.</p></article><article class=\"card\"><h3>Web controls</h3><p>Tema, toolbar, enlaces externos, bloqueo PWA y reglas para ocultar/desactivar elementos por ID, clase o selector CSS.</p></article><article class=\"card\"><h3>Una app, varios targets</h3><p>Web-to-EXE, Setup EXE, MSI y Bundle desde el mismo ProjectType.</p></article><article class=\"card\"><h3>WebView2 prerequisite</h3><p>EXE y Bundle pueden preparar el Evergreen Bootstrapper oficial de Microsoft WebView2.</p></article><article class=\"card\"><h3>Comparación verificable</h3><p>La tabla v4 explica por qué este flujo integrado es distinto a un “Web Installer” tradicional.</p><a href=\"../comparison/#webtoexe-difference\">Ver comparación →</a></article></div><p><a class=\"button primary\" href=\"../web-to-exe/\">Abrir guía Web-to-EXE →</a></p>";
+  const EN="<h2>New in v4: Web-to-EXE as a ProjectType</h2><p>InstallerLab can now start from a URL or local HTML application, create the WebView2-based Windows desktop app and build its deployment formats from the same FSS.</p><div class=\"grid\"><article class=\"card\"><h3>URL → Windows app</h3><p>Turn a URL into a WebView2 desktop application without preparing a separate external project first.</p></article><article class=\"card\"><h3>Local HTML</h3><p>Package a local web folder with <code>index.html</code> as a Windows application.</p></article><article class=\"card\"><h3>Web controls</h3><p>Theme, toolbar, external links, PWA blocking and hide/disable rules by ID, class or CSS selector.</p></article><article class=\"card\"><h3>One app, multiple targets</h3><p>Web-to-EXE, Setup EXE, MSI and Bundle from the same ProjectType.</p></article><article class=\"card\"><h3>WebView2 prerequisite</h3><p>EXE and Bundle can stage Microsoft’s official WebView2 Evergreen Bootstrapper.</p></article><article class=\"card\"><h3>Verifiable comparison</h3><p>The v4 matrix explains why this integrated flow differs from a traditional “Web Installer”.</p><a href=\"../comparison/#webtoexe-difference\">View comparison →</a></article></div><p><a class=\"button primary\" href=\"../web-to-exe/\">Open Web-to-EXE guide →</a></p>";
+  function apply(){
+    const main=document.querySelector('main.content');
+    if(!main||document.getElementById('features-v4-webtoexe')) return;
+    const s=document.createElement('section');
+    s.id='features-v4-webtoexe';
+    s.innerHTML=es()?ES:EN;
+    main.insertBefore(s,main.firstChild);
+  }
+  function schedule(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;apply();});}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule);else schedule();
+  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
+})();
