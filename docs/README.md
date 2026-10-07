@@ -26,10 +26,19 @@ Capacidades documentadas:
 - Setup EXE para la aplicación WebView2.
 - MSI.
 - WiX Burn Bundle.
-- Preparación del Microsoft WebView2 Evergreen Bootstrapper en EXE/Bundle.
+- WebView2 autocontenido dentro de la aplicación generada; no requiere instalación separada en el equipo destino.
 - Smart Build Targets específicos para WebToExe.
 - ProjectSession para documentos/proyectos Monaco.
 - Apertura de archivos `.fss` enviados por Windows sin duplicar una sesión ya abierta.
+
+## Online, offline y personalización web
+
+- **Online / URL:** carga una aplicación web remota y refleja cambios del servidor sin recompilar.
+- **Offline / HTML local:** empaqueta HTML, CSS, JavaScript, imágenes y otros recursos locales. Puede ejecutarse sin Internet cuando la propia aplicación no consume APIs o recursos remotos.
+- **Runtime autocontenido:** WebView2 viaja con la aplicación generada.
+- **Ocultar elementos:** por ID, clase o selector CSS.
+- **Deshabilitar elementos:** por ID, clase o selector CSS.
+- **Precio:** Community continúa gratuito. La política actual permite solicitar PRO para una máquina con un aporte opcional desde US$10, sujeto a verificación.
 
 ## Matriz v4
 
