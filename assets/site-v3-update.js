@@ -30,6 +30,21 @@
     }
     a.href=url('comparison/');
     a.textContent=isES()?'Comparar':'Compare';
+
+    const actions=document.querySelector('.header .nav .actions');
+    if(actions){
+      let top=actions.querySelector('[data-v4-compare-top]');
+      if(!top){
+        top=document.createElement('a');
+        top.dataset.v4CompareTop='1';
+        top.className='button v4-compare-top';
+        const primary=actions.querySelector('.button.primary');
+        if(primary) actions.insertBefore(top,primary); else actions.appendChild(top);
+      }
+      top.href=url('comparison/');
+      top.textContent=isES()?'Comparar':'Compare';
+      top.title=isES()?'Comparar InstallerLab con otras herramientas':'Compare InstallerLab with other tools';
+    }
   }
 
   function ensureBundleCard(){
@@ -145,6 +160,47 @@
       </div>`;
   }
 
+  function homeHeroComparison(){
+    if(document.body.dataset.page!=='home') return;
+    const visual=document.querySelector('.hero .visual');
+    if(!visual) return;
+    let card=visual.querySelector('[data-v4-hero-compare]');
+    if(!card){
+      card=document.createElement('div');
+      card.dataset.v4HeroCompare='1';
+      card.className='v4-hero-compare';
+      visual.appendChild(card);
+    }
+    card.innerHTML=isES()?`
+      <div class="v4-hero-compare-head">
+        <span>Comparación rápida</span>
+        <a href="${url('comparison/')}">Ver completa →</a>
+      </div>
+      <div class="v4-hero-compare-products">
+        <b>InstallerLab v4.0.0</b><span>vs</span><span>Inno Setup</span><span>WiX</span><span>Advanced Installer</span><span>NSIS</span><span>InstallShield</span>
+      </div>
+      <div class="v4-hero-compare-rows">
+        <div><span>Web → app Windows</span><strong>✓ Integrado</strong><em>otros: no integrado / externo</em></div>
+        <div><span>HTML local / offline</span><strong>✓</strong><em>WebView2 autocontenido</em></div>
+        <div><span>App + EXE/MSI/Bundle</span><strong>✓ mismo proyecto</strong><em>FSS</em></div>
+        <div><span>Precio</span><strong>Community gratis</strong><em>PRO desde US$10</em></div>
+      </div>`
+      :`
+      <div class="v4-hero-compare-head">
+        <span>Quick comparison</span>
+        <a href="${url('comparison/')}">View full →</a>
+      </div>
+      <div class="v4-hero-compare-products">
+        <b>InstallerLab v4.0.0</b><span>vs</span><span>Inno Setup</span><span>WiX</span><span>Advanced Installer</span><span>NSIS</span><span>InstallShield</span>
+      </div>
+      <div class="v4-hero-compare-rows">
+        <div><span>Web → Windows app</span><strong>✓ Integrated</strong><em>others: not integrated / external</em></div>
+        <div><span>Local HTML / offline</span><strong>✓</strong><em>self-contained WebView2</em></div>
+        <div><span>App + EXE/MSI/Bundle</span><strong>✓ same project</strong><em>FSS</em></div>
+        <div><span>Price</span><strong>Community free</strong><em>PRO from US$10</em></div>
+      </div>`;
+  }
+
   function homeOtherUpdates(){
     if(document.body.dataset.page!=='home') return;
     const lead=document.querySelector('.hero .hero-grid>div>p');
@@ -213,6 +269,7 @@
     ensureCompareNav();
     ensureBundleCard();
     homeOtherUpdates();
+    homeHeroComparison();
     homeSpotlight();
     ensureSpecialized();
     ensureFeatures();
