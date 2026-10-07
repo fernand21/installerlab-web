@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Web to EXE for Windows — URL or Local HTML to WebView2 App | InstallerLab v4</title>
+<meta name="description" content="InstallerLab v4 converts a website URL or local HTML application into a Windows WebView2 desktop app and can package the same project as a single-file Web-to-EXE app, Setup EXE, MSI or WiX Burn Bundle.">
+<meta name="keywords" content="web to exe, website to exe, html to exe, url to exe, WebView2 app builder, website desktop app Windows, local HTML to Windows app, web app installer, InstallerLab v4">
+<meta name="robots" content="index,follow,max-snippet:-1">
+<link rel="canonical" href="https://installerlab.website/web-to-exe/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="InstallerLab v4 Web-to-EXE — Website to Windows App">
+<meta property="og:description" content="Turn a URL or local HTML project into a WebView2 Windows app, then create EXE, MSI or Bundle deployment from the same InstallerLab project.">
+<meta property="og:url" content="https://installerlab.website/web-to-exe/">
+<link rel="icon" href="../assets/icon.png">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/seo-boost.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"InstallerLab v4 Web-to-EXE documentation","dateModified":"2026-10-07","mainEntityOfPage":"https://installerlab.website/web-to-exe/","about":{"@type":"SoftwareApplication","name":"InstallerLab","softwareVersion":"4.0.0","applicationCategory":"DeveloperApplication","operatingSystem":"Windows"}}</script>
+</head>
+<body>
+<header class="header"><nav class="nav shell"><a class="brand" href="../"><img src="../assets/icon.png" alt="InstallerLab">InstallerLab</a><div class="links"><a href="../features/">Features</a><a href="../docs/">Documentation</a><a href="../comparison/">Compare</a><a href="../web-to-exe/">Web-to-EXE</a><a href="../download/">Download</a></div><div class="actions"><a class="button primary" href="../download/">InstallerLab v4</a></div></nav></header>
+<main class="seo-page"><div class="seo-shell">
+<div class="seo-breadcrumbs"><a href="../">InstallerLab</a> / Web-to-EXE</div>
+
+<section class="seo-hero">
+<span class="seo-kicker">New in InstallerLab v4</span>
+<h1>Turn a URL or local HTML app into a Windows desktop application — then deploy it from the same project.</h1>
+<p class="seo-lede">Web-to-EXE is a first-class InstallerLab project type. Define a remote URL or a local web application, configure the Windows WebView2 host, and use the same editable FSS project to create a single-file Web-to-EXE application, Setup EXE, MSI or WiX Burn Bundle.</p>
+<div class="seo-proof"><span>URL → EXE</span><span>Local HTML → EXE</span><span>WebView2</span><span>Setup EXE</span><span>MSI</span><span>Bundle</span><span>FSS</span></div>
+<div class="seo-cta"><a class="button primary" href="../docs/#webtoexe-v4">Read the full documentation →</a><a class="button" href="../comparison/#webtoexe-difference">Compare the workflow</a></div>
+</section>
+
+<section>
+<h2>One project, two jobs: create the desktop app and create its installer.</h2>
+<div class="seo-grid">
+<article class="seo-card"><h3>Remote website</h3><p>Point the project at a web URL. InstallerLab writes the WebView2 host configuration and prepares the Windows application.</p></article>
+<article class="seo-card"><h3>Local HTML application</h3><p>Use a local application folder containing <code>index.html</code>. The local web payload becomes part of the generated Windows application.</p></article>
+<article class="seo-card"><h3>Single-file Web-to-EXE</h3><p>The prepared WebView2 application can be wrapped into a single-file output through InstallerLab's portable engine.</p></article>
+<article class="seo-card"><h3>Installer targets</h3><p>The same WebToExe project can generate Setup EXE, MSI or Bundle without first exporting to another authoring tool.</p></article>
+<article class="seo-card"><h3>WebView2 prerequisite</h3><p>EXE and Bundle workflows can stage the official Microsoft WebView2 Evergreen Bootstrapper when the runtime must be installed.</p></article>
+<article class="seo-card"><h3>Project-aware output</h3><p>InstallerLab disables classic Portable and B4J Portable targets for WebToExe projects and exposes only the targets that match this project type.</p></article>
+</div>
+</section>
+
+<section>
+<h2>Control how the web application behaves inside Windows.</h2>
+<table class="seo-table"><thead><tr><th>Setting</th><th>Purpose</th></tr></thead><tbody>
+<tr><td>Web URL</td><td>Remote application or site loaded by the WebView2 host.</td></tr>
+<tr><td>Local web app folder</td><td>Optional local HTML application whose entry point is <code>index.html</code>.</td></tr>
+<tr><td>Theme</td><td>Follow system, Light or Dark.</td></tr>
+<tr><td>Navigation toolbar</td><td>Show or hide the host navigation UI.</td></tr>
+<tr><td>External links</td><td>Choose whether external navigation opens in the system browser.</td></tr>
+<tr><td>Block PWA install</td><td>Prevent the hosted website from presenting its own PWA installation path inside the desktop host.</td></tr>
+<tr><td>Hide elements</td><td>Hide DOM elements by ID, CSS class or CSS selector.</td></tr>
+<tr><td>Disable elements</td><td>Disable DOM elements by ID, CSS class or CSS selector.</td></tr>
+</tbody></table>
+</section>
+
+<section>
+<h2>Build-target matrix for WebToExe.</h2>
+<table class="seo-table"><thead><tr><th>Target</th><th>WebToExe</th><th>Notes</th></tr></thead><tbody>
+<tr><td>Web-to-EXE single-file app</td><td>✓</td><td>Prepared WebView2 application wrapped as one executable.</td></tr>
+<tr><td>Setup EXE</td><td>✓</td><td>Installer around the prepared WebView2 payload.</td></tr>
+<tr><td>MSI</td><td>✓</td><td>Windows Installer package. A standalone MSI cannot safely chain the WebView2 EXE prerequisite.</td></tr>
+<tr><td>Bundle</td><td>✓</td><td>WiX Burn chain can include the WebView2 bootstrapper and the main MSI.</td></tr>
+<tr><td>Classic Portable</td><td>—</td><td>Not the WebToExe target; classic Portable belongs to Application projects.</td></tr>
+<tr><td>B4J Portable</td><td>—</td><td>Dedicated B4J workflow, not applicable to WebToExe projects.</td></tr>
+</tbody></table>
+</section>
+
+<section>
+<h2>Community and PRO behavior.</h2>
+<div class="seo-two">
+<div class="seo-panel"><h3>Community</h3><p>URL-to-single-file Web-to-EXE conversion is available without the advanced Web-to-EXE restrictions.</p></div>
+<div class="seo-panel"><h3>PRO</h3><p>Local HTML applications, DOM element customization and WebToExe Setup EXE/MSI/Bundle installer targets require InstallerLab PRO.</p></div>
+</div>
+</section>
+
+<section id="why-different">
+<h2>Why this is different from a “Web Installer”.</h2>
+<p class="seo-lede">A traditional web installer is an installer bootstrapper that downloads installation resources from the Internet. Web-to-EXE solves a different problem: it turns the web application itself into a Windows desktop application and then packages that application.</p>
+<div class="seo-grid">
+<article class="seo-card"><h3>InstallerLab v4</h3><p><strong>URL / local HTML → WebView2 Windows app → EXE / Setup / MSI / Bundle</strong> inside the same project model.</p></article>
+<article class="seo-card"><h3>Traditional installer workflow</h3><p>An existing Windows application or installer is packaged or downloaded. The installer tool does not necessarily create the desktop application from the website.</p></article>
+</div>
+<p>See the <a href="../comparison/#webtoexe-difference">comparison page</a> for the official sources reviewed on October 7, 2026.</p>
+</section>
+
+<section>
+<h2>FSS remains the source of truth.</h2>
+<pre class="code"><code>[Setup]
+ProjectType=WebToExe
+AppName=My Web App
+AppVersion=1.0.0
+OutputDir=C:\Builds
+
+[WebApp]
+Url=https://example.com
+Theme=System
+ShowToolbar=True
+BlockPwaInstall=True
+AllowExternalLinks=True</code></pre>
+<p class="seo-lede">The exact stored keys are managed by InstallerLab. Advanced users can still inspect and version the FSS project like the rest of the InstallerLab workflow.</p>
+</section>
+
+<section class="seo-faq">
+<h2>Web-to-EXE FAQ</h2>
+<details open><summary>Does InstallerLab just create a shortcut to a website?</summary><p>No. The v4 workflow prepares a Windows WebView2 host and its configuration, then builds the requested Windows artifact.</p></details>
+<details><summary>Can I package local HTML instead of a public URL?</summary><p>Yes. A local web application folder can be used for PRO WebToExe projects.</p></details>
+<details><summary>Can one project generate both the app and its installer?</summary><p>Yes. That is the key v4 workflow: the WebToExe project defines the web application and also drives its supported deployment targets.</p></details>
+<details><summary>Why is Bundle preferred when WebView2 may be missing?</summary><p>Bundle can chain the WebView2 bootstrapper before the main MSI. A standalone MSI is not designed to safely chain an EXE prerequisite.</p></details>
+</section>
+
+<section><div class="seo-panel"><h2>From web application to Windows deployment without changing project systems.</h2><p class="seo-lede">InstallerLab v4 combines web application wrapping and Windows installer generation in the same visual/FSS workspace.</p><div class="seo-cta"><a class="button primary" href="../docs/#webtoexe-v4">Open v4 documentation →</a><a class="button" href="../comparison/">Compare InstallerLab v4</a></div></div></section>
+</div></main>
+<footer class="footer"><div class="shell legal">Microsoft, Windows, WebView2, WiX and other third-party names are marks or projects of their respective owners. InstallerLab is independent.</div></footer>
+<script src="../assets/donate-nav.js"></script>
+</body></html>
