@@ -7,7 +7,7 @@
 
   function normalizeVisibleVersion(){
     document.querySelectorAll('h1,h2,h3,p,span,b,strong').forEach(el=>{
-      if(el.children.length) return;
+      if(el.children.length || el.closest('.release-live,.release-history,.release-history-card')) return;
       const t=el.textContent||'';
       const n=t
         .replace(/InstallerLab v3\.5(?:\.0)?/g,'InstallerLab v4.0.0')
