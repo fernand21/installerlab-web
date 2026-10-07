@@ -268,8 +268,7 @@
 
     const footerDonate = [...document.querySelectorAll('.footer a')].find(a => /donate|donar|pro/i.test(a.textContent));
     if (footerDonate) footerDonate.href = projectUrl('donate/');
-
-    renderDonationPage();
+    // Donation page is rendered by donate-page.js to avoid competing forms.
   }
 
   function scheduleFix() {
