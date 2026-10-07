@@ -11,7 +11,7 @@ This release keeps the v3 packaging architecture — FSS projects, Application p
 - **Local HTML application support** for projects with a local web folder containing index.html.
 - **Dedicated Web-to-EXE output** that packages the prepared WebView2 application as a single-file executable through InstallerLab's portable engine.
 - **Web application installer targets** for Setup EXE, MSI and Bundle.
-- **Automatic WebView2 prerequisite preparation for EXE and Bundle builds** using Microsoft's Evergreen Bootstrapper.
+- **Self-contained WebView2 runtime** — the generated Windows application includes the runtime it needs; the destination PC does not require a separate WebView2 installation.
 - **Web UI controls** for toolbar visibility, external-link behavior, PWA-install blocking and System/Light/Dark web themes.
 - **Element customization rules** to hide or disable web elements by ID, CSS class or CSS selector.
 - **Project-aware build target matrix** extended to WebToExe alongside Application, OfficeAddin and QgisPlugin.
@@ -39,6 +39,15 @@ A Web-to-EXE project can point to a remote web URL or use a local web applicatio
 
 InstallerLab stages the WebView2 runtime host and applies the project configuration before creating the requested output.
 
+## Online and offline WebToExe modes
+
+A WebToExe project can work in two distinct ways:
+
+- **Online URL mode** — the desktop application loads a remote web application. Changes deployed on the server appear without rebuilding the Windows package.
+- **Local HTML mode** — HTML, CSS, JavaScript, images and other local assets are packaged with the application. The UI can run without Internet access when its own logic does not depend on remote APIs or resources.
+
+Both modes use the self-contained WebView2 runtime included with the generated application.
+
 ## Web application build targets
 
 | WebToExe target | Available |
@@ -50,9 +59,20 @@ InstallerLab stages the WebView2 runtime host and applies the project configurat
 | Classic Portable target | — |
 | B4J Portable target | — |
 
-For EXE and Bundle installer builds, InstallerLab can stage the official Microsoft WebView2 Evergreen Bootstrapper so the generated package can handle the WebView2 prerequisite when needed.
+WebView2 is packaged as part of the generated application. The destination PC does not need to install WebView2 separately, and the Setup EXE, MSI and Bundle targets package the same self-contained WebToExe application.
 
-A standalone MSI cannot safely chain an EXE prerequisite, so InstallerLab reports that EXE or Bundle is the preferred target when automatic WebView2 installation is required.
+## Interface customization
+
+InstallerLab can adapt an existing website inside the desktop host without requiring changes to the original website source. Rules can:
+
+- hide elements by DOM ID;
+- hide elements by CSS class;
+- hide elements by CSS selector;
+- disable elements by DOM ID;
+- disable elements by CSS class;
+- disable elements by CSS selector.
+
+This makes it possible to expose only the parts of a web application that belong in the desktop experience.
 
 ## Community and PRO behavior
 
@@ -63,7 +83,7 @@ For Web-to-EXE projects:
 - **URL-to-single-file Web-to-EXE conversion is available without the advanced Web-to-EXE restrictions.**
 - **Local HTML projects, element customization and Web-to-EXE Setup EXE/MSI/Bundle installer targets require InstallerLab PRO.**
 
-Existing licensing rules for other InstallerLab features remain unchanged.
+Existing licensing rules for other InstallerLab features remain unchanged. InstallerLab Community remains free; under the current site policy, an optional contribution of **US$10 or more** may request one-machine PRO activation after manual verification.
 
 ## Workspace and editor improvements
 
