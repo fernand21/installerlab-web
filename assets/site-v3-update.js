@@ -269,8 +269,7 @@
     ensureCompareNav();
     ensureBundleCard();
     homeOtherUpdates();
-    homeHeroComparison();
-    homeSpotlight();
+    // Comparison is now embedded directly in site.js so it cannot be hidden by cache or render order.
     ensureSpecialized();
     ensureFeatures();
     ensureFaqSupport();
