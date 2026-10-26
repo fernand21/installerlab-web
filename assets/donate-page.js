@@ -159,7 +159,7 @@
 
       <section id="pro" class="license-card">
         <div><span class="donate-badge">PRO</span><h2>${t.pro}</h2><p>${t.proText}</p><div class="license-machine"><span class="icon">🔑</span><div><strong>${es?'Clave de activación por máquina':'Per-machine activation key'}</strong><span>${t.proNote}</span></div></div></div>
-        <a class="button" href="#supporter-request">${es?'Solicitar certificado / clave PRO':'Request certificate / PRO key'}</a>
+        <div class="activation-actions"><a class="button primary" data-pro-contact href="#">${es?'Obtener PRO · US$10+':'Get PRO · US$10+'}</a><a class="button" href="#supporter-request">${es?'Ya pagué / reclamar clave':'Already paid / claim key'}</a></div>
       </section>
 
       <section id="supporter-request" class="activation-card">
@@ -225,6 +225,12 @@
     };
     amount?.addEventListener('input',syncEligibility);
     kind?.addEventListener('change',()=>{if(machine)machine.required=kind.value==='pro';});
+    if(new URLSearchParams(location.search).get('pro')==='1' || location.hash==='#pro'){
+      if(amount) amount.value='10';
+      if(kind) kind.value='pro';
+      if(machine) machine.required=true;
+      if(status) status.textContent=t.eligible;
+    }
 
     if(file){
       file.addEventListener('change',()=>{
