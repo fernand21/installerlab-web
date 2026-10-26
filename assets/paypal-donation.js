@@ -41,6 +41,10 @@
       if (kind) kind.value = 'pro';
       if (machine) machine.required = true;
       window.open(PAYPAL_PRO, '_blank', 'noopener,noreferrer');
+      window.setTimeout(() => {
+        document.getElementById('supporter-request')?.scrollIntoView({ behavior:'smooth', block:'start' });
+        if (history.replaceState) history.replaceState(null, '', location.pathname + location.search + '#supporter-request');
+      }, 150);
       return;
     }
 
