@@ -1,5 +1,6 @@
 (() => {
   const PAYPAL = 'https://paypal.me/OfficeRibbon';
+  const PAYPAL_PRO = 'https://paypal.me/OfficeRibbon/10USD';
   const isSpanish = () => (localStorage.getItem('il-lang') || 'es').toLowerCase() === 'es';
   let queued = false;
 
@@ -10,20 +11,39 @@
       a.rel = 'noopener noreferrer';
       a.title = isSpanish() ? 'Donar con PayPal' : 'Support with PayPal';
     });
+    document.querySelectorAll('[data-pro-contact]').forEach(a => {
+      a.href = PAYPAL_PRO;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.title = isSpanish() ? 'Obtener PRO desde US$10' : 'Get PRO from US$10';
+    });
 
     const note = document.querySelector('.donate-manual-note');
     if (note) {
       note.textContent = isSpanish()
-        ? 'Los aportes se realizan mediante PayPal. Después de donar, conserva el comprobante y usa el formulario de abajo para solicitar tu certificado permanente y, si aplica, tu activación PRO.'
-        : 'Contributions are made through PayPal. After donating, keep your receipt and use the form below to request your permanent certificate and, when applicable, your PRO activation.';
+        ? 'Puedes hacer un aporte libre o elegir PRO desde US$10. Después del pago conserva el comprobante y usa el formulario de abajo para solicitar tu certificado o activación PRO.'
+        : 'You can make a free-form contribution or choose PRO from US$10. After payment, keep the receipt and use the form below to request your certificate or PRO activation.';
     }
   }
 
   document.addEventListener('click', e => {
-    const a = e.target.closest?.('[data-support-contact]');
-    if (!a) return;
+    const pro = e.target.closest?.('[data-pro-contact]');
+    const support = e.target.closest?.('[data-support-contact]');
+    if (!pro && !support) return;
     e.preventDefault();
     e.stopImmediatePropagation();
+
+    if (pro) {
+      const amount = document.getElementById('supporter-amount');
+      const kind = document.getElementById('supporter-kind');
+      const machine = document.getElementById('supporter-machine');
+      if (amount) amount.value = '10';
+      if (kind) kind.value = 'pro';
+      if (machine) machine.required = true;
+      window.open(PAYPAL_PRO, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
     window.open(PAYPAL, '_blank', 'noopener,noreferrer');
   }, true);
 
