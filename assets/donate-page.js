@@ -28,6 +28,12 @@
       name:'Nombre o alias para el certificado',
       reference:'Referencia / detalle del aporte',
       email:'Correo de contacto',
+      amount:'Importe del aporte (USD)',
+      kind:'Tipo de solicitud',
+      supportOnly:'Supporter — aporte desde US$1',
+      proRequest:'PRO — aporte desde US$10 + certificado',
+      eligible:'Tu aporte de US$10 o más califica para PRO. Se seleccionó PRO automáticamente.',
+      machineRequired:'Para solicitar PRO, ingresa el Machine Code.',
       receipt:'Comprobante de PayPal',
       receiptHelp:'PNG, JPG o PDF. Máximo 10 MB.',
       machine:'Machine Code (necesario para generar la clave PRO)',
@@ -65,6 +71,12 @@
       name:'Name or alias for the certificate',
       reference:'Contribution reference / details',
       email:'Contact email',
+      amount:'Contribution amount (USD)',
+      kind:'Request type',
+      supportOnly:'Supporter — contribution from US$1',
+      proRequest:'PRO — contribution from US$10 + certificate',
+      eligible:'Your contribution of US$10 or more qualifies for PRO. PRO was selected automatically.',
+      machineRequired:'Enter the Machine Code to request PRO.',
       receipt:'PayPal receipt',
       receiptHelp:'PNG, JPG or PDF. Maximum 10 MB.',
       machine:'Machine Code (required to generate the PRO key)',
@@ -155,11 +167,14 @@
         <form class="activation-form" id="supporter-form" action="${FORM_ENDPOINT}" method="POST" enctype="multipart/form-data">
           <input type="hidden" name="_subject" value="${es?'InstallerLab - Solicitud de certificado / clave PRO':'InstallerLab - Certificate / PRO key request'}">
           <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_autoresponse" value="${es?'Gracias por apoyar InstallerLab. Recibimos tu solicitud. Cualquier aporte de US$10 o más califica para una licencia PRO tras la verificación. Si solicitaste PRO, revisaremos el comprobante y el Machine Code y enviaremos la clave a este correo.':'Thank you for supporting InstallerLab. We received your request. Any contribution of US$10 or more qualifies for one PRO license after verification. If you requested PRO, we will review the receipt and Machine Code and send the activation key to this email address.'}">
           <input type="hidden" name="_next" value="https://installerlab.website/donate/?sent=1&thanks=1">
           <input type="hidden" name="_url" value="https://installerlab.website/donate/">
           <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="display:none">
           <div class="form-field"><label for="supporter-name">${t.name}</label><input id="supporter-name" name="${es?'Nombre o alias':'Name or alias'}" maxlength="80" required></div>
           <div class="form-field"><label for="supporter-email">${t.email}</label><input id="supporter-email" name="email" type="email" maxlength="160" autocomplete="email" required placeholder="${es?'tu@email.com':'you@email.com'}"></div>
+          <div class="form-field"><label for="supporter-amount">${t.amount}</label><input id="supporter-amount" name="${es?'Importe del aporte (USD)':'Contribution amount (USD)'}" type="number" min="0.01" step="0.01" required><span class="form-help">${es?'US$10 o más califica para una licencia PRO tras verificación.':'US$10 or more qualifies for one PRO license after verification.'}</span></div>
+          <div class="form-field"><label for="supporter-kind">${t.kind}</label><select id="supporter-kind" name="${es?'Tipo de solicitud':'Request type'}"><option value="supporter">${t.supportOnly}</option><option value="pro">${t.proRequest}</option></select></div>
           <div class="form-field"><label for="supporter-ref">${t.reference}</label><input id="supporter-ref" name="${es?'Referencia PayPal':'PayPal reference'}" maxlength="140" placeholder="PayPal / transaction / date"></div>
           <div class="form-field"><label for="supporter-receipt">${t.receipt}</label><input id="supporter-receipt" name="attachment" type="file" required accept="image/png,image/jpeg,application/pdf"><span class="form-help">${t.receiptHelp}</span></div>
           <div class="form-field full"><label for="supporter-machine">${t.machine}</label><textarea id="supporter-machine" name="Machine Code" rows="3" placeholder="${es?'Déjalo vacío si solo solicitas el certificado Supporter':'Leave blank if you only request the Supporter certificate'}"></textarea></div>
@@ -186,8 +201,29 @@
     const form=document.getElementById('supporter-form'); if(!form || form.dataset.wired==='1') return;
     form.dataset.wired='1';
     const file=document.getElementById('supporter-receipt');
+    const amount=document.getElementById('supporter-amount');
+    const kind=document.getElementById('supporter-kind');
+    const machine=document.getElementById('supporter-machine');
     const status=document.getElementById('supporter-status');
     const submit=document.getElementById('supporter-submit');
+
+    const syncEligibility=()=>{
+      if(!amount || !kind) return;
+      const raw=amount.value.trim();
+      if(!raw) return;
+      const n=Number(raw);
+      if(!Number.isFinite(n)) return;
+      if(n>=10){
+        kind.value='pro';
+        if(machine) machine.required=true;
+        if(status) status.textContent=t.eligible;
+      }else{
+        if(kind.value==='pro') kind.value='supporter';
+        if(machine) machine.required=false;
+      }
+    };
+    amount?.addEventListener('input',syncEligibility);
+    kind?.addEventListener('change',()=>{if(machine)machine.required=kind.value==='pro';});
 
     if(file){
       file.addEventListener('change',()=>{
@@ -205,6 +241,12 @@
     form.addEventListener('submit',e=>{
       if(!form.reportValidity()){ e.preventDefault(); return; }
       const selected=file&&file.files&&file.files[0];
+      if(kind?.value==='pro' && !machine?.value?.trim()){
+        e.preventDefault();
+        if(status) status.textContent=t.machineRequired;
+        machine?.focus();
+        return;
+      }
       if(!selected){
         e.preventDefault();
         if(status) status.textContent=es?'Adjunta el comprobante de PayPal antes de enviar la solicitud.':'Attach the PayPal receipt before sending the request.';
