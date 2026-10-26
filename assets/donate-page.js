@@ -198,6 +198,7 @@
   }
 
   function wireForm(es){
+    const t=copy(es);
     const form=document.getElementById('supporter-form'); if(!form || form.dataset.wired==='1') return;
     form.dataset.wired='1';
     const file=document.getElementById('supporter-receipt');
