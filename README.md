@@ -1,8 +1,8 @@
-# InstallerLab v4 — Windows Deployment + Web-to-EXE
+# InstallerLab v5.0.0 — Refreshed Interface & Maintenance
 
 InstallerLab is a **visual Windows deployment builder** that keeps an editable **FSS** project as the source of truth.
 
-Version 4.0.0 adds a first-class **WebToExe** project type: start from a remote URL or local HTML application, prepare a self-contained Windows WebView2 desktop app, and create supported deployment outputs from the same project.
+Version 5.0.0 brings a refreshed graphical interface and minor maintenance adjustments, while retaining the existing functionality. Version 4 introduced a first-class **WebToExe** project type: start from a remote URL or local HTML application, prepare a self-contained Windows WebView2 desktop app, and create supported deployment outputs from the same project.
 
 Website: https://installerlab.website/
 
@@ -14,7 +14,7 @@ Comparison: https://installerlab.website/comparison/
 
 Releases: https://github.com/fernand21/installerlab-web/releases
 
-## InstallerLab v4 highlights
+## Existing capabilities
 
 - **WebToExe** ProjectType
 - URL → Windows WebView2 application
