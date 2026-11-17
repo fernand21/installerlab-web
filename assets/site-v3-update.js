@@ -219,7 +219,7 @@
         actions.appendChild(compare);
       }
       compare.href=url('comparison/');
-      compare.textContent=isES()?'Comparar v4 →':'Compare v4 →';
+      compare.textContent=isES()?'Comparar v5 →':'Compare v5 →';
     }
   }
 
