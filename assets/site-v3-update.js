@@ -10,10 +10,10 @@
       if(el.children.length || el.closest('.release-live,.release-history,.release-history-card')) return;
       const t=el.textContent||'';
       const n=t
-        .replace(/InstallerLab v3\.5(?:\.0)?/g,'InstallerLab v4.0.0')
-        .replace(/InstallerLab v3\.1(?:\.0)?/g,'InstallerLab v4.0.0')
-        .replace(/InstallerLab v3\.0\.0/g,'InstallerLab v4.0.0')
-        .replace(/InstallerLab v3\b/g,'InstallerLab v4.0.0');
+        .replace(/InstallerLab v3\.5(?:\.0)?/g,'InstallerLab v5.0.0')
+        .replace(/InstallerLab v3\.1(?:\.0)?/g,'InstallerLab v5.0.0')
+        .replace(/InstallerLab v3\.0\.0/g,'InstallerLab v5.0.0')
+        .replace(/InstallerLab v3\b/g,'InstallerLab v5.0.0');
       if(n!==t) el.textContent=n;
     });
   }
@@ -72,12 +72,12 @@
     }
     s.innerHTML=isES()?`
       <div class="shell">
-        <div class="v4-badge">InstallerLab v4.0.0 · Web-to-EXE</div>
+        <div class="v4-badge">InstallerLab v5.0.0 · Web-to-EXE</div>
         <div class="v4-head">
           <div>
             <span class="eyebrow">Una diferencia que se ve desde la portada</span>
             <h2>De una web a una app Windows y a su instalador, en el mismo proyecto.</h2>
-            <p>InstallerLab v4.0.0 puede trabajar con una URL en vivo o con HTML local. Crea la aplicación Windows con <strong>WebView2 autocontenido</strong>, sin instalar WebView2 aparte, y desde el mismo FSS genera Web-to-EXE, Setup EXE, MSI o Bundle.</p>
+            <p>InstallerLab v5.0.0 puede trabajar con una URL en vivo o con HTML local. Crea la aplicación Windows con <strong>WebView2 autocontenido</strong>, sin instalar WebView2 aparte, y desde el mismo FSS genera Web-to-EXE, Setup EXE, MSI o Bundle.</p>
           </div>
           <div class="v4-actions"><a class="button primary" href="${url('web-to-exe/')}">Ver Web-to-EXE →</a><a class="button" href="${url('comparison/')}">Comparación completa →</a></div>
         </div>
@@ -102,7 +102,7 @@
         <div class="v4-matrix-wrap">
           <div class="v4-matrix-title"><b>Comparación rápida</b><span>Fuentes oficiales revisadas en octubre de 2026.</span></div>
           <table class="v4-matrix">
-            <thead><tr><th>Capacidad</th><th class="best">InstallerLab v4.0.0</th><th>Inno Setup</th><th>WiX</th><th>Advanced Installer</th><th>NSIS</th><th>InstallShield</th></tr></thead>
+            <thead><tr><th>Capacidad</th><th class="best">InstallerLab v5.0.0</th><th>Inno Setup</th><th>WiX</th><th>Advanced Installer</th><th>NSIS</th><th>InstallShield</th></tr></thead>
             <tbody>
               <tr><td>URL/HTML → app Windows</td><td class="best">✓ Integrado</td><td>?</td><td>?</td><td>◐ Nativefier + empaquetado</td><td>?</td><td>?</td></tr>
               <tr><td>Mismo proyecto: app + EXE/MSI/Bundle</td><td class="best">✓</td><td>?</td><td>?</td><td>◐ pasos separados</td><td>?</td><td>?</td></tr>
@@ -116,12 +116,12 @@
       </div>`
       :`
       <div class="shell">
-        <div class="v4-badge">InstallerLab v4.0.0 · Web-to-EXE</div>
+        <div class="v4-badge">InstallerLab v5.0.0 · Web-to-EXE</div>
         <div class="v4-head">
           <div>
             <span class="eyebrow">A difference worth showing on the home page</span>
             <h2>From a website to a Windows app and its installer, in the same project.</h2>
-            <p>InstallerLab v4.0.0 can use a live URL or local HTML. It creates the Windows application with a <strong>self-contained WebView2 runtime</strong>, with no separate WebView2 installation, then builds Web-to-EXE, Setup EXE, MSI or Bundle from the same FSS.</p>
+            <p>InstallerLab v5.0.0 can use a live URL or local HTML. It creates the Windows application with a <strong>self-contained WebView2 runtime</strong>, with no separate WebView2 installation, then builds Web-to-EXE, Setup EXE, MSI or Bundle from the same FSS.</p>
           </div>
           <div class="v4-actions"><a class="button primary" href="${url('web-to-exe/')}">Explore Web-to-EXE →</a><a class="button" href="${url('comparison/')}">Full comparison →</a></div>
         </div>
@@ -146,7 +146,7 @@
         <div class="v4-matrix-wrap">
           <div class="v4-matrix-title"><b>Quick comparison</b><span>Official sources reviewed in October 2026.</span></div>
           <table class="v4-matrix">
-            <thead><tr><th>Capability</th><th class="best">InstallerLab v4.0.0</th><th>Inno Setup</th><th>WiX</th><th>Advanced Installer</th><th>NSIS</th><th>InstallShield</th></tr></thead>
+            <thead><tr><th>Capability</th><th class="best">InstallerLab v5.0.0</th><th>Inno Setup</th><th>WiX</th><th>Advanced Installer</th><th>NSIS</th><th>InstallShield</th></tr></thead>
             <tbody>
               <tr><td>URL/HTML → Windows app</td><td class="best">✓ Integrated</td><td>?</td><td>?</td><td>◐ Nativefier + packaging</td><td>?</td><td>?</td></tr>
               <tr><td>Same project: app + EXE/MSI/Bundle</td><td class="best">✓</td><td>?</td><td>?</td><td>◐ separate steps</td><td>?</td><td>?</td></tr>
@@ -177,7 +177,7 @@
         <a href="${url('comparison/')}">Ver completa →</a>
       </div>
       <div class="v4-hero-compare-products">
-        <b>InstallerLab v4.0.0</b><span>vs</span><span>Inno Setup</span><span>WiX</span><span>Advanced Installer</span><span>NSIS</span><span>InstallShield</span>
+        <b>InstallerLab v5.0.0</b><span>vs</span><span>Inno Setup</span><span>WiX</span><span>Advanced Installer</span><span>NSIS</span><span>InstallShield</span>
       </div>
       <div class="v4-hero-compare-rows">
         <div><span>Web → app Windows</span><strong>✓ Integrado</strong><em>otros: no integrado / externo</em></div>
@@ -191,7 +191,7 @@
         <a href="${url('comparison/')}">View full →</a>
       </div>
       <div class="v4-hero-compare-products">
-        <b>InstallerLab v4.0.0</b><span>vs</span><span>Inno Setup</span><span>WiX</span><span>Advanced Installer</span><span>NSIS</span><span>InstallShield</span>
+        <b>InstallerLab v5.0.0</b><span>vs</span><span>Inno Setup</span><span>WiX</span><span>Advanced Installer</span><span>NSIS</span><span>InstallShield</span>
       </div>
       <div class="v4-hero-compare-rows">
         <div><span>Web → Windows app</span><strong>✓ Integrated</strong><em>others: not integrated / external</em></div>
@@ -205,10 +205,10 @@
     if(document.body.dataset.page!=='home') return;
     const lead=document.querySelector('.hero .hero-grid>div>p');
     if(lead) lead.textContent=isES()
-      ?'InstallerLab v4.0.0 reúne deployment Windows y Web-to-EXE en un mismo espacio visual: Application, Office Add-ins, QGIS Plugins y aplicaciones web online u offline desde FSS.'
-      :'InstallerLab v4.0.0 brings Windows deployment and Web-to-EXE into one visual workspace: Application, Office Add-ins, QGIS Plugins and online/offline web applications from FSS.';
+      ?'InstallerLab v5.0.0 reúne deployment Windows y Web-to-EXE en un mismo espacio visual: Application, Office Add-ins, QGIS Plugins y aplicaciones web online u offline desde FSS.'
+      :'InstallerLab v5.0.0 brings Windows deployment and Web-to-EXE into one visual workspace: Application, Office Add-ins, QGIS Plugins and online/offline web applications from FSS.';
     const strip=document.querySelector('.build-strip');
-    if(strip) strip.innerHTML='<i class="ok"></i> InstallerLab v4.0.0 · EXE · Portable · MSI · Bundle · Office · QGIS · Web-to-EXE';
+    if(strip) strip.innerHTML='<i class="ok"></i> InstallerLab v5.0.0 · EXE · Portable · MSI · Bundle · Office · QGIS · Web-to-EXE';
     const actions=document.querySelector('.hero-actions');
     if(actions){
       let compare=actions.querySelector('[data-v4-compare-hero]');
@@ -233,16 +233,16 @@
       section.id='home-v4-specialized';
       app.appendChild(section);
     }
-    section.innerHTML=isES()?`<div class="shell"><div class="section-head"><span class="eyebrow">ProjectTypes v4.0.0</span><h2>InstallerLab entiende qué estás distribuyendo.</h2></div><div class="grid"><article class="card">${icon}<h3>Application</h3><p>Setup EXE, Portable, B4J Portable, MSI y Bundle.</p></article><article class="card">${icon}<h3>Office Add-in</h3><p>Complementos VBA de Excel, Word y PowerPoint con MSI y Bundle.</p></article><article class="card">${icon}<h3>QGIS Plugin</h3><p>Plugins Python desde carpeta/ZIP con perfil y PluginId.</p></article><article class="card">${icon}<h3>WebToExe</h3><p>URL o HTML local → app Windows autocontenida → Web-to-EXE, Setup, MSI o Bundle.</p><a href="${url('web-to-exe/')}">Ver Web-to-EXE →</a></article></div></div>`
-      :`<div class="shell"><div class="section-head"><span class="eyebrow">v4.0.0 ProjectTypes</span><h2>InstallerLab understands what you are deploying.</h2></div><div class="grid"><article class="card">${icon}<h3>Application</h3><p>Setup EXE, Portable, B4J Portable, MSI and Bundle.</p></article><article class="card">${icon}<h3>Office Add-in</h3><p>Excel, Word and PowerPoint VBA add-ins with MSI and Bundle.</p></article><article class="card">${icon}<h3>QGIS Plugin</h3><p>Python plugins from folder/ZIP with profile and PluginId.</p></article><article class="card">${icon}<h3>WebToExe</h3><p>URL or local HTML → self-contained Windows app → Web-to-EXE, Setup, MSI or Bundle.</p><a href="${url('web-to-exe/')}">Explore Web-to-EXE →</a></article></div></div>`;
+    section.innerHTML=isES()?`<div class="shell"><div class="section-head"><span class="eyebrow">ProjectTypes v5.0.0</span><h2>InstallerLab entiende qué estás distribuyendo.</h2></div><div class="grid"><article class="card">${icon}<h3>Application</h3><p>Setup EXE, Portable, B4J Portable, MSI y Bundle.</p></article><article class="card">${icon}<h3>Office Add-in</h3><p>Complementos VBA de Excel, Word y PowerPoint con MSI y Bundle.</p></article><article class="card">${icon}<h3>QGIS Plugin</h3><p>Plugins Python desde carpeta/ZIP con perfil y PluginId.</p></article><article class="card">${icon}<h3>WebToExe</h3><p>URL o HTML local → app Windows autocontenida → Web-to-EXE, Setup, MSI o Bundle.</p><a href="${url('web-to-exe/')}">Ver Web-to-EXE →</a></article></div></div>`
+      :`<div class="shell"><div class="section-head"><span class="eyebrow">v5.0.0 ProjectTypes</span><h2>InstallerLab understands what you are deploying.</h2></div><div class="grid"><article class="card">${icon}<h3>Application</h3><p>Setup EXE, Portable, B4J Portable, MSI and Bundle.</p></article><article class="card">${icon}<h3>Office Add-in</h3><p>Excel, Word and PowerPoint VBA add-ins with MSI and Bundle.</p></article><article class="card">${icon}<h3>QGIS Plugin</h3><p>Python plugins from folder/ZIP with profile and PluginId.</p></article><article class="card">${icon}<h3>WebToExe</h3><p>URL or local HTML → self-contained Windows app → Web-to-EXE, Setup, MSI or Bundle.</p><a href="${url('web-to-exe/')}">Explore Web-to-EXE →</a></article></div></div>`;
   }
 
   function ensureFeatures(){
     if(document.body.dataset.page!=='features') return;
     const p=document.querySelector('.page-hero .shell p');
     if(p) p.textContent=isES()
-      ?'InstallerLab v4.0.0 combina Application, Office Add-in, QGIS Plugin y WebToExe con múltiples targets, CLI, SBOM, firma digital, Services, Analytics y FSS.'
-      :'InstallerLab v4.0.0 combines Application, Office Add-in, QGIS Plugin and WebToExe projects with multiple targets, CLI, SBOM, signing, Services, Analytics and FSS.';
+      ?'InstallerLab v5.0.0 combina Application, Office Add-in, QGIS Plugin y WebToExe con múltiples targets, CLI, SBOM, firma digital, Services, Analytics y FSS.'
+      :'InstallerLab v5.0.0 combines Application, Office Add-in, QGIS Plugin and WebToExe projects with multiple targets, CLI, SBOM, signing, Services, Analytics and FSS.';
   }
 
   function ensureFaqSupport(){
@@ -252,8 +252,8 @@
         const d=document.createElement('details');
         d.dataset.v4WebFaq='1';
         d.innerHTML=isES()
-          ?'<summary>¿Web-to-EXE necesita instalar WebView2?</summary><p>No. En InstallerLab v4.0.0 el runtime WebView2 se distribuye autocontenido con la aplicación. También puedes usar URL online o HTML local para una interfaz que funcione offline si no depende de servicios remotos.</p>'
-          :'<summary>Does Web-to-EXE require a separate WebView2 installation?</summary><p>No. InstallerLab v4.0.0 ships the WebView2 runtime self-contained with the application. You can also use an online URL or local HTML for an offline-capable UI when no remote services are required.</p>';
+          ?'<summary>¿Web-to-EXE necesita instalar WebView2?</summary><p>No. En InstallerLab v5.0.0 el runtime WebView2 se distribuye autocontenido con la aplicación. También puedes usar URL online o HTML local para una interfaz que funcione offline si no depende de servicios remotos.</p>'
+          :'<summary>Does Web-to-EXE require a separate WebView2 installation?</summary><p>No. InstallerLab v5.0.0 ships the WebView2 runtime self-contained with the application. You can also use an online URL or local HTML for an offline-capable UI when no remote services are required.</p>';
         faq.appendChild(d);
       }
     }
