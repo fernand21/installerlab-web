@@ -1,4 +1,4 @@
-# Documentación de InstallerLab v4.0
+# Documentación de InstallerLab v5.0.0
 
 InstallerLab v4 mantiene toda la arquitectura de deployment de v3.5 y añade **WebToExe** como un ProjectType de primera clase. La documentación pública ahora cubre el flujo completo **URL o HTML local → aplicación Windows WebView2 → Web-to-EXE / Setup EXE / MSI / Bundle**.
 
