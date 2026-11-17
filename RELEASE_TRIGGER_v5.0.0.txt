@@ -1,0 +1,1 @@
+Create InstallerLab v5.0.0 draft release using RELEASE_NOTES_v5.0.0.md. The maintainer will upload the binary assets and publish after reviewing them.
