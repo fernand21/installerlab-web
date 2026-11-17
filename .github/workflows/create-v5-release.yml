@@ -1,0 +1,34 @@
+name: Create InstallerLab v5.0.0 draft release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/create-v5-release.yml'
+      - 'RELEASE_TRIGGER_v5.0.0.txt'
+      - 'RELEASE_NOTES_v5.0.0.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create v5.0.0 as a draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v5.0.0 >/dev/null 2>&1; then
+            echo "Release v5.0.0 already exists; leaving it unchanged."
+          else
+            gh release create v5.0.0 \
+              --target main \
+              --title "InstallerLab v5.0.0 — Interface Refresh & Maintenance" \
+              --notes-file RELEASE_NOTES_v5.0.0.md \
+              --draft
+          fi
